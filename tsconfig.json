@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "lib": ["ES6", "dom", "dom.iterable"],
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "module": "ESNext",
+    "target": "ES6",
+    "outDir": "dist",
+  },
+  "include": [
+    "src/**/*",
+    "example/**/*"
+  ]
+}

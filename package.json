@@ -1,0 +1,16 @@
+{
+  "name": "jsonapi-client",
+  "version": "1.0.0",
+  "description": "### Installation * Not yet, this software is in development",
+  "main": "example/test.js",
+  "scripts": {
+    "build": "tsc --build && node post-build.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.6.2"
+  }
+}
