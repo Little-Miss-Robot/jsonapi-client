@@ -1,36 +1,31 @@
-import Model from "../src/Model";
+import Article from "./Article";
+import Config from "../src/Config";
+import MacroRegistry from "../src/MacroRegistry";
 
-// Example usage
-class User extends Model {
+Config.set('baseUrl', '');
+Config.set('clientId', '');
+Config.set('clientSecret', '');
+Config.set('username', '');
+Config.set('password', '');
 
-	public id: number;
-	public name: string;
-	public email: string;
+MacroRegistry.register('filterByTitle', (query, titles) => {
+	query.group('or', (query) => {
+		titles.forEach(title => {
+			query.where('title', '=', title);
+		});
+	});
+});
 
-	protected map(response: any) {
-		return {
-			id: response.user.id,
-			name: response.user.first_name,
-			email: 'reinvanoyen@gmail.com',
-		};
-	}
+MacroRegistry.register('sortByTitle', (query, titles) => {
+	query.sort('title', 'desc');
+});
 
-	// Additional method specific to UserModel
-	public greet(): string {
-		return `Hello, ${this.name}!`;
-	}
-}
+const articles = await Article.query<Article>().macro('sortByTitle').get();
 
-const response = {
-	user: {
-		id: 1,
-		first_name: 'Rein',
-		last_name: 'Van Oyen',
-	},
+const renderArticle = (article: Article) => {
+	console.log(article);
 };
 
-function sayHi(user: User) {
-	console.log(user.greet());
-}
-
-sayHi(new User(response));
+articles.forEach(article => {
+	renderArticle(article);
+});

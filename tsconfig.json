@@ -5,8 +5,8 @@
     "noEmitOnError": true,
     "removeComments": false,
     "sourceMap": true,
-    "module": "ESNext",
-    "target": "ES6",
+    "module": "esnext",
+    "target": "es2017",
     "outDir": "dist",
   },
   "include": [

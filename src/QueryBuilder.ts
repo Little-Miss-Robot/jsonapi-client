@@ -3,6 +3,9 @@ import ResponseModel from './ResponseModel';
 import { TMapper } from './types/mapper';
 import {makeQueryParams} from './utils/http';
 import {QueryBuilderInterface} from "./contracts/QueryBuilderInterface";
+import {TNullable} from "./types/nullable";
+import {TFilterOperator} from "./types/filter-operator";
+import MacroRegistry from "./MacroRegistry";
 
 /**
  * This class provides an easy-to-use interface to build queries
@@ -25,7 +28,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
      * The mapping function to use when we received the response
      * @private
      */
-    private readonly mapper: TMapper<T>;
+    private readonly mapper: TMapper<Promise<T>>;
 
     /**
      * @private
@@ -57,11 +60,17 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
     private lastFilterGroupId: number = 0;
 
     /**
+     *
+     * @private
+     */
+    private currentFilterGroupName: TNullable<string>;
+
+    /**
      * @param client
      * @param endpoint
      * @param mapper
      */
-    constructor(client: Client, endpoint: string, mapper: TMapper<T>) {
+    constructor(client: Client, endpoint: string, mapper: TMapper<Promise<T>>) {
         this.client = client;
         this.endpoint = endpoint;
         this.mapper = mapper;
@@ -70,9 +79,19 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
     }
 
     /**
+     * Executes a macro registered on MacroRegistry
+     * @param name
+     * @param args
+     */
+    public macro(name: string, ...args): this {
+        MacroRegistry.execute(name, this, args);
+        return this;
+    }
+
+    /**
      * Disabled caching on the request
      */
-    noCache() {
+    public noCache(): this {
         this.cachePolicy = 'no-store';
         return this;
     }
@@ -80,7 +99,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
     /**
      * Forces caching on the request
      */
-    cache() {
+    public cache(): this {
         this.cachePolicy = 'force-cache';
         return this;
     }
@@ -89,7 +108,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
      * Sets the locale of the query
      * @param locale
      */
-    setLocale(locale: string) {
+    public setLocale(locale: string): this {
         this.locale = locale;
         return this;
     }
@@ -99,7 +118,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
      * @param name
      * @param value
      */
-    param(name: string, value: string | number) {
+    public param(name: string, value: string | number): this {
         this.queryParams[name] = value;
         return this;
     }
@@ -108,7 +127,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
      * Registers multiple query params
      * @param params
      */
-    params(params: Record<string, string>) {
+    public params(params: Record<string, string>): this {
         Object.keys(params).forEach((key) => {
             this.param(key, params[key]);
         });
@@ -116,10 +135,40 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
     }
 
     /**
+     * @param path
+     * @param operator
+     * @param value
+     */
+    public where(path: string, operator: TFilterOperator, value: string): this {
+
+        if (operator === '=' && ! this.currentFilterGroupName) {
+            this.param(`filter[${path}]`, value);
+            return this;
+        }
+
+        const groupName = this.createFilterGroupName();
+        this.param(`filter[${groupName}][condition][path]`, path);
+        this.param(`filter[${groupName}][condition][operator]`, operator);
+        this.param(`filter[${groupName}][condition][value]`, value);
+        this.assignFilterGroupToCurrentFilterGroup(groupName);
+        return this;
+    }
+
+    /**
+     * @param groupName
+     * @private
+     */
+    private assignFilterGroupToCurrentFilterGroup(groupName) {
+        if (this.currentFilterGroupName) {
+            this.param(`filter[${groupName}][condition][memberOf]`, this.currentFilterGroupName);
+        }
+    }
+
+    /**
      * Registers includes (as described by JSON:API)
      * @param includes
      */
-    include(includes: string[]) {
+    public include(includes: string[]): this {
         this.param('include', includes.join(','));
         return this;
     }
@@ -127,28 +176,8 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
     /**
      * @param amount
      */
-    limit(amount: number) {
+    public limit(amount: number): this {
         this.param('page[limit]', amount);
-        return this;
-    }
-
-    /**
-     * @param key
-     * @param value
-     */
-    filter(key: string, value: string) {
-        this.param(`filter[${key}]`, value);
-        return this;
-    }
-
-    /**
-     *
-     */
-    gtFilter(path: string, value: string) {
-        this.param('filter[dateFrom][condition][path]', path);
-        this.param('filter[dateFrom][condition][operator]', '>');
-        this.param('filter[dateFrom][condition][value]', value);
-
         return this;
     }
 
@@ -156,7 +185,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
      * @param path
      * @param direction
      */
-    sort(path: string, direction: 'asc' | 'desc' = 'asc') {
+    public sort(path: string, direction: 'asc' | 'desc' = 'asc'): this {
         const groupName = this.createFilterGroupName();
         this.param(`sort[${groupName}][path]`, path);
         this.param(`sort[${groupName}][direction]`, direction);
@@ -165,26 +194,17 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
     }
 
     /**
-     * @param path
-     * @param value
+     * @param operator
+     * @param groupingCall
      */
-    orFilter(path: string, value: string | string[]) {
-        const groupName = this.createFilterGroupName();
-
-        if (Array.isArray(value)) {
-            // Create a unique group for the OR condition
-            this.param(`filter[${groupName}_group][group][conjunction]`, 'OR');
-
-            value.forEach((v, index) => {
-                this.param(`filter[${groupName}_${index}][condition][path]`, path);
-                this.param(`filter[${groupName}_${index}][condition][value]`, v);
-                this.param(`filter[${groupName}_${index}][condition][memberOf]`, `${groupName}_group`);
-            });
-        } else {
-            this.param(`filter[${groupName}][condition][path]`, path);
-            this.param(`filter[${groupName}][condition][value]`, value);
-        }
-
+    public group(operator: 'or' | 'and', groupingCall: (query: QueryBuilder<T>) => void): this {
+        const currentFilterGroupName = this.currentFilterGroupName;
+        const newGroupName = this.createFilterGroupName();
+        this.assignFilterGroupToCurrentFilterGroup(newGroupName);
+        this.currentFilterGroupName = newGroupName;
+        this.param(`filter[${this.currentFilterGroupName}][group][conjunction]`, operator.toUpperCase());
+        groupingCall(this);
+        this.currentFilterGroupName = currentFilterGroupName;
         return this;
     }
 
@@ -192,7 +212,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
      * @param page
      * @param perPage
      */
-    paginate(page: number, perPage: number) {
+    paginate(page: number, perPage: number): this {
         this.param('page[offset]', Math.max(page - 1, 0) * perPage);
         this.limit(perPage);
 
@@ -241,7 +261,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
     /**
      * Maps and returns all entries in the response
      */
-    async getAll(): Promise<T[]> {
+    async get(): Promise<T[]> {
         this.rawResponse = await this.performGetRequest(this.endpoint);
 
         if (typeof this.rawResponse.data === 'undefined') {
@@ -255,13 +275,21 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
             return responseModels;
         }
 
-        let result = [];
+        let result: T[] = [];
         for await (const item of responseModels) {
             const mapped = await this.mapper(item);
             result.push(mapped);
         }
 
         return result;
+    }
+
+    /**
+     *
+     */
+    async getFirst(): Promise<T> {
+        const all = await this.get();
+        return all[0];
     }
 
     /**
