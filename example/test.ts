@@ -1,12 +1,18 @@
 import Article from "./Article";
 import Config from "../src/Config";
 import MacroRegistry from "../src/MacroRegistry";
+import AutoMapper from "../src/AutoMapper";
+import ArticleCategory from "./ArticleCategory";
 
-Config.set('baseUrl', '');
-Config.set('clientId', '');
-Config.set('clientSecret', '');
-Config.set('username', '');
-Config.set('password', '');
+AutoMapper.setSelector((responseModel, selectValue) => {
+	return (responseModel.type() === selectValue);
+});
+
+AutoMapper.register({
+	'node--article': Article,
+	'taxonomy_term--article_categories': ArticleCategory,
+});
+
 
 MacroRegistry.register('filterByTitle', (query, titles) => {
 	query.group('or', (query) => {
@@ -23,7 +29,7 @@ MacroRegistry.register('sortByTitle', (query, titles) => {
 const articles = await Article.query<Article>().macro('sortByTitle').get();
 
 const renderArticle = (article: Article) => {
-	console.log(article);
+	//console.log(article);
 };
 
 articles.forEach(article => {

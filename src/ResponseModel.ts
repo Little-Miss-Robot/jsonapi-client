@@ -1,4 +1,5 @@
 import { TMapper } from './types/mapper';
+import AutoMapper from "./AutoMapper";
 
 export default class ResponseModel {
     /**
@@ -77,14 +78,13 @@ export default class ResponseModel {
 
             let result = [];
             for await (const item of contentData) {
-                const mapped = (mapper ? await mapper(item) : item);
-                result.push(mapped);
+                result.push(AutoMapper.map(item));
             }
 
             return result;
         }
 
         const model = new ResponseModel(contentData);
-        return mapper ? await mapper(model) : model;
+        return AutoMapper.map(model);
     }
 }
