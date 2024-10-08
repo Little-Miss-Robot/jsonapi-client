@@ -33,7 +33,27 @@ export default class ResponseModel implements ResponseModelInterface {
                 return defaultValue;
             }
         }
+
         return result;
+    }
+
+    /**
+     * @param path
+     * @param customMapper
+     */
+    custom(path: string | string[], customMapper: (value: any) => any) {
+        return customMapper(this.get(path));
+    }
+
+    /**
+     * @param separator
+     * @param args
+     */
+    join(separator: string, ...args: (string | string[])[]): string {
+        // @TODO test this functionality
+        return args.map(path => {
+            return this.get(path, '');
+        }).filter(value => value !== '').join(separator);
     }
 
     /**

@@ -152,12 +152,6 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
      * @param value
      */
     public where(path: string, operator: TFilterOperator, value: string): this {
-
-        if (operator === '=' && ! this.currentFilterGroupName) {
-            this.param(`filter[${path}]`, value);
-            return this;
-        }
-
         const groupName = this.createFilterGroupName();
         this.param(`filter[${groupName}][condition][path]`, path);
         this.param(`filter[${groupName}][condition][operator]`, operator);
