@@ -1,24 +1,44 @@
-import ResponseModel from "./ResponseModel";
 import {TNullable} from "./types/nullable";
+import {ResponseModelInterface} from "./contracts/ResponseModelInterface";
+import {TAutoMapperSelector} from "./types/automapper-selector";
 import Model from "./Model";
-
-type TAutoMapperSelector = (responseModel: ResponseModel, selectValue: string) => boolean;
 
 export default class AutoMapper {
 
+	/**
+	 *
+	 * @private
+	 */
 	private static models: Record<string, typeof Model> = {};
 
+	/**
+	 *
+	 * @private
+	 */
 	private static selector: TNullable<TAutoMapperSelector>;
 
+	/**
+	 *
+	 * @param selector
+	 */
 	public static setSelector(selector: TAutoMapperSelector) {
 		this.selector = selector;
 	}
 
+	/**
+	 *
+	 * @param modelDefinitions
+	 */
 	public static register(modelDefinitions: Record<string, typeof Model>) {
 		this.models = modelDefinitions;
 	}
 
-	private static select(responseModel: ResponseModel): TNullable<typeof Model> {
+	/**
+	 *
+	 * @param responseModel
+	 * @private
+	 */
+	private static select(responseModel: ResponseModelInterface): TNullable<typeof Model> {
 		for (let value in this.models) {
 			if (this.selector && this.selector(responseModel, value)) {
 				return this.models[value];
@@ -28,8 +48,20 @@ export default class AutoMapper {
 		return null;
 	}
 
-	public static map(responseModel: ResponseModel) {
+	/**
+	 *
+	 * @param responseModel
+	 */
+	public static async map(responseModel: ResponseModelInterface) {
 		const modelClass = this.select(responseModel);
-		console.log(new modelClass());
+		if (modelClass) {
+			const instance = new modelClass();
+			const attributes = await instance.map(responseModel);
+			instance.setAttributes(attributes);
+
+			return instance;
+		}
+
+		return responseModel;
 	}
 }

@@ -3,8 +3,9 @@ import Client from "./Client";
 import ResponseModel from "./ResponseModel";
 import Config from "./Config";
 import {TMapper} from "./types/mapper";
+import {ResponseModelInterface} from "./contracts/ResponseModelInterface";
 
-export default abstract class Model {
+export default class Model {
 
 	/**
 	 * @protected
@@ -20,7 +21,7 @@ export default abstract class Model {
 	 * @param attributes
 	 * @private
 	 */
-	private setAttributes(attributes: any) {
+	public setAttributes(attributes: any) {
 		for (let key in attributes) {
 			if (attributes.hasOwnProperty(key)) {
 				this[key] = attributes[key];
@@ -57,8 +58,9 @@ export default abstract class Model {
 	}
 
 	/**
-	 * @param response
-	 * @protected
+	 * @param responseModel
 	 */
-	protected abstract map(response: ResponseModel);
+	public async map(responseModel: ResponseModelInterface): Promise<any> {
+		return responseModel;
+	}
 }

@@ -1,15 +1,15 @@
 import Model from "../src/Model";
-import ResponseModel from "../src/ResponseModel";
+import {ResponseModelInterface} from "../src/contracts/ResponseModelInterface";
 
 export default class ArticleCategory extends Model
 {
-	public id: string;
-	public title: string;
+	id: string;
+	title: string;
 
-	protected async map(responseModel: ResponseModel) {
+	async map(responseModel: ResponseModelInterface) {
 		return {
-			id: responseModel.id(),
-			title: responseModel.get('title', ''),
+			id: responseModel.get('id', ''),
+			title: responseModel.get('name', ''),
 		};
 	}
 }

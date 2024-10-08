@@ -6,12 +6,14 @@ import {QueryBuilderInterface} from "./contracts/QueryBuilderInterface";
 import {TNullable} from "./types/nullable";
 import {TFilterOperator} from "./types/filter-operator";
 import MacroRegistry from "./MacroRegistry";
+import ResultSet from "./ResultSet";
+import {TQueryParams} from "./types/query-params";
 
 /**
  * This class provides an easy-to-use interface to build queries
  * specifically for JSON:API
  */
-export default class QueryBuilder<T> implements QueryBuilderInterface {
+export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
     /**
      * The locale in which we're going to query the entries
      * @private
@@ -39,7 +41,17 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
      * The registered query params
      * @private
      */
-    private readonly queryParams: Record<string, string | number>;
+    private readonly queryParams: TQueryParams;
+
+    /**
+     * @private
+     */
+    private pageLimit: number = 50;
+
+    /**
+     * @private
+     */
+    private pageOffset: number = 0;
 
     /**
      * The cache policy to pass to the Client once the query executes
@@ -127,7 +139,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
      * Registers multiple query params
      * @param params
      */
-    public params(params: Record<string, string>): this {
+    public params(params: TQueryParams): this {
         Object.keys(params).forEach((key) => {
             this.param(key, params[key]);
         });
@@ -155,16 +167,6 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
     }
 
     /**
-     * @param groupName
-     * @private
-     */
-    private assignFilterGroupToCurrentFilterGroup(groupName) {
-        if (this.currentFilterGroupName) {
-            this.param(`filter[${groupName}][condition][memberOf]`, this.currentFilterGroupName);
-        }
-    }
-
-    /**
      * Registers includes (as described by JSON:API)
      * @param includes
      */
@@ -177,7 +179,17 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
      * @param amount
      */
     public limit(amount: number): this {
-        this.param('page[limit]', amount);
+        this.pageLimit = amount;
+        return this;
+    }
+
+    /**
+     * @param page
+     * @param perPage
+     */
+    paginate(page: number, perPage: number): this {
+        this.pageOffset = Math.max(page - 1, 0) * perPage;
+        this.limit(perPage);
         return this;
     }
 
@@ -209,17 +221,6 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
     }
 
     /**
-     * @param page
-     * @param perPage
-     */
-    paginate(page: number, perPage: number): this {
-        this.param('page[offset]', Math.max(page - 1, 0) * perPage);
-        this.limit(perPage);
-
-        return this;
-    }
-
-    /**
      * @private
      */
     private createFilterGroupName(): string {
@@ -229,10 +230,24 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
     }
 
     /**
+     * @param groupName
+     * @private
+     */
+    private assignFilterGroupToCurrentFilterGroup(groupName) {
+        if (this.currentFilterGroupName) {
+            this.param(`filter[${groupName}][condition][memberOf]`, this.currentFilterGroupName);
+        }
+    }
+
+    /**
      * @param path
      * @private
      */
     private buildUrl(path: string): string {
+
+        this.param('page[limit]', this.pageLimit);
+        this.param('page[offset]', this.pageOffset);
+
         return `${this.locale ? this.locale + '/' : ''}${path}/?${makeQueryParams(this.queryParams)}`;
     }
 
@@ -240,7 +255,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
      * Executes the query (GET)
      */
     private async performGetRequest(path: string) {
-        return await this.client.get(this.buildUrl(path), {
+        return await this.client.get(path, {
             cache: this.cachePolicy
         });
     }
@@ -249,7 +264,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
      * Fetches the endpoint and returns the raw response without automatically mapping it to a response model
      */
     async getRaw(): Promise<T> {
-        const response = await this.performGetRequest(this.endpoint);
+        const response = await this.performGetRequest(this.buildUrl(this.endpoint));
 
         if (!this.mapper) {
             return response;
@@ -261,12 +276,17 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
     /**
      * Maps and returns all entries in the response
      */
-    async get(): Promise<T[]> {
-        this.rawResponse = await this.performGetRequest(this.endpoint);
+    async get(): Promise<ResultSet<T>> {
+
+        let start = Date.now();
+        const url = this.buildUrl(this.endpoint);
+        this.rawResponse = await this.performGetRequest(url);
+        const queryDuration = Date.now() - start;
+        start = Date.now();
 
         if (typeof this.rawResponse.data === 'undefined') {
-            console.error(this.buildUrl(this.endpoint), this.rawResponse.errors[0].detail);
-            return [];
+            console.error(url, this.rawResponse.errors[0].detail);
+            return new ResultSet<T>();
         }
 
         const responseModels = this.rawResponse.data.map((entry: any) => new ResponseModel(entry));
@@ -275,13 +295,30 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
             return responseModels;
         }
 
-        let result: T[] = [];
+        const resultSet = new ResultSet<T>();
+        
         for await (const item of responseModels) {
             const mapped = await this.mapper(item);
-            result.push(mapped);
+            resultSet.push(mapped);
         }
 
-        return result;
+        const mappingDuration = Date.now() - start;
+
+        resultSet.setMeta({
+            query: {
+                url,
+                params: this.queryParams,
+            },
+            performance: {
+                query: queryDuration,
+                mapping: mappingDuration,
+            },
+            count: this.rawResponse.meta.count || 0,
+            pages: Math.ceil(this.rawResponse.meta.count / this.pageLimit),
+            perPage: this.pageLimit,
+        });
+
+        return resultSet;
     }
 
     /**
@@ -297,7 +334,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
      * @param uuid
      */
     async getById(uuid: string): Promise<T> {
-        this.rawResponse = await this.performGetRequest(`${this.endpoint}/${uuid}`);
+        this.rawResponse = await this.performGetRequest(this.buildUrl(`${this.endpoint}/${uuid}`));
 
         if (!this.mapper) {
             throw new Error('Mapper not defined');
@@ -307,22 +344,8 @@ export default class QueryBuilder<T> implements QueryBuilderInterface {
             console.error(this.buildUrl(this.endpoint), this.rawResponse.errors[0].detail);
         }
 
+        // @TODO make sure this is being mapped correctly (see get())
         return this.mapper(new ResponseModel(this.rawResponse.data));
-    }
-
-    /**
-     *
-     */
-    public getCount() {
-        return this.rawResponse.meta.count;
-    }
-
-    /**
-     *
-     * @param perPage
-     */
-    public getPageCount(perPage: number) {
-        return Math.ceil(this.rawResponse.meta.count / perPage);
     }
 
     /**

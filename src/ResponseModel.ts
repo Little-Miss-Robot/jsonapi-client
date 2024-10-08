@@ -1,7 +1,8 @@
 import { TMapper } from './types/mapper';
 import AutoMapper from "./AutoMapper";
+import {ResponseModelInterface} from "./contracts/ResponseModelInterface";
 
-export default class ResponseModel {
+export default class ResponseModel implements ResponseModelInterface {
     /**
      * The raw, unprocessed response from the JSON:API
      * @private
@@ -13,28 +14,6 @@ export default class ResponseModel {
      */
     constructor(rawResponse: any) {
         this.rawResponse = rawResponse;
-    }
-
-    /**
-     * Return the type of the node
-     */
-    type(): string {
-        if (!this.rawResponse.type) {
-            return '';
-        }
-
-        return this.rawResponse.type;
-    }
-
-    /**
-     * Returns the unique id of the node
-     */
-    id(): string {
-        if (!this.rawResponse.id) {
-            return '';
-        }
-
-        return this.rawResponse.id;
     }
 
     /**
@@ -74,11 +53,12 @@ export default class ResponseModel {
         }
 
         if (Array.isArray(contentData)) {
-            contentData = contentData.map((entry) => new ResponseModel(entry));
 
             let result = [];
+
             for await (const item of contentData) {
-                result.push(AutoMapper.map(item));
+                const responseModel = new ResponseModel(item)
+                result.push(AutoMapper.map(responseModel));
             }
 
             return result;

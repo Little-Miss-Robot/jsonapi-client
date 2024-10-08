@@ -111,6 +111,9 @@ export default class Client implements ClientInterface {
      * Fetches the API with a POST request
      */
     public async post(path: string, data: any, options = {}) {
+
+        // @TODO test this method
+
         const token = await this.getAuthToken();
 
         const response = await fetch(`${this.baseUrl}/${path}`, {

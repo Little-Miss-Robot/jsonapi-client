@@ -1,23 +1,22 @@
 import Model from "../src/Model";
-import ResponseModel from "../src/ResponseModel";
 import ArticleCategory from "./ArticleCategory";
+import {ResponseModelInterface} from "../src/contracts/ResponseModelInterface";
 
 export default class Article extends Model
 {
 	protected static endpoint: string = 'api/index/articles';
 	protected static include = ['category'];
 
-	public id: string;
-	public title: string;
-	public category: ArticleCategory;
+	id: string;
+	title: string;
+	category: ArticleCategory;
 
-	protected async map(responseModel: ResponseModel) {
+	async map(responseModel: ResponseModelInterface) {
 		return {
-			id: responseModel.id(),
+			id: responseModel.get('id', ''),
 			title: responseModel.get('title', ''),
 			langcode: responseModel.get('langcode', ''),
 			category: await responseModel.map('category'),
-			//category: responseModel.get('category.name'),
 		};
 	}
 }
