@@ -3,7 +3,7 @@
 ## Installation
 * Not yet, this software is in development
 
-## Getting started
+## Usage
 
 ### Config
 First, set your JSON:API credentials.
@@ -62,9 +62,7 @@ export class Author extends Model
       firstName: responseModel.get('first_name', ''),
       lastName: responseModel.get('lastName', ''),
       fullName: responseModel.join(' ', 'firstName', 'lastName'),
-      isGilke: responseModel.custom('firstName', (value) => {
-        return (value === 'Gilke');
-      }),
+      isGilke: responseModel.custom('firstName', value => value === 'Gilke'),
     };
   }
 }
@@ -99,7 +97,7 @@ export class BlogPost extends Model
 }
 ```
 
-### Retrieving model instances
+#### Retrieving model instances
 Every model provides a static method `query` to retrieve a QueryBuilder 
 specifically for fetching instances of this Model.
 ```ts
@@ -109,6 +107,24 @@ The QueryBuilder provides an easy way to dynamically and programmatically
 build queries. When the QueryBuilder is instantiated through a specific
 Model's query-method, every result will be an instance of that specific Model.
 For more info on using the QueryBuilder can be found in the section [QueryBuilder](#querybuilder).
+
+#### Automapping
+
+Set selector
+```ts
+AutoMapper.setSelector((responseModel: ResponseModelInterface, selectValue) => {
+  return responseModel.get('type') === selectValue;
+});
+```
+
+Register your models
+```ts
+AutoMapper.register({
+  'node--blog-post': BlogPost,
+  'node--author': Author,
+  'node--blog-category': BlogCategory,
+});
+```
 
 ### QueryBuilder
 The QueryBuilder provides an easy way to dynamically and programmatically
@@ -166,15 +182,21 @@ qb.group('and', (qb: QueryBuilder) => {
 ```
 
 #### Taking it a step further: macros
-As parts of your query can become quite long and complicated, it becomes 
+As parts of your query can become quite long and complicated, it gets 
 very cumbersome to retype these again and again. Architecturally 
 it's also not the best approach, especially for parts of your query 
-that should be reusable.
+that should be reusable (dry).
+
+Because of this, you can abstract away query statements and register 
+them as macros, these can then be called on any QueryBuilder instance.
+
+Registering macros:
 
 ```ts
 import QueryBuilder from "./QueryBuilder";
+import MacroRegistry from "./MacroRegistry";
 
-qb.registerMacro('filterByName', (qb: QueryBuilder, age, names) => {
+MacroRegistry.registerMacro('filterByName', (qb: QueryBuilder, age, names) => {
   qb.group('and', (qb: QueryBuilder) => {
     qb.where('age', '>', age);
     qb.group('or', (qb: QueryBuilder) => {
@@ -186,11 +208,18 @@ qb.registerMacro('filterByName', (qb: QueryBuilder, age, names) => {
 });
 ```
 
-```js
-qb.macro('filterByName', 35, ['Rein', 'Gilke']);
+```ts
+MacroRegistry.registerMacro('sortByAge', (qb: QueryBuilder) => {
+  qb.sort('age', 'desc');
+});
 ```
+Macro usage:
+```js
+qb.macro('filterByName', 35, ['Rein', 'Gilke']).macro('sortByAge');
+```
+
 ## Todo
 * Improved error reporting
 * Debug-mode (Logging requests, auth logging, LoggerInterface (?))
-* Nice to have: ORM with real lazy relationship fetching (vs includes)
+* Nice to have: real lazy relationship fetching (vs includes)
 * Nice to have: separate Auth and Client
