@@ -1,17 +1,27 @@
 {
   "name": "jsonapi-client",
   "version": "1.0.0",
-  "description": "### Installation * Not yet, this software is in development",
-  "main": "example/test.js",
+  "description": "A JSON:API client",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc --build && node post-build.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsup",
+    "test": "jest",
     "dev": "npm run build && node ./dist/example/test.js"
   },
   "type": "module",
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/jest": "^29.5.13",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.3.0",
     "typescript": "^5.6.2"
   }
 }

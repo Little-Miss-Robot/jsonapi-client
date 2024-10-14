@@ -87,7 +87,6 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
         this.endpoint = endpoint;
         this.mapper = mapper;
         this.queryParams = {};
-        this.param('jsonapi_include', 1);
     }
 
     /**
@@ -165,6 +164,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
      * @param includes
      */
     public include(includes: string[]): this {
+        this.param('jsonapi_include', 1);
         this.param('include', includes.join(','));
         return this;
     }
