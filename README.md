@@ -1,11 +1,34 @@
+<p align="center">
+  <a href="https://github.com/Little-Miss-Robot/jsonapi-client">
+    <img width="200" src="https://raw.githubusercontent.com/Little-Miss-Robot/jsonapi-client/master/logo.png">
+  </a>
+</p>
+
 # JSON:API Client
 
-## Installation
+## Overview
+
+* [Installation](#1-installation)
+* [Config](#2-config)
+* [Models](#3-models)
+  * [Model mapping](#31-model-mapping)
+  * [Retrieving model instances](#32-retrieving-model-instances)
+  * [Automapping](#33-automapping)
+* [QueryBuilder](#4-querybuilder)
+  * [Filtering](#41-filtering)
+  * [Sorting](#42-sorting)
+  * [Grouping](#43-grouping)
+  * [Macros](#44-macros)
+  * [Pagination](#45-pagination)
+  * [Fetching resources](#46-fetching-resources)
+* [ResultSet](#5-resultset)
+  * [Methods](#51-methods)
+  * [Meta data](#52-meta-data)
+
+## 1. Installation
 * Not yet, this software is in development
 
-## Usage
-
-### Config
+## 2. Config
 First, set your JSON:API credentials.
 
 ```ts
@@ -29,16 +52,16 @@ Config.setAll({
 });
 ```
 
-### Models
+## 3. Models
 Every resource fetched from JSON:API gets mapped to an entity or model. A good way to 
 start getting familiar with this package, is by making your first model.
 
-#### Model mapping 
+### 3.1 Model mapping
 Override the default Model's map-method to provide your 
 model with data. In the map-method you'll have a 
 generic ResponseModel available that allows for safer object traversal 
 through its get-method and various utility functions.
-E.g. `responseModel.get('category.title', 'This is a default title')`
+E.g. `responseModel.get('category.title', 'This is a default value')`
 
 Example Author model:
 ```ts
@@ -97,7 +120,7 @@ export class BlogPost extends Model
 }
 ```
 
-#### Retrieving model instances
+### 3.2 Retrieving model instances
 Every model provides a static method `query` to retrieve a QueryBuilder 
 specifically for fetching instances of this Model.
 ```ts
@@ -106,9 +129,9 @@ const queryBuilder = BlogPost.query<BlogPost>();
 The QueryBuilder provides an easy way to dynamically and programmatically 
 build queries. When the QueryBuilder is instantiated through a specific
 Model's query-method, every result will be an instance of that specific Model.
-For more info on using the QueryBuilder can be found in the section [QueryBuilder](#querybuilder).
+More info on using the QueryBuilder can be found in the section [QueryBuilder](#querybuilder).
 
-#### Automapping
+### 3.3 Automapping
 
 Set selector
 ```ts
@@ -126,46 +149,46 @@ AutoMapper.register({
 });
 ```
 
-### QueryBuilder
+## 4. QueryBuilder
 The QueryBuilder provides an easy way to dynamically and programmatically
 build queries and provides a safe API to communicate with the JSON:API.
 
-#### Filtering
+### 4.1 Filtering
 Filtering resources is as easy as calling the `where()` method on 
 a QueryBuilder instance. This method can be chained.
 ```ts
-qb.where('author.name', '=', 'Rein').where('author.age', '>', 34);
+BlogPost.query<BlogPost>().where('author.name', '=', 'Rein').where('author.age', '>', 34);
 ```
 As with every chaining method on the QueryBuilder, this allows for 
 greater flexibility while writing your queries:
 ```ts
-qb.where('author.name', '=', 'Rein');
+const qb = BlogPost.query<BlogPost>().where('author.name', '=', 'Rein');
 
 if (filterByAge) {
   qb.where('age', '>', 34)
 }
 ```
 
-#### Sorting
+### 4.2 Sorting
 
 ```ts
-qb.sort('author.name', '=', 'Rein');
+BlogPost.query<BlogPost>().sort('author.name', '=', 'Rein');
 ```
 
-#### Grouping
+### 4.3 Grouping
 The QueryBuilder provides an easy-to-use (and understand) interface 
 for filter-grouping. Possible methods for grouping are `or` & `and`.
 
 OR:
 ```ts
-qb.group('or', (qb: QueryBuilder) => {
+BlogPost.query<BlogPost>().group('or', (qb: QueryBuilder) => {
   qb.where('author.name', '=', 'Rein');
   qb.where('author.name', '=', 'Gilke');
 });
 ```
 AND:
 ```ts
-qb.group('and', (qb: QueryBuilder) => {
+BlogPost.query<BlogPost>().group('and', (qb: QueryBuilder) => {
   qb.where('author.name', '=', 'Rein');
   qb.where('age', '>', 34);
 });
@@ -173,7 +196,7 @@ qb.group('and', (qb: QueryBuilder) => {
 Nested grouping is possible. The underlying library takes care of 
 all the complex stuff for you!
 ```ts
-qb.group('and', (qb: QueryBuilder) => {
+BlogPost.query<BlogPost>().group('and', (qb: QueryBuilder) => {
   qb.where('age', '>', 34);
   qb.group('or', (qb: QueryBuilder) => {
     qb.where('author.name', '=', 'Gilke').where('author.name', '=', 'Rein');
@@ -181,7 +204,7 @@ qb.group('and', (qb: QueryBuilder) => {
 });
 ```
 
-#### Taking it a step further: macros
+### 4.4 Macros
 As parts of your query can become quite long and complicated, it gets 
 very cumbersome to retype these again and again. Architecturally 
 it's also not the best approach, especially for parts of your query 
@@ -196,9 +219,9 @@ Registering macros:
 import QueryBuilder from "./QueryBuilder";
 import MacroRegistry from "./MacroRegistry";
 
-MacroRegistry.registerMacro('filterByName', (qb: QueryBuilder, age, names) => {
+MacroRegistry.registerMacro('filterByAuthorName', (qb: QueryBuilder, age, names) => {
   qb.group('and', (qb: QueryBuilder) => {
-    qb.where('age', '>', age);
+    qb.where('author.age', '>', age);
     qb.group('or', (qb: QueryBuilder) => {
       names.forEach(name => {
         qb.where('author.name', '=', name);
@@ -209,17 +232,64 @@ MacroRegistry.registerMacro('filterByName', (qb: QueryBuilder, age, names) => {
 ```
 
 ```ts
-MacroRegistry.registerMacro('sortByAge', (qb: QueryBuilder) => {
-  qb.sort('age', 'desc');
+MacroRegistry.registerMacro('sortByAuthorAge', (qb: QueryBuilder) => {
+  qb.sort('author.age', 'desc');
 });
 ```
 Macro usage:
-```js
-qb.macro('filterByName', 35, ['Rein', 'Gilke']).macro('sortByAge');
+```ts
+BlogPost.query<BlogPost>().macro('filterByName', 35, ['Rein', 'Gilke']).macro('sortByAge');
 ```
+
+### 4.5 Pagination
+```ts
+BlogPost.query<BlogPost>().paginate(1, 10);
+```
+
+### 4.6 Fetching resources
+
+On any QueryBuilder instance, you'll have these methods available for fetching 
+your resources:
+
+get:
+```ts
+BlogPost.query<BlogPost>().get();
+```
+
+getById:
+```ts
+BlogPost.query<BlogPost>().getById('yourid');
+```
+
+getRaw:
+```ts
+BlogPost.query<BlogPost>().getRaw();
+```
+
+## 5. ResultSet
+### 5.1 Methods
+push, pop, map, forEach, filter, find, reduce
+
+### 5.2 Meta data
+How to access meta data of a ResultSet?
+```ts
+const resultSet = BlogPost.query<BlogPost>().get();
+const { query, count, performance } = resultSet.meta;
+```
+
+Property | Type | Description
+-------- | ---- | -----------
+query | { url: string, params: TQueryParams} | Holds information about the executed query
+performance | { query: number; mapping: number; } | Has benchmarks (duration in ms) for every part of the execution process
+count | number | The amount of resulting resources (not taking into account the pagination)
+pages | number | The amount of pages
+perPage | number | The amount of resources per page
 
 ## Todo
 * Improved error reporting
 * Debug-mode (Logging requests, auth logging, LoggerInterface (?))
 * Nice to have: real lazy relationship fetching (vs includes)
 * Nice to have: separate Auth and Client
+
+## Credits & attribution
+<a href="https://www.flaticon.com/free-icons/bee-farming" title="bee farming icons">Bee farming icons created by SBTS2018 - Flaticon</a>

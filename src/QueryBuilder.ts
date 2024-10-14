@@ -316,14 +316,6 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
     }
 
     /**
-     *
-     */
-    async getFirst(): Promise<T> {
-        const all = await this.get();
-        return all[0];
-    }
-
-    /**
      * Gets a single entry by UUID
      * @param uuid
      */

@@ -4,6 +4,13 @@ import MacroRegistry from "../src/MacroRegistry";
 import AutoMapper from "../src/AutoMapper";
 import ArticleCategory from "./ArticleCategory";
 
+Config.setAll({
+	baseUrl: "",
+	clientId: "",
+	clientSecret: "",
+	password: "",
+	username: ""
+});
 
 AutoMapper.setSelector((responseModel, selectValue) => {
 	return (responseModel.get('type', '') === selectValue);
