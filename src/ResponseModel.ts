@@ -1,6 +1,6 @@
-import { TMapper } from './types/mapper';
-import AutoMapper from "./AutoMapper";
-import {ResponseModelInterface} from "./contracts/ResponseModelInterface";
+import type { ResponseModelInterface } from './contracts/ResponseModelInterface';
+import type { TMapper } from './types/mapper';
+import AutoMapper from './AutoMapper';
 
 export default class ResponseModel implements ResponseModelInterface {
     /**
@@ -27,8 +27,8 @@ export default class ResponseModel implements ResponseModelInterface {
         }
 
         let result = this.rawResponse;
-        for (let key of path) {
-            result = result !== null && result.hasOwnProperty(key) ? result[key] : undefined;
+        for (const key of path) {
+            result = result !== null && Object.prototype.hasOwnProperty.call(result, key) ? result[key] : undefined;
             if (result === undefined) {
                 return defaultValue;
             }
@@ -51,7 +51,7 @@ export default class ResponseModel implements ResponseModelInterface {
      */
     join(separator: string, ...args: (string | string[])[]): string {
         // @TODO test this functionality
-        return args.map(path => {
+        return args.map((path) => {
             return this.get(path, '');
         }).filter(value => value !== '').join(separator);
     }
@@ -73,11 +73,10 @@ export default class ResponseModel implements ResponseModelInterface {
         }
 
         if (Array.isArray(contentData)) {
-
-            let result = [];
+            const result = [];
 
             for await (const item of contentData) {
-                const responseModel = new ResponseModel(item)
+                const responseModel = new ResponseModel(item);
                 result.push(AutoMapper.map(responseModel));
             }
 

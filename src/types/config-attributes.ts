@@ -1,9 +1,9 @@
-import {TNullable} from "./nullable";
+import type { TNullable } from './nullable';
 
 export type TConfigAttributes = TNullable<{
-	baseUrl?: string,
-	clientId?: string,
-	clientSecret?: string,
-	username?: string,
-	password?: string,
+    baseUrl?: string
+    clientId?: string
+    clientSecret?: string
+    username?: string
+    password?: string
 }>;

@@ -1,4 +1,4 @@
-import {ClientInterface} from "./contracts/ClientInterface";
+import type { ClientInterface } from './contracts/ClientInterface';
 
 export default class Client implements ClientInterface {
     /**
@@ -111,7 +111,6 @@ export default class Client implements ClientInterface {
      * Fetches the API with a POST request
      */
     public async post(path: string, data: any, options = {}) {
-
         // @TODO test this method
 
         const token = await this.getAuthToken();
@@ -120,8 +119,8 @@ export default class Client implements ClientInterface {
             ...options,
             method: 'POST',
             headers: new Headers({
-                Authorization: `Bearer ${token}`,
-                Accept: 'application/vnd.api+json',
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/vnd.api+json',
                 'content-type': 'application/json',
             }),
             body: JSON.stringify(data),

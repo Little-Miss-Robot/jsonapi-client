@@ -1,66 +1,70 @@
-import QueryBuilder from "./QueryBuilder";
-import Client from "./Client";
-import ResponseModel from "./ResponseModel";
-import Config from "./Config";
-import {TMapper} from "./types/mapper";
-import {ResponseModelInterface} from "./contracts/ResponseModelInterface";
+import type { ResponseModelInterface } from './contracts/ResponseModelInterface';
+import type { TMapper } from './types/mapper';
+import Client from './Client';
+import Config from './Config';
+import QueryBuilder from './QueryBuilder';
 
 export default class Model {
+    /**
+     * @protected
+     */
+    protected static endpoint: string;
 
-	/**
-	 * @protected
-	 */
-	protected static endpoint: string;
+    /**
+     * @protected
+     */
+    protected static include: string[] = [];
 
-	/**
-	 * @protected
-	 */
-	protected static include: string[] = [];
+    /**
+     * @param attributes
+     * @private
+     */
+    public setAttributes(attributes: any) {
+        for (const key in attributes) {
+            if (Object.prototype.hasOwnProperty.call(attributes, key)) {
+                this[key] = attributes[key];
+            }
+        }
+    }
 
-	/**
-	 * @param attributes
-	 * @private
-	 */
-	public setAttributes(attributes: any) {
-		for (let key in attributes) {
-			if (attributes.hasOwnProperty(key)) {
-				this[key] = attributes[key];
-			}
-		}
-	}
+    /**
+     * Create a QueryBuilder instance specifically for this model
+     */
+    public static query<T>(): QueryBuilder<T> {
+        if (!this.endpoint) {
+            throw new Error(
+                `The model "${this.name}" doesn't have an endpoint, so can't be queried.`,
+            );
+        }
 
-	/**
-	 * Create a QueryBuilder instance specifically for this model
-	 */
-	public static query<T>(): QueryBuilder<T> {
-		if (!this.endpoint) {
-			throw new Error(`The model "${this.name}" doesn't have an endpoint, so can't be queried.`);
-		}
+        const mapper: TMapper<Promise<T>> = async (response): Promise<T> => {
+            const instance = new (this as any)();
+            const attributes = await instance.map(response);
+            instance.setAttributes(attributes);
+            return instance;
+        };
 
-		const mapper: TMapper<Promise<T>> = async (response): Promise<T> => {
-			const instance = new (this as any)();
-			const attributes = await instance.map(response);
-			instance.setAttributes(attributes);
-			return instance;
-		};
+        const query = new QueryBuilder<T>(
+            new Client(
+                Config.get('baseUrl'),
+                Config.get('clientId'),
+                Config.get('clientSecret'),
+                Config.get('username'),
+                Config.get('password'),
+            ),
+            this.endpoint,
+            mapper,
+        );
 
-		const query = new QueryBuilder<T>(new Client(
-			Config.get('baseUrl'),
-			Config.get('clientId'),
-			Config.get('clientSecret'),
-			Config.get('username'),
-			Config.get('password')
-		), this.endpoint, mapper);
+        query.include(this.include);
 
-		query.include(this.include);
+        return query;
+    }
 
-		return query;
-	}
-
-	/**
-	 * @param responseModel
-	 */
-	public async map(responseModel: ResponseModelInterface): Promise<any> {
-		return responseModel;
-	}
+    /**
+     * @param responseModel
+     */
+    public async map(responseModel: ResponseModelInterface): Promise<any> {
+        return responseModel;
+    }
 }

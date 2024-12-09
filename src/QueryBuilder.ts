@@ -1,14 +1,13 @@
-import Client from './Client';
+import type Client from './Client';
+import type { QueryBuilderInterface } from './contracts/QueryBuilderInterface';
+import type { TFilterOperator } from './types/filter-operator';
+import type { TMapper } from './types/mapper';
+import type { TNullable } from './types/nullable';
+import type { TQueryParams } from './types/query-params';
+import MacroRegistry from './MacroRegistry';
 import ResponseModel from './ResponseModel';
-import { TMapper } from './types/mapper';
-import {makeQueryParams} from './utils/http';
-import {QueryBuilderInterface} from "./contracts/QueryBuilderInterface";
-import {TNullable} from "./types/nullable";
-import {TFilterOperator} from "./types/filter-operator";
-import MacroRegistry from "./MacroRegistry";
-import ResultSet from "./ResultSet";
-import {TQueryParams} from "./types/query-params";
-
+import ResultSet from './ResultSet';
+import { makeQueryParams } from './utils/http';
 /**
  * This class provides an easy-to-use interface to build queries
  * specifically for JSON:API
@@ -238,11 +237,10 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
      * @private
      */
     private buildUrl(path: string): string {
-
         this.param('page[limit]', this.pageLimit);
         this.param('page[offset]', this.pageOffset);
 
-        return `${this.locale ? this.locale + '/' : ''}${path}/?${makeQueryParams(this.queryParams)}`;
+        return `${this.locale ? `${this.locale}/` : ''}${path}/?${makeQueryParams(this.queryParams)}`;
     }
 
     /**
@@ -250,7 +248,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
      */
     private async performGetRequest(path: string) {
         return await this.client.get(path, {
-            cache: this.cachePolicy
+            cache: this.cachePolicy,
         });
     }
 
@@ -271,7 +269,6 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
      * Maps and returns all entries in the response
      */
     async get(): Promise<ResultSet<T>> {
-
         let start = Date.now();
         const url = this.buildUrl(this.endpoint);
         this.rawResponse = await this.performGetRequest(url);
@@ -290,7 +287,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
         }
 
         const resultSet = new ResultSet<T>();
-        
+
         for await (const item of responseModels) {
             const mapped = await this.mapper(item);
             resultSet.push(mapped);

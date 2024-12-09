@@ -1,10 +1,10 @@
-import Config from "./Config";
-import Client from "./Client";
-import AutoMapper from "./AutoMapper";
-import QueryBuilder from "./QueryBuilder";
-import Model from "./Model";
-import MacroRegistry from "./MacroRegistry";
-import ResponseModel from "./ResponseModel";
-import ResultSet from "./ResultSet";
+import AutoMapper from './AutoMapper';
+import Client from './Client';
+import Config from './Config';
+import MacroRegistry from './MacroRegistry';
+import Model from './Model';
+import QueryBuilder from './QueryBuilder';
+import ResponseModel from './ResponseModel';
+import ResultSet from './ResultSet';
 
-export {Config, Client, AutoMapper, QueryBuilder, ResultSet, MacroRegistry, Model, ResponseModel};
+export { AutoMapper, Client, Config, MacroRegistry, Model, QueryBuilder, ResponseModel, ResultSet };
