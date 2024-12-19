@@ -5,6 +5,9 @@ import Config from './Config';
 import QueryBuilder from './QueryBuilder';
 
 export default class Model {
+
+    [key: string]: any;
+
     /**
      * @protected
      */

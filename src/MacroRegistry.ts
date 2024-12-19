@@ -19,11 +19,11 @@ export default class MacroRegistry {
      * @param query
      * @param args
      */
-    public static execute(name: string, query: QueryBuilder<any>, args: any[] = []) {
+    public static execute(name: string, query: QueryBuilder<any>, args: unknown[] = []) {
         if (!this.macros[name]) {
             throw new Error(`Unknown macro "${name}".`);
         }
 
-        this.macros[name].call(this, query, ...args);
+        this.macros[name].call(this, query, ...(args as []));
     }
 }

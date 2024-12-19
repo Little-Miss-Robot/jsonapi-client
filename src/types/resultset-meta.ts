@@ -9,7 +9,7 @@ export interface TResultSetMeta {
         query: number
         mapping: number
     }
-    count: number
-    pages: number
-    perPage: number
+    count?: number
+    pages?: number
+    perPage?: number
 }

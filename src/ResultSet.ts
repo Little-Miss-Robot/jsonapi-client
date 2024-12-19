@@ -1,8 +1,9 @@
 import type { TResultSetMeta } from './types/resultset-meta';
+import {TNullable} from "./types/nullable";
 
 export default class ResultSet<T> implements Iterable<T> {
     private readonly items: T[] = [];
-    public meta: TResultSetMeta;
+    public meta: TNullable<TResultSetMeta> = null;
 
     constructor(initialItems: T[] = []) {
         this.items = initialItems;
@@ -30,6 +31,10 @@ export default class ResultSet<T> implements Iterable<T> {
                 }
             },
         };
+    }
+
+    get(index: number): T {
+        return this.items[index];
     }
 
     // Array-like methods, delegating to the internal array

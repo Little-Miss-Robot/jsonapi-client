@@ -8,6 +8,8 @@ import MacroRegistry from './MacroRegistry';
 import ResponseModel from './ResponseModel';
 import ResultSet from './ResultSet';
 import { makeQueryParams } from './utils/http';
+import {TResultSetMeta} from "./types/resultset-meta";
+
 /**
  * This class provides an easy-to-use interface to build queries
  * specifically for JSON:API
@@ -74,7 +76,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
      *
      * @private
      */
-    private currentFilterGroupName: TNullable<string>;
+    private currentFilterGroupName: TNullable<string> = null;
 
     /**
      * @param client
@@ -93,7 +95,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
      * @param name
      * @param args
      */
-    public macro(name: string, ...args): this {
+    public macro(name: string, ...args: unknown[]): this {
         MacroRegistry.execute(name, this, args);
         return this;
     }
@@ -226,7 +228,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
      * @param groupName
      * @private
      */
-    private assignFilterGroupToCurrentFilterGroup(groupName) {
+    private assignFilterGroupToCurrentFilterGroup(groupName: string) {
         if (this.currentFilterGroupName) {
             this.param(`filter[${groupName}][condition][memberOf]`, this.currentFilterGroupName);
         }
@@ -295,7 +297,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
 
         const mappingDuration = Date.now() - start;
 
-        resultSet.setMeta({
+        let meta: TResultSetMeta = {
             query: {
                 url,
                 params: this.queryParams,
@@ -304,12 +306,26 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
                 query: queryDuration,
                 mapping: mappingDuration,
             },
-            count: this.rawResponse.meta.count || 0,
-            pages: Math.ceil(this.rawResponse.meta.count / this.pageLimit),
-            perPage: this.pageLimit,
-        });
+        };
+
+        if (this.rawResponse.meta) {
+            meta = {
+                count: this.rawResponse.meta.count || 0,
+                pages: Math.ceil(this.rawResponse.meta.count / this.pageLimit),
+                perPage: this.pageLimit,
+                ...meta,
+            };
+        }
+
+        resultSet.setMeta(meta);
 
         return resultSet;
+    }
+
+    async one(): Promise<T> {
+        const resultSet = await this.get();
+
+        return resultSet.get(0);
     }
 
     /**

@@ -4,13 +4,19 @@ export default class Config {
     /**
      * @private
      */
-    private static attributes: TConfigAttributes = {};
+    private static attributes: TConfigAttributes = {
+        baseUrl: null,
+        clientId: null,
+        clientSecret: null,
+        username: null,
+        password: null,
+    };
 
     /**
      * @param attribute
      * @param value
      */
-    public static set(attribute: keyof typeof Config['attributes'], value: any) {
+    public static set(attribute: keyof TConfigAttributes, value: string | null) {
         this.attributes[attribute] = value;
     }
 
@@ -24,7 +30,7 @@ export default class Config {
     /**
      * @param attribute
      */
-    public static get(attribute: keyof typeof Config['attributes']) {
-        return this.attributes[attribute];
+    public static get(attribute: keyof TConfigAttributes) {
+        return this.attributes[attribute] || '';
     }
 }
