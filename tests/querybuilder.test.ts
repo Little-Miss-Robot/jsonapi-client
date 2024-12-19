@@ -17,7 +17,7 @@ it('result of query builder starts with the endpoint', () => {
     const queryBuilder = makeQueryBuilder();
     expect(queryBuilder.toString()).toMatch(/^(api\/endpoint)/);
 
-    expect(queryBuilder.toString()).toBe('api/endpoint/?page%5Blimit%5D=50&page%5Boffset%5D=0');
+    expect(queryBuilder.toString()).toBe('api/endpoint/?page%5Blimit%5D=fffff&page%5Boffset%5D=0');
 });
 
 it('a new query has pagination params by default', () => {
