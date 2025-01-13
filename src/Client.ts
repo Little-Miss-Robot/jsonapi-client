@@ -96,8 +96,11 @@ export default class Client implements ClientInterface {
         try {
             json = await response.json();
         }
-        catch (e) {
-            throw new Error(`Couldn\'t generate auth token: ${e.message}`);
+        catch (e: unknown) {
+            if (e instanceof Error) {
+                throw new TypeError(`Couldn\'t generate auth token: ${e.message}`);
+            }
+            throw new Error(`Couldn\'t generate auth token: Unknown error`);
         }
 
         this.accessToken = json.access_token as string;
