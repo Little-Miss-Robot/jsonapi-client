@@ -43,7 +43,13 @@ export default class Client implements ClientInterface {
      * @param username
      * @param password
      */
-    constructor(baseUrl: string, clientId: string, clientSecret: string, username: string, password: string) {
+    constructor(
+        baseUrl: string,
+        clientId: string,
+        clientSecret: string,
+        username: string,
+        password: string,
+    ) {
         this.baseUrl = baseUrl;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
@@ -55,7 +61,11 @@ export default class Client implements ClientInterface {
      * Gets the authentication token
      */
     private async getAuthToken(): Promise<string> {
-        if (!this.accessToken || !this.accessTokenExpiryDate || new Date().getTime() >= this.accessTokenExpiryDate) {
+        if (
+            !this.accessToken
+            || !this.accessTokenExpiryDate
+            || new Date().getTime() >= this.accessTokenExpiryDate
+        ) {
             return await this.generateAuthToken();
         }
 
@@ -81,7 +91,14 @@ export default class Client implements ClientInterface {
             },
         });
 
-        const json = await response.json();
+        let json;
+
+        try {
+            json = await response.json();
+        }
+        catch (e) {
+            throw new Error(`Couldn\'t generate auth token: ${e.message}`);
+        }
 
         this.accessToken = json.access_token as string;
         this.accessTokenExpiryDate = new Date().getTime() + json.expires_in;
@@ -111,7 +128,7 @@ export default class Client implements ClientInterface {
      * Fetches the API with a POST request
      */
     public async post(path: string, data: any, options = {}) {
-        // @TODO test this method
+    // @TODO test this method
 
         const token = await this.getAuthToken();
 
