@@ -4,11 +4,11 @@ import type { TFilterOperator } from './types/filter-operator';
 import type { TMapper } from './types/mapper';
 import type { TNullable } from './types/nullable';
 import type { TQueryParams } from './types/query-params';
+import type { TResultSetMeta } from './types/resultset-meta';
 import MacroRegistry from './MacroRegistry';
 import ResponseModel from './ResponseModel';
 import ResultSet from './ResultSet';
-import { makeQueryParams } from './utils/http';
-import {TResultSetMeta} from "./types/resultset-meta";
+import { makeSearchParams } from './utils/http';
 
 /**
  * This class provides an easy-to-use interface to build queries
@@ -242,7 +242,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
         this.param('page[limit]', this.pageLimit);
         this.param('page[offset]', this.pageOffset);
 
-        return `${this.locale ? `${this.locale}/` : ''}${path}/?${makeQueryParams(this.queryParams)}`;
+        return `${this.locale ? `${this.locale}/` : ''}${path}/?${makeSearchParams(this.queryParams)}`;
     }
 
     /**
@@ -264,7 +264,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
             return response;
         }
 
-        return await this.mapper(response);
+        return await this.mapper(new ResponseModel(response));
     }
 
     /**
