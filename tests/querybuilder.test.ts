@@ -59,13 +59,13 @@ it('setting locale prepends the locale', () => {
 it('where adds the appropriate params', () => {
     const queryBuilder = makeQueryBuilder();
     queryBuilder.where('name', '=', 'Rein');
-    expect(queryBuilder.toString()).toBe('api/endpoint/?filter%5Bg1%5D%5Bcondition%5D%5Bpath%5D=name&filter%5Bg1%5D%5Bcondition%5D%5Boperator%5D==&filter%5Bg1%5D%5Bcondition%5D%5Bvalue%5D=Rein&page%5Blimit%5D=50&page%5Boffset%5D=0');
+    expect(queryBuilder.toString()).toBe('api/endpoint/?filter%5Bg1%5D%5Bcondition%5D%5Bpath%5D=name&filter%5Bg1%5D%5Bcondition%5D%5Boperator%5D=%3D&filter%5Bg1%5D%5Bcondition%5D%5Bvalue%5D=Rein&page%5Blimit%5D=50&page%5Boffset%5D=0');
 });
 
 it('includes adds the appropriate params', () => {
     const queryBuilder = makeQueryBuilder();
     queryBuilder.include(['testInclude1', 'testInclude2', 'testInclude3']);
-    expect(queryBuilder.toString()).toBe('api/endpoint/?jsonapi_include=1&include=testInclude1,testInclude2,testInclude3&page%5Blimit%5D=50&page%5Boffset%5D=0');
+    expect(queryBuilder.toString()).toBe('api/endpoint/?jsonapi_include=1&include=testInclude1%2CtestInclude2%2CtestInclude3&page%5Blimit%5D=50&page%5Boffset%5D=0');
 });
 
 it('paginate adds the appropriate params', () => {
@@ -91,5 +91,5 @@ it('group adds the appropriate params', () => {
             qb.where('age', '>', '34');
         });
     });
-    expect(queryBuilder.toString()).toBe('api/endpoint/?filter%5Bg1%5D%5Bgroup%5D%5Bconjunction%5D=OR&filter%5Bg2%5D%5Bcondition%5D%5Bpath%5D=name&filter%5Bg2%5D%5Bcondition%5D%5Boperator%5D==&filter%5Bg2%5D%5Bcondition%5D%5Bvalue%5D=Rein&filter%5Bg2%5D%5Bcondition%5D%5BmemberOf%5D=g1&filter%5Bg3%5D%5Bcondition%5D%5Bpath%5D=name&filter%5Bg3%5D%5Bcondition%5D%5Boperator%5D==&filter%5Bg3%5D%5Bcondition%5D%5Bvalue%5D=Gilke&filter%5Bg3%5D%5Bcondition%5D%5BmemberOf%5D=g1&filter%5Bg4%5D%5Bcondition%5D%5BmemberOf%5D=g1&filter%5Bg4%5D%5Bgroup%5D%5Bconjunction%5D=AND&filter%5Bg5%5D%5Bcondition%5D%5Bpath%5D=age&filter%5Bg5%5D%5Bcondition%5D%5Boperator%5D=>&filter%5Bg5%5D%5Bcondition%5D%5Bvalue%5D=34&filter%5Bg5%5D%5Bcondition%5D%5BmemberOf%5D=g4&page%5Blimit%5D=50&page%5Boffset%5D=0');
+    expect(queryBuilder.toString()).toBe('api/endpoint/?filter%5Bg1%5D%5Bgroup%5D%5Bconjunction%5D=OR&filter%5Bg2%5D%5Bcondition%5D%5Bpath%5D=name&filter%5Bg2%5D%5Bcondition%5D%5Boperator%5D=%3D&filter%5Bg2%5D%5Bcondition%5D%5Bvalue%5D=Rein&filter%5Bg2%5D%5Bcondition%5D%5BmemberOf%5D=g1&filter%5Bg3%5D%5Bcondition%5D%5Bpath%5D=name&filter%5Bg3%5D%5Bcondition%5D%5Boperator%5D=%3D&filter%5Bg3%5D%5Bcondition%5D%5Bvalue%5D=Gilke&filter%5Bg3%5D%5Bcondition%5D%5BmemberOf%5D=g1&filter%5Bg4%5D%5Bcondition%5D%5BmemberOf%5D=g1&filter%5Bg4%5D%5Bgroup%5D%5Bconjunction%5D=AND&filter%5Bg5%5D%5Bcondition%5D%5Bpath%5D=age&filter%5Bg5%5D%5Bcondition%5D%5Boperator%5D=%3E&filter%5Bg5%5D%5Bcondition%5D%5Bvalue%5D=34&filter%5Bg5%5D%5Bcondition%5D%5BmemberOf%5D=g4&page%5Blimit%5D=50&page%5Boffset%5D=0');
 });
