@@ -20,16 +20,10 @@ export default class Model {
      */
     protected static include: string[] = [];
 
-    /**
-     * @param attributes
-     * @private
-     */
-    public setAttributes(attributes: any) {
-        for (const key in attributes) {
-            if (Object.prototype.hasOwnProperty.call(attributes, key)) {
-                this[key] = attributes[key];
-            }
-        }
+    public static async createFromResponse(response: ResponseModelInterface) {
+        const instance = new (this as any)();
+        Object.assign(instance, (await instance.map(response)));
+        return instance;
     }
 
     /**
@@ -43,10 +37,7 @@ export default class Model {
         }
 
         const mapper: TMapper<Promise<T>> = async (response): Promise<T> => {
-            const instance = new (this as any)();
-            const attributes = await instance.map(response);
-            instance.setAttributes(attributes);
-            return instance;
+            return await this.createFromResponse(response);
         };
 
         const query = new QueryBuilder<T>(
