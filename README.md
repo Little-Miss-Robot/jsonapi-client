@@ -125,23 +125,30 @@ export class BlogPost extends Model
 Every model provides a static method `query` to retrieve a QueryBuilder 
 specifically for fetching instances of this Model.
 ```ts
-const queryBuilder = BlogPost.query<BlogPost>();
+const queryBuilder = BlogPost.query();
 ```
 The QueryBuilder provides an easy way to dynamically and programmatically 
-build queries. When the QueryBuilder is instantiated through a specific
-Model's query-method, every result will be an instance of that specific Model.
+build queries. When the QueryBuilder is instantiated through a Model's query-method, 
+every result will be an instance of the Model it was called on.
 More info on using the QueryBuilder can be found in the section [QueryBuilder](#querybuilder).
 
 ### 3.3 Automapping
 
-Set selector
+When you're not creating your query builder from a specific model, or the response 
+of your query encounters different types, you can specify how and when the 
+query builder resolves these into instances of different models.
+
+First, set a selector which receives the generic response model and a select value and 
+returns a boolean which indicates whether we have a match.
+
+Set selector:
 ```ts
 AutoMapper.setSelector((responseModel: ResponseModelInterface, selectValue) => {
   return responseModel.get('type') === selectValue;
 });
 ```
 
-Register your models
+Now, register your select values (in this example drupal node types) with the corresponding model class:
 ```ts
 AutoMapper.register({
   'node--blog-post': BlogPost,
@@ -149,6 +156,9 @@ AutoMapper.register({
   'node--blog-category': BlogCategory,
 });
 ```
+
+In this example, when the query builder encounters a resource with any of these types, it will 
+automatically resolve it to the corresponding model.
 
 ## 4. QueryBuilder
 The QueryBuilder provides an easy way to dynamically and programmatically
@@ -158,12 +168,12 @@ build queries and provides a safe API to communicate with the JSON:API.
 Filtering resources is as easy as calling the `where()` method on 
 a QueryBuilder instance. This method can be chained.
 ```ts
-BlogPost.query<BlogPost>().where('author.name', '=', 'Rein').where('author.age', '>', 34);
+BlogPost.query().where('author.name', '=', 'Rein').where('author.age', '>', 34);
 ```
 As with every chaining method on the QueryBuilder, this allows for 
 greater flexibility while writing your queries:
 ```ts
-const qb = BlogPost.query<BlogPost>().where('author.name', '=', 'Rein');
+const qb = BlogPost.query().where('author.name', '=', 'Rein');
 
 if (filterByAge) {
   qb.where('age', '>', 34)
@@ -173,7 +183,7 @@ if (filterByAge) {
 ### 4.2 Sorting
 
 ```ts
-BlogPost.query<BlogPost>().sort('author.name', '=', 'Rein');
+BlogPost.query().sort('author.name', '=', 'Rein');
 ```
 
 ### 4.3 Grouping
@@ -182,14 +192,14 @@ for filter-grouping. Possible methods for grouping are `or` & `and`.
 
 OR:
 ```ts
-BlogPost.query<BlogPost>().group('or', (qb: QueryBuilder) => {
+BlogPost.query().group('or', (qb: QueryBuilder) => {
   qb.where('author.name', '=', 'Rein');
   qb.where('author.name', '=', 'Gilke');
 });
 ```
 AND:
 ```ts
-BlogPost.query<BlogPost>().group('and', (qb: QueryBuilder) => {
+BlogPost.query().group('and', (qb: QueryBuilder) => {
   qb.where('author.name', '=', 'Rein');
   qb.where('age', '>', 34);
 });
@@ -197,7 +207,7 @@ BlogPost.query<BlogPost>().group('and', (qb: QueryBuilder) => {
 Nested grouping is possible. The underlying library takes care of 
 all the complex stuff for you!
 ```ts
-BlogPost.query<BlogPost>().group('and', (qb: QueryBuilder) => {
+BlogPost.query().group('and', (qb: QueryBuilder) => {
   qb.where('age', '>', 34);
   qb.group('or', (qb: QueryBuilder) => {
     qb.where('author.name', '=', 'Gilke').where('author.name', '=', 'Rein');
@@ -239,12 +249,12 @@ MacroRegistry.registerMacro('sortByAuthorAge', (qb: QueryBuilder) => {
 ```
 Macro usage:
 ```ts
-BlogPost.query<BlogPost>().macro('filterByName', 35, ['Rein', 'Gilke']).macro('sortByAge');
+BlogPost.query().macro('filterByName', 35, ['Rein', 'Gilke']).macro('sortByAge');
 ```
 
 ### 4.5 Pagination
 ```ts
-BlogPost.query<BlogPost>().paginate(1, 10);
+BlogPost.query().paginate(1, 10);
 ```
 
 ### 4.6 Fetching resources
@@ -254,17 +264,17 @@ your resources:
 
 get:
 ```ts
-BlogPost.query<BlogPost>().get();
+BlogPost.query().get();
 ```
 
 getById:
 ```ts
-BlogPost.query<BlogPost>().getById('yourid');
+BlogPost.query().getById('yourid');
 ```
 
 getRaw:
 ```ts
-BlogPost.query<BlogPost>().getRaw();
+BlogPost.query().getRaw();
 ```
 
 ## 5. ResultSet
@@ -274,7 +284,7 @@ push, pop, map, forEach, filter, find, reduce
 ### 5.2 Meta data
 How to access meta data of a ResultSet?
 ```ts
-const resultSet = BlogPost.query<BlogPost>().get();
+const resultSet = BlogPost.query().get();
 const { query, count, performance } = resultSet.meta;
 ```
 
