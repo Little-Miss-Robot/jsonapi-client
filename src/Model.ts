@@ -29,18 +29,18 @@ export default class Model {
     /**
      * Create a QueryBuilder instance specifically for this model
      */
-    public static query<T>(): QueryBuilder<T> {
+    public static query<T extends typeof Model>(this: T): QueryBuilder<InstanceType<T>> {
         if (!this.endpoint) {
             throw new Error(
                 `The model "${this.name}" doesn't have an endpoint, so can't be queried.`,
             );
         }
 
-        const mapper: TMapper<Promise<T>> = async (response): Promise<T> => {
+        const mapper: TMapper<Promise<InstanceType<T>>> = async (response): Promise<InstanceType<T>> => {
             return await this.createFromResponse(response);
         };
 
-        const query = new QueryBuilder<T>(
+        const query = new QueryBuilder<InstanceType<T>>(
             new Client(
                 Config.get('baseUrl'),
                 Config.get('clientId'),
