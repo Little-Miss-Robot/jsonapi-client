@@ -5,6 +5,7 @@
 </p>
 
 # JSON:API Client
+### A lightweight library for seamless JSON API communication, featuring a powerful query builder and intuitive models for effortless data handling.
 
 ## Overview
 
@@ -71,11 +72,11 @@ import {ResponseModelInterface} from "../src/contracts/ResponseModelInterface";
 export class Author extends Model
 {
   // Define this model's properties
-  id: string;
-  firstName: string;
-  lastName: string;
-  fullName: string;
-  isGilke: boolean;
+  id!: string;
+  firstName!: string;
+  lastName!: string;
+  fullName!: string;
+  isGilke!: boolean;
   
   // Tell the model how to map from the response data
   async map(responseModel: ResponseModelInterface)
@@ -85,7 +86,7 @@ export class Author extends Model
       firstName: responseModel.get('first_name', ''),
       lastName: responseModel.get('lastName', ''),
       fullName: responseModel.join(' ', 'firstName', 'lastName'),
-      isGilke: responseModel.custom('firstName', value => value === 'Gilke'),
+      isGilke: responseModel.get('first_name', '') === 'Gilke',
     };
   }
 }
@@ -103,9 +104,9 @@ export class BlogPost extends Model
   protected static include = ['author'];
 
   // Define this model's properties
-  id: string;
-  title: string;
-  author: Author;
+  id!: string;
+  title!: string;
+  author!: Author;
   
   // Tell the model how to map from the response data
   async map(responseModel: ResponseModelInterface)
