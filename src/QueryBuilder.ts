@@ -332,7 +332,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
      * Gets a single entry by UUID
      * @param uuid
      */
-    async getById(uuid: string): Promise<T> {
+    async find(uuid: string | number): Promise<T> {
         this.rawResponse = await this.performGetRequest(this.buildUrl(`${this.endpoint}/${uuid}`));
 
         if (!this.mapper) {
@@ -343,7 +343,6 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
             console.error(this.buildUrl(this.endpoint), this.rawResponse.errors[0].detail);
         }
 
-        // @TODO make sure this is being mapped correctly (see get())
         return this.mapper(new ResponseModel(this.rawResponse.data));
     }
 

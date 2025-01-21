@@ -13,6 +13,16 @@ export default class Model {
     /**
      * @protected
      */
+    protected static primaryKey: string = 'id';
+
+    /**
+     * @protected
+     */
+    protected static defaultMacro: string;
+
+    /**
+     * @protected
+     */
     protected static endpoint: string;
 
     /**
@@ -20,6 +30,10 @@ export default class Model {
      */
     protected static include: string[] = [];
 
+    /**
+     *
+     * @param response
+     */
     public static async createFromResponse(response: ResponseModelInterface) {
         const instance = new (this as any)();
         Object.assign(instance, (await instance.map(response)));
@@ -40,6 +54,7 @@ export default class Model {
             return await this.createFromResponse(response);
         };
 
+        // Create a new query instnace, pass the type of the called class as a type
         const query = new QueryBuilder<InstanceType<T>>(
             new Client(
                 Config.get('baseUrl'),
@@ -52,7 +67,13 @@ export default class Model {
             mapper,
         );
 
+        // Pass the includes to the query builder
         query.include(this.include);
+
+        // Check if the model has a default macro
+        if (this.defaultMacro) {
+            query.macro(this.defaultMacro);
+        }
 
         return query;
     }

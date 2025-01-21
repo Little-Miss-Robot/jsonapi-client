@@ -64,7 +64,7 @@ generic ResponseModel available that allows for safer object traversal
 through its get-method and various utility functions.
 E.g. `responseModel.get('category.title', 'This is a default value')`
 
-Example Author model:
+#### Example Author model:
 ```ts
 import Model from "../src/Model";
 import {ResponseModelInterface} from "../src/contracts/ResponseModelInterface";
@@ -92,7 +92,7 @@ export class Author extends Model
 }
 ```
 
-Example BlogPost model:
+#### Example BlogPost model:
 ```ts
 export class BlogPost extends Model
 {
@@ -164,6 +164,17 @@ automatically resolve it to the corresponding model.
 The QueryBuilder provides an easy way to dynamically and programmatically
 build queries and provides a safe API to communicate with the JSON:API.
 
+#### Instantiating a new query builder
+Although it's more convenient to instantiate your query builder directly from the model, 
+it's still possible to create ad-hoc query builders, like so:
+```ts
+const queryBuilder = new QueryBuilder(new Client(), 'api/my_endpoint', (responseModel) => {
+  return {
+    id: responseModel.get('id'),
+  };
+});
+```
+
 ### 4.1 Filtering
 Filtering resources is as easy as calling the `where()` method on 
 a QueryBuilder instance. This method can be chained.
@@ -224,13 +235,12 @@ that should be reusable (dry).
 Because of this, you can abstract away query statements and register 
 them as macros, these can then be called on any QueryBuilder instance.
 
-Registering macros:
-
+#### Registering macros:
 ```ts
 import QueryBuilder from "./QueryBuilder";
 import MacroRegistry from "./MacroRegistry";
 
-MacroRegistry.registerMacro('filterByAuthorName', (qb: QueryBuilder, age, names) => {
+MacroRegistry.registerMacro('filterByAgeAndName', (qb: QueryBuilder, age, names) => {
   qb.group('and', (qb: QueryBuilder) => {
     qb.where('author.age', '>', age);
     qb.group('or', (qb: QueryBuilder) => {
@@ -247,10 +257,13 @@ MacroRegistry.registerMacro('sortByAuthorAge', (qb: QueryBuilder) => {
   qb.sort('author.age', 'desc');
 });
 ```
-Macro usage:
+#### Macro usage:
 ```ts
-BlogPost.query().macro('filterByName', 35, ['Rein', 'Gilke']).macro('sortByAge');
+BlogPost.query().macro('filterByAgeAndName', 35, ['Rein', 'Gilke']).macro('sortByAge');
 ```
+
+#### Default macros
+// @TODO explain default macros
 
 ### 4.5 Pagination
 ```ts
@@ -262,17 +275,17 @@ BlogPost.query().paginate(1, 10);
 On any QueryBuilder instance, you'll have these methods available for fetching 
 your resources:
 
-get:
+#### get() - Gets all results from the query builder
 ```ts
 BlogPost.query().get();
 ```
 
-getById:
+#### find() - Gets one result by its primary key (string or number)
 ```ts
-BlogPost.query().getById('yourid');
+BlogPost.query().find('yourid');
 ```
 
-getRaw:
+#### getRaw() - Gets all results from the query builder but doesn't map the results
 ```ts
 BlogPost.query().getRaw();
 ```
