@@ -44,6 +44,10 @@ export default class ResultSet<T> implements Iterable<T> {
         };
     }
 
+    get length() {
+        return this.items.length;
+    }
+
     get(index: number): T {
         return this.items[index];
     }
