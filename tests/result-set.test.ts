@@ -1,6 +1,6 @@
 import { ResultSet } from '../src/index';
 
-it('items in ResultSet are retrievable by get()', () => {
+it('has items retrievable by get()', () => {
 
 	const resultSet = new ResultSet([
 		{
@@ -24,7 +24,7 @@ it('items in ResultSet are retrievable by get()', () => {
 	});
 });
 
-it('ResultSet is iterable', () => {
+it('is iterable', () => {
 
 	const resultSet = new ResultSet([
 		{
@@ -58,7 +58,7 @@ it('ResultSet is iterable', () => {
 	}
 });
 
-it('ResultSet is filterable', () => {
+it('is filterable', () => {
 
 	const resultSet = new ResultSet([
 		{
@@ -89,7 +89,7 @@ it('ResultSet is filterable', () => {
 	]);
 });
 
-it('ResultSet is findable', () => {
+it('is findable', () => {
 
 	const resultSet = new ResultSet([
 		{
@@ -114,7 +114,7 @@ it('ResultSet is findable', () => {
 	});
 });
 
-it('ResultSet is mappable', () => {
+it('is mappable', () => {
 
 	const resultSet = new ResultSet([
 		{
@@ -175,7 +175,7 @@ it('has a length property', () => {
 	});
 });
 
-it('items can be popped from the ResultSet', () => {
+it('has items that can be popped', () => {
 
 	const resultSet = new ResultSet([
 		{
@@ -201,7 +201,7 @@ it('items can be popped from the ResultSet', () => {
 	expect(resultSet.get(1)).toBeUndefined();
 });
 
-it('items can be pushed to ResultSet', () => {
+it('is pushable', () => {
 
 	const resultSet = new ResultSet([
 		{
@@ -226,7 +226,7 @@ it('items can be pushed to ResultSet', () => {
 	});
 });
 
-it('meta of ResultSet is retrievable by using the meta property', () => {
+it('has meta that is retrievable by using the meta property', () => {
 
 	const resultSet = new ResultSet();
 
@@ -249,4 +249,20 @@ it('meta of ResultSet is retrievable by using the meta property', () => {
 	resultSet.setMeta(meta);
 
 	expect(resultSet.meta).toBe(meta);
+});
+
+it('is reducable', () => {
+
+	const resultSet = new ResultSet([
+		1,
+		2,
+		3,
+		4,
+	]);
+
+	const result = resultSet.reduce((accumulator, currentValue) => {
+		return accumulator + currentValue;
+	}, 0);
+
+	expect(result).toBe(10);
 });
