@@ -11,9 +11,9 @@ export default class Config {
      * @param attributes
      */
     public static setAll(attributes: TConfigAttributes) {
-        const hasEmptyStringValue = Object.values(attributes).some(value => value === '');
+        const hasFalsyStringValue = Object.values(attributes).some(value => ! value);
 
-        if (hasEmptyStringValue) {
+        if (hasFalsyStringValue) {
             throw new Error('Some (or one) of your config values are empty strings');
         }
 
@@ -23,10 +23,10 @@ export default class Config {
     /**
      * @param attribute
      */
-    public static get(attribute: keyof TConfigAttributes) {
+    public static get(attribute: keyof TConfigAttributes): TNullable<string> {
         if (this.attributes === null) {
             throw new Error('Config values are not set');
         }
-        return this.attributes[attribute] || '';
+        return this.attributes[attribute] || null;
     }
 }
