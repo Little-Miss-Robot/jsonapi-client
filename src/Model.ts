@@ -81,7 +81,7 @@ export default class Model {
     /**
      * @param responseModel
      */
-    public async map(responseModel: ResponseModelInterface): Promise<any> {
+    public async map(responseModel: ResponseModelInterface): Promise<Record<string, any>> {
         return responseModel;
     }
 }

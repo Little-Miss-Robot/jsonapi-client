@@ -9,6 +9,11 @@ import MacroRegistry from './MacroRegistry';
 import ResponseModel from './ResponseModel';
 import ResultSet from './ResultSet';
 import { makeSearchParams } from './utils/http';
+import {isJsonApiResponse} from "./typeguards/isJsonApiResponse";
+import InvalidResponseError from "./errors/InvalidResponseError";
+import {TJsonApiResponse} from "./types/json-api-response";
+import {TRawResponse} from "./types/raw-response";
+import {isRawResponse} from "./typeguards/isRawResponse";
 
 /**
  * This class provides an easy-to-use interface to build queries
@@ -64,7 +69,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
      *
      * @private
      */
-    private rawResponse: any;
+    private response: TJsonApiResponse;
 
     /**
      * The last used filter group id, increments with each use of a filter-method to generate a unique filter group name
@@ -220,7 +225,6 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
      */
     private createFilterGroupName(): string {
         this.lastFilterGroupId = this.lastFilterGroupId + 1;
-
         return `g${this.lastFilterGroupId}`;
     }
 
@@ -260,8 +264,12 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
     async getRaw(): Promise<T> {
         const response = await this.performGetRequest(this.buildUrl(this.endpoint));
 
+        if (! isRawResponse(response)) {
+            throw new InvalidResponseError();
+        }
+
         if (!this.mapper) {
-            return response;
+            throw new Error('No mapper');
         }
 
         return await this.mapper(new ResponseModel(response));
@@ -271,21 +279,24 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
      * Maps and returns all entries in the response
      */
     async get(): Promise<ResultSet<T>> {
+
         let start = Date.now();
         const url = this.buildUrl(this.endpoint);
-        this.rawResponse = await this.performGetRequest(url);
+        const response = await this.performGetRequest(url);
+
+        if (! isJsonApiResponse(response)) {
+            throw new InvalidResponseError();
+        }
+
+        this.response = response;
+
         const queryDuration = Date.now() - start;
         start = Date.now();
 
-        if (typeof this.rawResponse.data === 'undefined') {
-            console.error(url, this.rawResponse.errors[0].detail);
-            return new ResultSet<T>();
-        }
-
-        const responseModels = this.rawResponse.data.map((entry: any) => new ResponseModel(entry));
+        const responseModels = this.response.data.map((entry: unknown) => new ResponseModel(entry));
 
         if (!this.mapper) {
-            return responseModels;
+            throw new Error('No mapper');
         }
 
         const resultSet = new ResultSet<T>();
@@ -308,10 +319,10 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
             },
         };
 
-        if (this.rawResponse.meta) {
+        if (this.response.meta) {
             meta = {
-                count: this.rawResponse.meta.count || 0,
-                pages: Math.ceil(this.rawResponse.meta.count / this.pageLimit),
+                count: this.response.meta.count || 0,
+                pages: Math.ceil(this.response.meta.count / this.pageLimit),
                 perPage: this.pageLimit,
                 ...meta,
             };
@@ -322,7 +333,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
         return resultSet;
     }
 
-    async one(): Promise<T> {
+    async first(): Promise<T | ResponseModel> {
         const resultSet = await this.get();
 
         return resultSet.get(0);
@@ -333,21 +344,23 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
      * @param uuid
      */
     async find(uuid: string | number): Promise<T> {
-        this.rawResponse = await this.performGetRequest(this.buildUrl(`${this.endpoint}/${uuid}`));
-
         if (!this.mapper) {
-            throw new Error('Mapper not defined');
+            throw new Error('No mapper');
         }
 
-        if (typeof this.rawResponse.data === 'undefined') {
-            console.error(this.buildUrl(this.endpoint), this.rawResponse.errors[0].detail);
+        const response = await this.performGetRequest(this.buildUrl(`${this.endpoint}/${uuid}`));
+
+        if (! isJsonApiResponse(response)) {
+            throw new InvalidResponseError();
         }
 
-        return this.mapper(new ResponseModel(this.rawResponse.data));
+        this.response = response;
+
+        return this.mapper(new ResponseModel(this.response.data));
     }
 
     /**
-     *
+     * Turns the QueryBuilder into a string
      */
     public toString() {
         return this.buildUrl(this.endpoint);

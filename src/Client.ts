@@ -113,7 +113,7 @@ export default class Client implements ClientInterface {
     /**
      * Fetches the API with a GET request
      */
-    public async get(path: string, options = {}) {
+    public async get(path: string, options = {}): Promise<unknown> {
         const token = await this.getAuthToken();
 
         const response = await fetch(`${this.baseUrl}/${path}`, {
@@ -131,6 +131,7 @@ export default class Client implements ClientInterface {
     /**
      * Fetches the API with a POST request
      */
+    /*
     public async post(path: string, data: any, options = {}) {
     // @TODO test this method
 
@@ -148,5 +149,5 @@ export default class Client implements ClientInterface {
         });
 
         return await response.json();
-    }
+    }*/
 }

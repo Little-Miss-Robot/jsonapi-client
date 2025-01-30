@@ -1,4 +1,4 @@
 export interface ClientInterface {
-    get: (path: string, options: Record<string, any>) => Promise<any>
-    post: (path: string, data: any, options: Record<string, any>) => Promise<any>
+    get: (path: string, options: Record<string, unknown>) => Promise<unknown>
+    //post: (path: string, data: Object, options: Record<string, unknown>) => Promise<unknown>
 }

@@ -21,7 +21,7 @@ export default class MacroRegistry {
      * @param query
      * @param args
      */
-    public static execute(name: string, query: QueryBuilder<any>, args: unknown[] = []) {
+    public static execute(name: string, query: QueryBuilder<unknown>, args: unknown[] = []) {
         if (!this.macros[name]) {
             throw new UnknownMacroError(name);
         }

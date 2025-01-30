@@ -7,12 +7,12 @@ export default class ResponseModel implements ResponseModelInterface {
      * The raw, unprocessed response from the JSON:API
      * @private
      */
-    private readonly rawResponse: any;
+    private readonly rawResponse: Object;
 
     /**
      * @param rawResponse
      */
-    constructor(rawResponse: any) {
+    constructor(rawResponse: Object) {
         this.rawResponse = rawResponse;
     }
 
@@ -61,7 +61,7 @@ export default class ResponseModel implements ResponseModelInterface {
      * @param path
      * @param mapper
      */
-    async map(path: string | string[], mapper?: TMapper<any>) {
+    async map(path: string | string[], mapper?: TMapper<unknown>) {
         let contentData = this.get(path, null);
 
         if (!contentData) {
@@ -83,7 +83,6 @@ export default class ResponseModel implements ResponseModelInterface {
             return result;
         }
 
-        const model = new ResponseModel(contentData);
-        return AutoMapper.map(model);
+        return AutoMapper.map(new ResponseModel(contentData));
     }
 }
