@@ -48,7 +48,6 @@ export default class AutoMapper {
     }
 
     /**
-     *
      * @param responseModel
      */
     public static async map(responseModel: ResponseModelInterface) {

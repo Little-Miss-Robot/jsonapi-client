@@ -1,4 +1,5 @@
 import type { ClientInterface } from './contracts/ClientInterface';
+import AuthTokenError from "./errors/AuthTokenError";
 
 export default class Client implements ClientInterface {
     /**
@@ -98,7 +99,7 @@ export default class Client implements ClientInterface {
         }
         catch (e: unknown) {
             if (e instanceof Error) {
-                throw new TypeError(`Couldn\'t generate auth token: ${e.message}`);
+                throw new AuthTokenError(e.message);
             }
             throw new Error(`Couldn\'t generate auth token: Unknown error`);
         }

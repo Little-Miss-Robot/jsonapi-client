@@ -1,4 +1,4 @@
-import Config from '../src/Config';
+import {Config} from '../src/index';
 import {TConfigAttributes} from "../src/types/config-attributes";
 
 it('can setAll Config values and ', () => {

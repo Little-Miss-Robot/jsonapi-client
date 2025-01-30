@@ -54,7 +54,7 @@ export default class Model {
             return await this.createFromResponse(response);
         };
 
-        // Create a new query instnace, pass the type of the called class as a type
+        // Create a new QueryBuilder instance (and pass the type of the called class as a type)
         const query = new QueryBuilder<InstanceType<T>>(
             new Client(
                 Config.get('baseUrl'),
