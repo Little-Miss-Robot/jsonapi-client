@@ -1,5 +1,16 @@
 import {Config} from '../src/index';
 import {TConfigAttributes} from "../src/types/config-attributes";
+import FalsyConfigValueError from "../src/errors/FalsyConfigValueError";
+import ConfigValuesNotSetError from "../src/errors/ConfigValuesNotSetError";
+
+test('Empty string Config values throws a FalsyConfigValueError', () => {
+
+	const t = () => {
+		Config.get('baseUrl');
+	};
+
+	expect(t).toThrow(ConfigValuesNotSetError);
+});
 
 it('can setAll Config values and ', () => {
 
@@ -20,7 +31,7 @@ it('returns null when getting a non-existent value', () => {
 	expect(Config.get('nonExistentConfigValue' as keyof TConfigAttributes)).toBe(null);
 });
 
-test('Empty string Config values throw an Error', () => {
+test('Empty string Config values throws a FalsyConfigValueError', () => {
 
 	const t = () => {
 		Config.setAll({
@@ -32,5 +43,5 @@ test('Empty string Config values throw an Error', () => {
 		});
 	};
 
-	expect(t).toThrow(Error);
+	expect(t).toThrow(FalsyConfigValueError);
 });

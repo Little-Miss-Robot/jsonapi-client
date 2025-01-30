@@ -1,5 +1,7 @@
 import type { TConfigAttributes } from './types/config-attributes';
 import {TNullable} from "./types/nullable";
+import FalsyConfigValueError from "./errors/FalsyConfigValueError";
+import ConfigValuesNotSetError from "./errors/ConfigValuesNotSetError";
 
 export default class Config {
     /**
@@ -11,11 +13,14 @@ export default class Config {
      * @param attributes
      */
     public static setAll(attributes: TConfigAttributes) {
-        const hasFalsyStringValue = Object.values(attributes).some(value => ! value);
 
-        if (hasFalsyStringValue) {
-            throw new Error('Some (or one) of your config values are empty strings');
-        }
+        const keys = Object.keys(attributes);
+
+        keys.forEach(key => {
+            if (! attributes[key]) {
+                throw new FalsyConfigValueError(key);
+            }
+        });
 
         this.attributes = attributes;
     }
@@ -25,7 +30,7 @@ export default class Config {
      */
     public static get(attribute: keyof TConfigAttributes): TNullable<string> {
         if (this.attributes === null) {
-            throw new Error('Config values are not set');
+            throw new ConfigValuesNotSetError();
         }
         return this.attributes[attribute] || null;
     }
