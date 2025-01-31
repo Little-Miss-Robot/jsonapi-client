@@ -2,17 +2,16 @@ import type Client from './Client';
 import type { QueryBuilderInterface } from './contracts/QueryBuilderInterface';
 import type { TFilterOperator } from './types/filter-operator';
 import type { TMapper } from './types/mapper';
-import type { TNullable } from './types/nullable';
+import type { TNullable } from './types/generic/nullable';
 import type { TQueryParams } from './types/query-params';
 import type { TResultSetMeta } from './types/resultset-meta';
 import MacroRegistry from './MacroRegistry';
 import ResponseModel from './ResponseModel';
 import ResultSet from './ResultSet';
-import { makeSearchParams } from './utils/http';
+import {makeSearchParams} from './utils/http';
 import {isJsonApiResponse} from "./typeguards/isJsonApiResponse";
 import InvalidResponseError from "./errors/InvalidResponseError";
 import {TJsonApiResponse} from "./types/json-api-response";
-import {TRawResponse} from "./types/raw-response";
 import {isRawResponse} from "./typeguards/isRawResponse";
 
 /**
@@ -259,7 +258,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
     }
 
     /**
-     * Fetches the endpoint and returns the raw response without automatically mapping it to a response model
+     * Fetches the endpoint and uses the raw response to pass to the mapper
      */
     async getRaw(): Promise<T> {
         const response = await this.performGetRequest(this.buildUrl(this.endpoint));
@@ -333,10 +332,11 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
         return resultSet;
     }
 
+    /**
+     *
+     */
     async first(): Promise<T | ResponseModel> {
-        const resultSet = await this.get();
-
-        return resultSet.get(0);
+        return (await this.get()).get(0);
     }
 
     /**

@@ -1,7 +1,7 @@
-import type { TMapper } from '../types/mapper';
+import {TNullable} from "../types/generic/nullable";
 
 export interface ResponseModelInterface {
-    get: (path: string | string[], defaultValue?: any) => any
-    join: (separator: string, ...args: string[]) => string
-    map: (path: string | string[], mapper?: TMapper<unknown>) => unknown
+    get: <T>(path: string | string[], defaultValue?: TNullable<T>) => T
+    hasOne: <T>(path: string | string[]) => Promise<T>
+    hasMany: <T>(path: string | string[]) => Promise<T[]>
 }

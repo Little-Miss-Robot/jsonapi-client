@@ -68,6 +68,7 @@ E.g. `responseModel.get('category.title', 'This is a default value')`
 ```ts
 import Model from "../src/Model";
 import {ResponseModelInterface} from "../src/contracts/ResponseModelInterface";
+import {DataProperties} from "../src/types/generic/data-properties";
 
 export class Author extends Model
 {
@@ -75,18 +76,16 @@ export class Author extends Model
   id!: string;
   firstName!: string;
   lastName!: string;
-  fullName!: string;
   isGilke!: boolean;
   
   // Tell the model how to map from the response data
-  async map(responseModel: ResponseModelInterface)
+  async map(responseModel: ResponseModelInterface): Promise<DataProperties<Author>>
   {
     return {
-      id: responseModel.get('id', ''),
-      firstName: responseModel.get('first_name', ''),
-      lastName: responseModel.get('lastName', ''),
-      fullName: responseModel.join(' ', 'firstName', 'lastName'),
-      isGilke: responseModel.get('first_name', '') === 'Gilke',
+      id: responseModel.get<string>('id', ''),
+      firstName: responseModel.get<string>('first_name', ''),
+      lastName: responseModel.get<string>('lastName', ''),
+      isGilke: responseModel.get<string>('first_name', '') === 'Gilke',
     };
   }
 }
@@ -109,13 +108,13 @@ export class BlogPost extends Model
   author!: Author;
   
   // Tell the model how to map from the response data
-  async map(responseModel: ResponseModelInterface)
+  async map(responseModel: ResponseModelInterface): Promise<DataProperties<BlogPost>>
   {
     return {
-      id: responseModel.get('id', ''),
-      type: responseModel.get('type', ''),
-      title: responseModel.get('title', ''),
-      author: responseModel.map('author'),
+      id: responseModel.get<string>('id', ''),
+      type: responseModel.get<string>('type', ''),
+      title: responseModel.get<string>('title', ''),
+      author: responseModel.hasOne<Author>('author'),
     };
   }
 }

@@ -1,5 +1,5 @@
 import type { TConfigAttributes } from './types/config-attributes';
-import {TNullable} from "./types/nullable";
+import {TNullable} from "./types/generic/nullable";
 import FalsyConfigValueError from "./errors/FalsyConfigValueError";
 import ConfigValuesNotSetError from "./errors/ConfigValuesNotSetError";
 

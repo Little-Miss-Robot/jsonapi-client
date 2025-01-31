@@ -127,27 +127,4 @@ export default class Client implements ClientInterface {
 
         return await response.json();
     }
-
-    /**
-     * Fetches the API with a POST request
-     */
-    /*
-    public async post(path: string, data: any, options = {}) {
-    // @TODO test this method
-
-        const token = await this.getAuthToken();
-
-        const response = await fetch(`${this.baseUrl}/${path}`, {
-            ...options,
-            method: 'POST',
-            headers: new Headers({
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/vnd.api+json',
-                'content-type': 'application/json',
-            }),
-            body: JSON.stringify(data),
-        });
-
-        return await response.json();
-    }*/
 }

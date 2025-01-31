@@ -4,12 +4,7 @@ import Client from './Client';
 import Config from './Config';
 import QueryBuilder from './QueryBuilder';
 
-export default class Model {
-    /**
-     *
-     */
-    [key: string]: any;
-
+export default abstract class Model {
     /**
      * @protected
      */
@@ -81,7 +76,7 @@ export default class Model {
     /**
      * @param responseModel
      */
-    public async map(responseModel: ResponseModelInterface): Promise<Record<string, any>> {
+    map(responseModel: ResponseModelInterface): unknown {
         return responseModel;
     }
 }

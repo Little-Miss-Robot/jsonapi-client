@@ -1,6 +1,6 @@
 import type { ResponseModelInterface } from './contracts/ResponseModelInterface';
-import type { TMapper } from './types/mapper';
 import AutoMapper from './AutoMapper';
+import {TNullable} from "./types/generic/nullable";
 
 export default class ResponseModel implements ResponseModelInterface {
     /**
@@ -21,12 +21,13 @@ export default class ResponseModel implements ResponseModelInterface {
      * @param path
      * @param defaultValue
      */
-    get(path: string | string[], defaultValue?: any): any {
+    get<T>(path: string | string[], defaultValue: TNullable<T> = null): T {
         if (!Array.isArray(path)) {
             path = path.replace(/\[(\d+)\]/g, '.$1').split('.');
         }
 
         let result = this.rawResponse;
+
         for (const key of path) {
             result = result !== null && Object.prototype.hasOwnProperty.call(result, key) ? result[key] : undefined;
             if (result === undefined) {
@@ -34,34 +35,31 @@ export default class ResponseModel implements ResponseModelInterface {
             }
         }
 
-        return result;
-    }
-
-    /**
-     * @param path
-     * @param customMapper
-     */
-    custom(path: string | string[], customMapper: (value: any) => any) {
-        return customMapper(this.get(path));
-    }
-
-    /**
-     * @param separator
-     * @param args
-     */
-    join(separator: string, ...args: (string | string[])[]): string {
-        // @TODO test this functionality
-        return args.map((path) => {
-            return this.get(path, '');
-        }).filter(value => value !== '').join(separator);
+        return result as T;
     }
 
     /**
      * Gets a relationship from the node and optionally map it
      * @param path
-     * @param mapper
      */
-    async map(path: string | string[], mapper?: TMapper<unknown>) {
+    async hasOne<T>(path: string | string[]): Promise<T> {
+        let contentData = this.get(path, null);
+
+        if (!contentData) {
+            return null;
+        }
+
+        if (contentData.data) {
+            contentData = contentData.data;
+        }
+
+        return AutoMapper.map(new ResponseModel(contentData));
+    }
+
+    /**
+     * @param path
+     */
+    async hasMany<T>(path: string | string[]): Promise<T[]> {
         let contentData = this.get(path, null);
 
         if (!contentData) {
@@ -76,13 +74,12 @@ export default class ResponseModel implements ResponseModelInterface {
             const result = [];
 
             for await (const item of contentData) {
-                const responseModel = new ResponseModel(item);
-                result.push(AutoMapper.map(responseModel));
+                result.push(AutoMapper.map(new ResponseModel(item)));
             }
 
             return result;
         }
 
-        return AutoMapper.map(new ResponseModel(contentData));
+        return null;
     }
 }
