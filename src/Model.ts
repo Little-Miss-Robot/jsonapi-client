@@ -54,9 +54,7 @@ export default abstract class Model {
             new Client(
                 Config.get('baseUrl'),
                 Config.get('clientId'),
-                Config.get('clientSecret'),
-                Config.get('username'),
-                Config.get('password'),
+                Config.get('clientSecret')
             ),
             this.endpoint,
             mapper,

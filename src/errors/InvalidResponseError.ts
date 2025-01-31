@@ -1,6 +1,6 @@
 export default class InvalidResponseError extends Error {
-	constructor() {
-		super(`Invalid response`);
+	constructor(additionalMessage: string = 'Unknown reason') {
+		super(`Invalid response: ${additionalMessage}`);
 		this.name = "InvalidResponseError";
 	}
 }

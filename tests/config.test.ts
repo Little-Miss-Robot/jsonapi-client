@@ -18,8 +18,6 @@ it('can setAll Config values and ', () => {
 		baseUrl: 'a',
 		clientId: 'b',
 		clientSecret: 'c',
-		password: 'd',
-		username: 'e'
 	});
 
 	expect(Config.get('baseUrl')).toBe('a');
@@ -38,8 +36,6 @@ test('Empty string Config values throws a FalsyConfigValueError', () => {
 			baseUrl: 'a',
 			clientId: 'b',
 			clientSecret: '',
-			password: 'd',
-			username: 'e'
 		});
 	};
 

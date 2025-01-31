@@ -1,18 +1,18 @@
-import type QueryBuilder from './QueryBuilder';
-import type { TMacroCall } from './types/macro-call';
+import type { TQueryBuilderMacroFunction } from './types/query-builder-macro-function';
 import UnknownMacroError from "./errors/UnknownMacroError";
+import {QueryBuilderInterface} from "./contracts/QueryBuilderInterface";
 
 export default class MacroRegistry {
     /**
      * @private
      */
-    private static macros: Record<string, TMacroCall> = {};
+    private static macros: Record<string, TQueryBuilderMacroFunction> = {};
 
     /**
      * @param name
      * @param call
      */
-    public static register(name: string, call: TMacroCall) {
+    public static register(name: string, call: TQueryBuilderMacroFunction) {
         this.macros[name] = call;
     }
 
@@ -21,7 +21,7 @@ export default class MacroRegistry {
      * @param query
      * @param args
      */
-    public static execute(name: string, query: QueryBuilder<unknown>, args: unknown[] = []) {
+    public static execute(name: string, query: QueryBuilderInterface<unknown>, args: unknown[] = []) {
         if (!this.macros[name]) {
             throw new UnknownMacroError(name);
         }

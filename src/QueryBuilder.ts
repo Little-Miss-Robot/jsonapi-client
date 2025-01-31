@@ -1,5 +1,6 @@
 import type Client from './Client';
 import type { QueryBuilderInterface } from './contracts/QueryBuilderInterface';
+import {TJsonApiResponse} from "./types/json-api-response";
 import type { TFilterOperator } from './types/filter-operator';
 import type { TMapper } from './types/mapper';
 import type { TNullable } from './types/generic/nullable';
@@ -9,10 +10,10 @@ import MacroRegistry from './MacroRegistry';
 import ResponseModel from './ResponseModel';
 import ResultSet from './ResultSet';
 import {makeSearchParams} from './utils/http';
-import {isJsonApiResponse} from "./typeguards/isJsonApiResponse";
 import InvalidResponseError from "./errors/InvalidResponseError";
-import {TJsonApiResponse} from "./types/json-api-response";
+import {isJsonApiResponse} from "./typeguards/isJsonApiResponse";
 import {isRawResponse} from "./typeguards/isRawResponse";
+import {TQueryBuilderGroupingFunction} from "./types/query-builder-grouping-function";
 
 /**
  * This class provides an easy-to-use interface to build queries
@@ -205,16 +206,17 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
     }
 
     /**
+     *
      * @param operator
-     * @param groupingCall
+     * @param groupingFunction
      */
-    public group(operator: 'or' | 'and', groupingCall: (query: QueryBuilder<T>) => void): this {
+    public group(operator: 'or' | 'and', groupingFunction: TQueryBuilderGroupingFunction<T>): this {
         const currentFilterGroupName = this.currentFilterGroupName;
         const newGroupName = this.createFilterGroupName();
         this.assignFilterGroupToCurrentFilterGroup(newGroupName);
         this.currentFilterGroupName = newGroupName;
         this.param(`filter[${this.currentFilterGroupName}][group][conjunction]`, operator.toUpperCase());
-        groupingCall(this);
+        groupingFunction(this);
         this.currentFilterGroupName = currentFilterGroupName;
         return this;
     }
@@ -284,7 +286,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
         const response = await this.performGetRequest(url);
 
         if (! isJsonApiResponse(response)) {
-            throw new InvalidResponseError();
+            throw new InvalidResponseError('Couldn\'t verify the response as a valid JSON:API response. Potentially this is not a JSON:API resource or the JSON:API has a version mismatch (expected 1.0)');
         }
 
         this.response = response;
@@ -362,7 +364,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
     /**
      * Turns the QueryBuilder into a string
      */
-    public toString() {
+    public toString(): string {
         return this.buildUrl(this.endpoint);
     }
 }

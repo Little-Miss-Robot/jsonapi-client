@@ -2,7 +2,7 @@ import Client from '../src/Client';
 import QueryBuilder from '../src/QueryBuilder';
 
 function makeMockClient() {
-    return new Client('https://baseurl.ext', '', '', '', '');
+    return new Client('https://baseurl.ext', '', '');
 }
 
 function makeQueryBuilder() {

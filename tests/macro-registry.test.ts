@@ -2,7 +2,7 @@ import { MacroRegistry, QueryBuilder, Client } from '../src/index';
 import UnknownMacroError from "../src/errors/UnknownMacroError";
 
 function makeMockClient() {
-	return new Client('https://baseurl.ext', '', '', '', '');
+	return new Client('https://baseurl.ext', '', '');
 }
 
 function makeQueryBuilder() {

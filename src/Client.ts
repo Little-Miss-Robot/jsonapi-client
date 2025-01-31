@@ -28,34 +28,18 @@ export default class Client implements ClientInterface {
     private readonly clientSecret: string;
 
     /**
-     * @private
-     */
-    private readonly username: string;
-
-    /**
-     * @private
-     */
-    private readonly password: string;
-
-    /**
      * @param baseUrl
      * @param clientId
      * @param clientSecret
-     * @param username
-     * @param password
      */
     constructor(
         baseUrl: string,
         clientId: string,
         clientSecret: string,
-        username: string,
-        password: string,
     ) {
         this.baseUrl = baseUrl;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
-        this.username = username;
-        this.password = password;
     }
 
     /**
@@ -77,33 +61,39 @@ export default class Client implements ClientInterface {
      * Generates a new auth token, stores it as properties and returns it
      */
     private async generateAuthToken(): Promise<string> {
+
+        const url = `${this.baseUrl}/oauth/token`;
+
         const requestBody = new FormData();
         requestBody.append('grant_type', 'client_credentials');
         requestBody.append('client_id', this.clientId);
         requestBody.append('client_secret', this.clientSecret);
-        requestBody.append('username', this.username);
-        requestBody.append('password', this.password);
-
-        const response = await fetch(`${this.baseUrl}/oauth/token`, {
-            method: 'POST',
-            body: requestBody,
-            headers: {
-                Accept: 'application/json',
-            },
-        });
 
         let json;
 
         try {
+            const response = await fetch(url, {
+                method: 'POST',
+                body: requestBody,
+                headers: {
+                    Accept: 'application/json',
+                },
+            });
+
             json = await response.json();
         }
         catch (e: unknown) {
             if (e instanceof Error) {
-                throw new AuthTokenError(e.message);
+                throw new AuthTokenError(e.message, url);
             }
-            throw new Error(`Couldn\'t generate auth token: Unknown error`);
+            throw new AuthTokenError(`Couldn\'t generate auth token: Unknown error.`, url);
         }
 
+        if (! json.access_token) {
+            throw new AuthTokenError(`${json.error}: ${json.error_description}`, url);
+        }
+
+        // Store the access token and expiry date in memory
         this.accessToken = json.access_token as string;
         this.accessTokenExpiryDate = new Date().getTime() + json.expires_in;
 
@@ -125,6 +115,10 @@ export default class Client implements ClientInterface {
             }),
         });
 
-        return await response.json();
+        try {
+            return await response.json();
+        } catch (e: unknown) {
+            throw new Error('Response was not valid JSON.');
+        }
     }
 }
