@@ -46,6 +46,7 @@ export default class Client implements ClientInterface {
      * Gets the authentication token
      */
     private async getAuthToken(): Promise<string> {
+
         if (
             !this.accessToken
             || !this.accessTokenExpiryDate

@@ -2,6 +2,8 @@ import type { TConfigAttributes } from './types/config-attributes';
 import {TNullable} from "./types/generic/nullable";
 import FalsyConfigValueError from "./errors/FalsyConfigValueError";
 import ConfigValuesNotSetError from "./errors/ConfigValuesNotSetError";
+import Container from "./Container";
+import {Client} from "./index";
 
 export default class Config {
     /**

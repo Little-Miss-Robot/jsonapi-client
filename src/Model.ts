@@ -3,6 +3,7 @@ import type { TMapper } from './types/mapper';
 import Client from './Client';
 import Config from './Config';
 import QueryBuilder from './QueryBuilder';
+import Container from "./Container";
 
 export default abstract class Model {
     /**
@@ -51,11 +52,7 @@ export default abstract class Model {
 
         // Create a new QueryBuilder instance (and pass the type of the called class as a type)
         const query = new QueryBuilder<InstanceType<T>>(
-            new Client(
-                Config.get('baseUrl'),
-                Config.get('clientId'),
-                Config.get('clientSecret')
-            ),
+            Container.make('ClientInterface'),
             this.endpoint,
             mapper,
         );
