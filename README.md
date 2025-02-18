@@ -193,7 +193,11 @@ if (filterByAge) {
 ### 4.2 Sorting
 
 ```ts
-BlogPost.query().sort('author.name', '=', 'Rein');
+BlogPost.query().sort('author.name', 'asc');
+```
+
+```ts
+BlogPost.query().sort('author.name', 'desc');
 ```
 
 ### 4.3 Grouping
