@@ -3,6 +3,7 @@ import MacroRegistry from "./MacroRegistry";
 import ResponseModel from "./ResponseModel";
 import ResultSet from "./ResultSet";
 import type { QueryBuilderInterface } from "./contracts/QueryBuilderInterface";
+import { ResponseModelInterface } from "./contracts/ResponseModelInterface";
 import InvalidResponseError from "./errors/InvalidResponseError";
 import { isJsonApiResponse } from "./typeguards/isJsonApiResponse";
 import { isRawResponse } from "./typeguards/isRawResponse";
@@ -70,7 +71,7 @@ export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
 	 *
 	 * @private
 	 */
-	private response: TJsonApiResponse;
+	private response!: TJsonApiResponse;
 
 	/**
 	 * The last used filter group id, increments with each use of a filter-method to generate a unique filter group name
