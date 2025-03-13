@@ -7,6 +7,7 @@ export function isJsonApiResponse(value: unknown): value is TJsonApiResponse {
 		"jsonapi" in value &&
 		"data" in value &&
 		typeof value.data === "object" &&
+		value.jsonapi !== null &&
 		typeof value.jsonapi === "object" &&
 		"version" in value.jsonapi &&
 		value.jsonapi.version === "1.0"
