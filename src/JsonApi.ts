@@ -7,8 +7,6 @@ export default class JsonApi {
 
 	public static init(config: TConfigAttributes) {
 
-		console.log('Initializing JSON:API CLient');
-
 		Config.setAll(config);
 
 		Container.singleton('ClientInterface', () => {
