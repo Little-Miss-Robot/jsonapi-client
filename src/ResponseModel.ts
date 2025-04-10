@@ -54,7 +54,7 @@ export default class ResponseModel implements ResponseModelInterface {
 			contentData = contentData.data;
 		}
 
-		return AutoMapper.map(new ResponseModel(contentData));
+		return await AutoMapper.map(new ResponseModel(contentData));
 	}
 
 	/**
@@ -75,7 +75,7 @@ export default class ResponseModel implements ResponseModelInterface {
 			const result = [];
 
 			for await (const item of contentData) {
-				result.push(AutoMapper.map(new ResponseModel(item)));
+				result.push(await AutoMapper.map(new ResponseModel(item)));
 			}
 
 			return result as T[];
