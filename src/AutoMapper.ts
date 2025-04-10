@@ -53,7 +53,7 @@ export default class AutoMapper {
     public static async map(responseModel: ResponseModelInterface) {
         const ModelClass = this.select(responseModel);
         if (ModelClass) {
-            return ModelClass.createFromResponse(responseModel);
+            return await ModelClass.createFromResponse(responseModel);
         }
 
         return responseModel;
