@@ -1,5 +1,5 @@
 import type { ClientInterface } from './contracts/ClientInterface';
-import AuthTokenError from "./errors/AuthTokenError";
+import AuthTokenError from './errors/AuthTokenError';
 
 export default class Client implements ClientInterface {
     /**
@@ -46,7 +46,6 @@ export default class Client implements ClientInterface {
      * Gets the authentication token
      */
     private async getAuthToken(): Promise<string> {
-
         if (
             !this.accessToken
             || !this.accessTokenExpiryDate
@@ -62,7 +61,6 @@ export default class Client implements ClientInterface {
      * Generates a new auth token, stores it as properties and returns it
      */
     private async generateAuthToken(): Promise<string> {
-
         const url = `${this.baseUrl}/oauth/token`;
 
         const requestBody = new FormData();
@@ -90,7 +88,7 @@ export default class Client implements ClientInterface {
             throw new AuthTokenError(`Couldn\'t generate auth token: Unknown error.`, url);
         }
 
-        if (! json.access_token) {
+        if (!json.access_token) {
             throw new AuthTokenError(`${json.error}: ${json.error_description}`, url);
         }
 
@@ -118,8 +116,9 @@ export default class Client implements ClientInterface {
 
         try {
             return await response.json();
-        } catch (e: unknown) {
-            throw new Error('Response was not valid JSON.');
+        }
+        catch (e: unknown) {
+            throw new Error(`Response was not valid JSON: ${e}`);
         }
     }
 }

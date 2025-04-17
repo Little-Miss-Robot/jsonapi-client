@@ -1,3 +1,3 @@
 export type TResponseWithData = {
-	data: Object;
+    data: object
 };

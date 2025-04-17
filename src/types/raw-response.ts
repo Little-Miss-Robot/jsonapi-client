@@ -1,1 +1,1 @@
-export type TRawResponse = Object;
+export type TRawResponse = object;

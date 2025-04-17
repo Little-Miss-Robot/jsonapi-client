@@ -1,8 +1,7 @@
+import type { TNullable } from './types/generic/nullable';
 import type { TResultSetMeta } from './types/resultset-meta';
-import {TNullable} from "./types/generic/nullable";
 
 export default class ResultSet<T> implements Iterable<T> {
-
     /**
      * @private
      */

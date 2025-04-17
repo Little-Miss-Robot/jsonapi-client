@@ -1,15 +1,15 @@
-import { TJsonApiResponse } from "../types/json-api-response";
+import type { TJsonApiResponse } from '../types/json-api-response';
 
 export function isJsonApiResponse(value: unknown): value is TJsonApiResponse {
-	return (
-		typeof value === "object" &&
-		value !== null &&
-		"jsonapi" in value &&
-		"data" in value &&
-		typeof value.data === "object" &&
-		value.jsonapi !== null &&
-		typeof value.jsonapi === "object" &&
-		"version" in value.jsonapi &&
-		value.jsonapi.version === "1.0"
-	);
+    return (
+        typeof value === 'object'
+        && value !== null
+        && 'jsonapi' in value
+        && 'data' in value
+        && typeof value.data === 'object'
+        && value.jsonapi !== null
+        && typeof value.jsonapi === 'object'
+        && 'version' in value.jsonapi
+        && value.jsonapi.version === '1.0'
+    );
 }

@@ -1,5 +1,5 @@
 export type TConfigAttributes = {
-    baseUrl: string;
-    clientId: string;
-    clientSecret: string;
-}
+    baseUrl: string
+    clientId: string
+    clientSecret: string
+};
