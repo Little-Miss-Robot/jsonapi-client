@@ -12,7 +12,8 @@
     "prepare": "husky",
     "dev": "npm run build && node ./dist/example/test.js",
     "test": "jest",
-    "build": "tsup"
+    "build": "tsup",
+    "lint": "eslint"
   },
   "type": "module",
   "author": "Rein Van Oyen",

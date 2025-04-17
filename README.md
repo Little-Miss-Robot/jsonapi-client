@@ -33,130 +33,126 @@
 First, set your JSON:API credentials.
 
 ```ts
-import Config from "../src/Config";
+import Config from '../src/Config';
 
 Config.setAll({
-  // The location of JSON:API
-  baseUrl: "https://jsonapi.v5tevkp4nowisbi4sic7gv.site",
-  
-  // The client ID
-  clientId: "Hcj7OqJC0KTObYMmMNmVbG3c",
-  
-  // The client secret
-  clientSecret: "Rtqe9lNoXsp9w9blIaVVlEA5",
-  
-  // Password
-  password: "",
-  
-  // Username
-  username: ""
+    // The location of JSON:API
+    baseUrl: 'https://jsonapi.v5tevkp4nowisbi4sic7gv.site',
+
+    // The client ID
+    clientId: 'Hcj7OqJC0KTObYMmMNmVbG3c',
+
+    // The client secret
+    clientSecret: 'Rtqe9lNoXsp9w9blIaVVlEA5',
+
+    // Password
+    password: '',
+
+    // Username
+    username: ''
 });
 ```
 
 ## 3. Models
-Every resource fetched from JSON:API gets mapped to an entity or model. A good way to 
+Every resource fetched from JSON:API gets mapped to an entity or model. A good way to
 start getting familiar with this package, is by making your first model.
 
 ### 3.1 Model mapping
-Override the default Model's map-method to provide your 
-model with data. In the map-method you'll have a 
-generic ResponseModel available that allows for safer object traversal 
+Override the default Model's map-method to provide your
+model with data. In the map-method you'll have a
+generic ResponseModel available that allows for safer object traversal
 through its get-method and various utility functions.
 E.g. `responseModel.get('category.title', 'This is a default value')`
 
 #### Example Author model:
 ```ts
-import Model from "../src/Model";
-import {ResponseModelInterface} from "../src/contracts/ResponseModelInterface";
-import {DataProperties} from "../src/types/generic/data-properties";
+import { ResponseModelInterface } from '../src/contracts/ResponseModelInterface';
+import Model from '../src/Model';
+import { DataProperties } from '../src/types/generic/data-properties';
 
-export class Author extends Model
-{
-  // Define this model's properties
-  id!: string;
-  firstName!: string;
-  lastName!: string;
-  isGilke!: boolean;
-  
-  // Tell the model how to map from the response data
-  async map(responseModel: ResponseModelInterface): Promise<DataProperties<Author>>
-  {
-    return {
-      id: responseModel.get<string>('id', ''),
-      firstName: responseModel.get<string>('first_name', ''),
-      lastName: responseModel.get<string>('lastName', ''),
-      isGilke: responseModel.get<string>('first_name', '') === 'Gilke',
-    };
-  }
+export class Author extends Model {
+    // Define this model's properties
+    id!: string;
+    firstName!: string;
+    lastName!: string;
+    isGilke!: boolean;
+
+    // Tell the model how to map from the response data
+    async map(responseModel: ResponseModelInterface): Promise<DataProperties<Author>> {
+        return {
+            id: responseModel.get<string>('id', ''),
+            firstName: responseModel.get<string>('first_name', ''),
+            lastName: responseModel.get<string>('lastName', ''),
+            isGilke: responseModel.get<string>('first_name', '') === 'Gilke',
+        };
+    }
 }
 ```
 
 #### Example BlogPost model:
 ```ts
-export class BlogPost extends Model
-{
-  // Define the endpoint for this model (not required)
-  protected static endpoint: string = 'api/blog_post';
-  
-  // When defining an endpoint in your Model, you'll have the
-  // opportunity to also define which includes to add by default
-  protected static include = ['author'];
+export class BlogPost extends Model {
+    // Define the endpoint for this model (not required)
+    protected static endpoint: string = 'api/blog_post';
 
-  // Define this model's properties
-  id!: string;
-  title!: string;
-  author!: Author;
-  
-  // Tell the model how to map from the response data
-  async map(responseModel: ResponseModelInterface): Promise<DataProperties<BlogPost>>
-  {
-    return {
-      id: responseModel.get<string>('id', ''),
-      type: responseModel.get<string>('type', ''),
-      title: responseModel.get<string>('title', ''),
-      author: responseModel.hasOne<Author>('author'),
-    };
-  }
+    // When defining an endpoint in your Model, you'll have the
+    // opportunity to also define which includes to add by default
+    protected static include = ['author'];
+
+    // Define this model's properties
+    id!: string;
+    title!: string;
+    author!: Author;
+
+    // Tell the model how to map from the response data
+    async map(responseModel: ResponseModelInterface): Promise<DataProperties<BlogPost>> {
+        return {
+            id: responseModel.get<string>('id', ''),
+            type: responseModel.get<string>('type', ''),
+            title: responseModel.get<string>('title', ''),
+            author: responseModel.hasOne<Author>('author'),
+        };
+    }
 }
 ```
 
 ### 3.2 Retrieving model instances
-Every model provides a static method `query` to retrieve a QueryBuilder 
+Every model provides a static method `query` to retrieve a QueryBuilder
 specifically for fetching instances of this Model.
 ```ts
 const queryBuilder = BlogPost.query();
 ```
-The QueryBuilder provides an easy way to dynamically and programmatically 
-build queries. When the QueryBuilder is instantiated through a Model's query-method, 
+The QueryBuilder provides an easy way to dynamically and programmatically
+build queries. When the QueryBuilder is instantiated through a Model's query-method,
 every result will be an instance of the Model it was called on.
 More info on using the QueryBuilder can be found in the section [QueryBuilder](#querybuilder).
 
 ### 3.3 Automapping
 
-When you're not creating your query builder from a specific model, or the response 
-of your query encounters different types, you can specify how and when the 
+When you're not creating your query builder from a specific model, or the response
+of your query encounters different types, you can specify how and when the
 query builder resolves these into instances of different models.
 
-First, set a selector which receives the generic response model and a select value and 
+First, set a selector which receives the generic response model and a select value and
 returns a boolean which indicates whether we have a match.
 
 Set selector:
 ```ts
 AutoMapper.setSelector((responseModel: ResponseModelInterface, selectValue) => {
-  return responseModel.get('type') === selectValue;
+    return responseModel.get('type') === selectValue;
 });
 ```
 
 Now, register your select values (in this example drupal node types) with the corresponding model class:
 ```ts
 AutoMapper.register({
-  'node--blog-post': BlogPost,
-  'node--author': Author,
-  'node--blog-category': BlogCategory,
+    'node--blog-post': BlogPost,
+    'node--author': Author,
+    'node--blog-category': BlogCategory,
 });
 ```
 
-In this example, when the query builder encounters a resource with any of these types, it will 
+In this example, when the query builder encounters a resource with any of these types, it will
 automatically resolve it to the corresponding model.
 
 ## 4. QueryBuilder
@@ -164,29 +160,29 @@ The QueryBuilder provides an easy way to dynamically and programmatically
 build queries and provides a safe API to communicate with the JSON:API.
 
 #### Instantiating a new query builder
-Although it's more convenient to instantiate your query builder directly from the model, 
+Although it's more convenient to instantiate your query builder directly from the model,
 it's still possible to create ad-hoc query builders, like so:
 ```ts
 const queryBuilder = new QueryBuilder(new Client(), 'api/my_endpoint', (responseModel) => {
-  return {
-    id: responseModel.get('id'),
-  };
+    return {
+        id: responseModel.get('id'),
+    };
 });
 ```
 
 ### 4.1 Filtering
-Filtering resources is as easy as calling the `where()` method on 
+Filtering resources is as easy as calling the `where()` method on
 a QueryBuilder instance. This method can be chained.
 ```ts
 BlogPost.query().where('author.name', '=', 'Rein').where('author.age', '>', 34);
 ```
-As with every chaining method on the QueryBuilder, this allows for 
+As with every chaining method on the QueryBuilder, this allows for
 greater flexibility while writing your queries:
 ```ts
 const qb = BlogPost.query().where('author.name', '=', 'Rein');
 
 if (filterByAge) {
-  qb.where('age', '>', 34)
+    qb.where('age', '>', 34);
 }
 ```
 
@@ -201,63 +197,63 @@ BlogPost.query().sort('author.name', 'desc');
 ```
 
 ### 4.3 Grouping
-The QueryBuilder provides an easy-to-use (and understand) interface 
+The QueryBuilder provides an easy-to-use (and understand) interface
 for filter-grouping. Possible methods for grouping are `or` & `and`.
 
 OR:
 ```ts
 BlogPost.query().group('or', (qb: QueryBuilder) => {
-  qb.where('author.name', '=', 'Rein');
-  qb.where('author.name', '=', 'Gilke');
+    qb.where('author.name', '=', 'Rein');
+    qb.where('author.name', '=', 'Gilke');
 });
 ```
 AND:
 ```ts
 BlogPost.query().group('and', (qb: QueryBuilder) => {
-  qb.where('author.name', '=', 'Rein');
-  qb.where('age', '>', 34);
+    qb.where('author.name', '=', 'Rein');
+    qb.where('age', '>', 34);
 });
 ```
-Nested grouping is possible. The underlying library takes care of 
+Nested grouping is possible. The underlying library takes care of
 all the complex stuff for you!
 ```ts
 BlogPost.query().group('and', (qb: QueryBuilder) => {
-  qb.where('age', '>', 34);
-  qb.group('or', (qb: QueryBuilder) => {
-    qb.where('author.name', '=', 'Gilke').where('author.name', '=', 'Rein');
-  });
+    qb.where('age', '>', 34);
+    qb.group('or', (qb: QueryBuilder) => {
+        qb.where('author.name', '=', 'Gilke').where('author.name', '=', 'Rein');
+    });
 });
 ```
 
 ### 4.4 Macros
-As parts of your query can become quite long and complicated, it gets 
-very cumbersome to retype these again and again. Architecturally 
-it's also not the best approach, especially for parts of your query 
+As parts of your query can become quite long and complicated, it gets
+very cumbersome to retype these again and again. Architecturally
+it's also not the best approach, especially for parts of your query
 that should be reusable (dry).
 
-Because of this, you can abstract away query statements and register 
+Because of this, you can abstract away query statements and register
 them as macros, these can then be called on any QueryBuilder instance.
 
 #### Registering macros:
 ```ts
-import QueryBuilder from "./QueryBuilder";
-import MacroRegistry from "./MacroRegistry";
+import MacroRegistry from './MacroRegistry';
+import QueryBuilder from './QueryBuilder';
 
 MacroRegistry.registerMacro('filterByAgeAndName', (qb: QueryBuilder, age, names) => {
-  qb.group('and', (qb: QueryBuilder) => {
-    qb.where('author.age', '>', age);
-    qb.group('or', (qb: QueryBuilder) => {
-      names.forEach(name => {
-        qb.where('author.name', '=', name);
-      });
+    qb.group('and', (qb: QueryBuilder) => {
+        qb.where('author.age', '>', age);
+        qb.group('or', (qb: QueryBuilder) => {
+            names.forEach((name) => {
+                qb.where('author.name', '=', name);
+            });
+        });
     });
-  });
 });
 ```
 
 ```ts
 MacroRegistry.registerMacro('sortByAuthorAge', (qb: QueryBuilder) => {
-  qb.sort('author.age', 'desc');
+    qb.sort('author.age', 'desc');
 });
 ```
 #### Macro usage:
@@ -275,7 +271,7 @@ BlogPost.query().paginate(1, 10);
 
 ### 4.6 Fetching resources
 
-On any QueryBuilder instance, you'll have these methods available for fetching 
+On any QueryBuilder instance, you'll have these methods available for fetching
 your resources:
 
 #### get() - Gets all results from the query builder

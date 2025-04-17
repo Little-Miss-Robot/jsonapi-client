@@ -1,6 +1,6 @@
+import type { QueryBuilderInterface } from './contracts/QueryBuilderInterface';
 import type { TQueryBuilderMacroFunction } from './types/query-builder-macro-function';
-import UnknownMacroError from "./errors/UnknownMacroError";
-import {QueryBuilderInterface} from "./contracts/QueryBuilderInterface";
+import UnknownMacroError from './errors/UnknownMacroError';
 
 export default class MacroRegistry {
     /**
