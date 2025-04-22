@@ -3,7 +3,6 @@ import MacroRegistry from "./MacroRegistry";
 import ResponseModel from "./ResponseModel";
 import ResultSet from "./ResultSet";
 import type { QueryBuilderInterface } from "./contracts/QueryBuilderInterface";
-import { ResponseModelInterface } from "./contracts/ResponseModelInterface";
 import InvalidResponseError from "./errors/InvalidResponseError";
 import { isJsonApiResponse } from "./typeguards/isJsonApiResponse";
 import { isRawResponse } from "./typeguards/isRawResponse";

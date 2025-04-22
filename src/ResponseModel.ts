@@ -2,6 +2,8 @@ import AutoMapper from "./AutoMapper";
 import type { ResponseModelInterface } from "./contracts/ResponseModelInterface";
 import { isResponseWithData } from "./typeguards/isResponseWithData";
 import { TNullable } from "./types/generic/nullable";
+import Model from "./Model";
+import {TModelClass} from "./types/model-class";
 
 export default class ResponseModel implements ResponseModelInterface {
 	/**
@@ -42,8 +44,9 @@ export default class ResponseModel implements ResponseModelInterface {
 	/**
 	 * Gets a relationship from the node and optionally map it
 	 * @param path
+	 * @param modelClass
 	 */
-	async hasOne<T>(path: string | string[]): Promise<TNullable<T>> {
+	async hasOne<T extends Model>(path: string | string[], modelClass?: TModelClass<T>): Promise<TNullable<T>> {
 		let contentData: unknown = this.get(path, null);
 
 		if (!contentData) {
@@ -54,13 +57,21 @@ export default class ResponseModel implements ResponseModelInterface {
 			contentData = contentData.data;
 		}
 
+		// A class was explicitly given
+		if (modelClass) {
+			return await modelClass.createFromResponse(new ResponseModel(contentData));
+		}
+
+		// Resort to automapping
 		return await AutoMapper.map(new ResponseModel(contentData));
 	}
 
 	/**
 	 * @param path
+	 * @param modelClass
 	 */
-	async hasMany<T>(path: string | string[]): Promise<TNullable<T[]>> {
+	async hasMany<T extends Model>(path: string | string[], modelClass?: TModelClass<T>): Promise<TNullable<T[]>> {
+
 		let contentData: unknown = this.get(path, null);
 
 		if (!contentData) {
@@ -75,6 +86,13 @@ export default class ResponseModel implements ResponseModelInterface {
 			const result = [];
 
 			for await (const item of contentData) {
+				// A class was explicitly given
+				if (modelClass) {
+					result.push(await modelClass.createFromResponse(new ResponseModel(item)));
+					break;
+				}
+
+				// Resort to automapping
 				result.push(await AutoMapper.map(new ResponseModel(item)));
 			}
 
