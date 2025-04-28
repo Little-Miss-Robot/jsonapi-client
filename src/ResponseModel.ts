@@ -85,16 +85,15 @@ export default class ResponseModel implements ResponseModelInterface {
 		if (Array.isArray(contentData)) {
 			const result = [];
 
-			for await (const item of contentData) {
-				// A class was explicitly given
+			contentData.forEach(async (item) => {
 				if (modelClass) {
 					result.push(await modelClass.createFromResponse(new ResponseModel(item)));
-					break;
+					return;
 				}
 
 				// Resort to automapping
 				result.push(await AutoMapper.map(new ResponseModel(item)));
-			}
+			});
 
 			return result as T[];
 		}
