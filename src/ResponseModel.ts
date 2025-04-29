@@ -83,7 +83,7 @@ export default class ResponseModel implements ResponseModelInterface {
 		}
 
 		if (Array.isArray(contentData)) {
-			const result = [];
+			const result: T[] = [];
 
 			contentData.forEach(async (item) => {
 				if (modelClass) {
