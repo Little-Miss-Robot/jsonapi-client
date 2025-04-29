@@ -32,8 +32,8 @@ export default class ResponseModel implements ResponseModelInterface {
 		let result = this.rawResponse as Record<string, any>;
 
 		for (const key of path) {
-			result = result !== null && Object.prototype.hasOwnProperty.call(result, key) ? result[key] : undefined;
-			if (result === undefined) {
+			result = Object.prototype.hasOwnProperty.call(result, key) ? result[key] : undefined;
+			if (result === undefined || result === null) {
 				return defaultValue;
 			}
 		}
