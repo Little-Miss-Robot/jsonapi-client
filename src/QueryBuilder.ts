@@ -15,12 +15,13 @@ import { TQueryBuilderGroupingFunction } from "./types/query-builder-grouping-fu
 import type { TQueryParams } from "./types/query-params";
 import type { TResultSetMeta } from "./types/resultset-meta";
 import { makeSearchParams } from "./utils/http";
+import Model from "./Model";
 
 /**
  * This class provides an easy-to-use interface to build queries
  * specifically for JSON:API
  */
-export default class QueryBuilder<T> implements QueryBuilderInterface<T> {
+export default class QueryBuilder<T extends Model> implements QueryBuilderInterface<T> {
 	/**
 	 * The locale in which we're going to query the entries
 	 * @private

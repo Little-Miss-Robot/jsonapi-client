@@ -42,9 +42,7 @@ export default abstract class Model {
 			throw new Error(`The model "${this.name}" doesn't have an endpoint, so can't be queried.`);
 		}
 
-		const mapper: TMapper<Promise<InstanceType<T>>> = async (
-			response: ResponseModelInterface
-		): Promise<InstanceType<T>> => {
+		const mapper: TMapper<Promise<InstanceType<T>>> = async (response: ResponseModelInterface): Promise<InstanceType<T>> => {
 			return await this.createFromResponse(response);
 		};
 
@@ -67,5 +65,27 @@ export default abstract class Model {
 	 */
 	map(responseModel: ResponseModelInterface): unknown {
 		return responseModel;
+	}
+
+	serialize(): Record<string, any> {
+		const data: Record<string, any> = {};
+
+		for (const key of Object.keys(this)) {
+			const value = (this as any)[key];
+
+			if (value instanceof Model) {
+				data[key] = value.serialize();
+			} else if (Array.isArray(value)) {
+				// Support arrays of models
+				data[key] = value.map(v =>
+					v instanceof Model ? v.serialize() : v
+				);
+			} else {
+				data[key] = value;
+			}
+		}
+
+		data.__type = this.constructor.name;
+		return data;
 	}
 }
