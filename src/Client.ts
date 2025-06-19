@@ -122,4 +122,25 @@ export default class Client implements ClientInterface {
             throw new Error('Response was not valid JSON.');
         }
     }
+
+    public async post(path: string,  body: any, options = {}): Promise<unknown> {
+        const token = await this.getAuthToken();
+
+        const response = await fetch(`${this.baseUrl}/${path}`, {
+            ...options,
+            method: 'POST',
+            headers: new Headers({
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            }),
+            body: JSON.stringify(body)
+        });
+
+        try {
+            return await response.json();
+        } catch (e: unknown) {
+            throw new Error('Response was not valid JSON.');
+        }
+    }
 }
