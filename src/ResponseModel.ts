@@ -47,14 +47,15 @@ export default class ResponseModel implements ResponseModelInterface {
 	 * @param modelClass
 	 */
 	async hasOne<T extends Model>(path: string | string[], modelClass?: TModelClass<T>): Promise<TNullable<T>> {
-		let contentData: unknown = this.get(path, null);
 
-		if (!contentData) {
-			return null;
-		}
+		let contentData: unknown = this.get(path, null);
 
 		if (isResponseWithData(contentData)) {
 			contentData = contentData.data;
+		}
+
+		if (!contentData) {
+			return null;
 		}
 
 		// A class was explicitly given

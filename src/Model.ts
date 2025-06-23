@@ -67,6 +67,9 @@ export default abstract class Model {
 		return responseModel;
 	}
 
+	/**
+	 *
+	 */
 	serialize(): Record<string, any> {
 		const data: Record<string, any> = {};
 
