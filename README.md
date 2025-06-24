@@ -304,7 +304,7 @@ export default class BlogPost extends Model {
   protected static endpoint: string = 'api/blog_post';
 
   // Set the default macro for this model
-	protected static defaultMacro: string = 'published';
+  protected static defaultMacro: string = 'published';
 }
 ```
 
