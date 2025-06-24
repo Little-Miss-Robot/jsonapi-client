@@ -120,6 +120,29 @@ export class BlogPost extends Model
 }
 ```
 
+#### 3.1.1 Defining relationships
+
+Method | Use case
+------ | --------
+hasOne | The expected result is 1 instance of a model
+hasMany| The expected result is a ResultSet of model instances
+
+In the `map` method in your model:
+```ts
+return {
+  author: responseModel.hasOne<Author>('author'),
+  blocks: responseModel.hasMany<Block>('blocks'),
+};
+```
+
+Both the `hasOne` and `hasMany` methods on ResponseModel take two arguments: first, the property 
+on which the data of the relationship can be found. e.g. `responseModel.hasOne('author')`. 
+This depends on [Automapping](#automapping). If the type of 'author' (e.g. 'node--author') isn't registered to 
+the correct model, the hasOne method will not be able to automatically map it to the right model. In that case you can 
+pass a second argument to the method to tell the library to which model you want that specific property to be mapped:
+`responseModel.hasOne('author', Author)`. The model passed as second argument will take precedence over automapping.
+Read more about [Automapping](#automapping).
+
 ### 3.2 Retrieving model instances
 Every model provides a static method `query` to retrieve a QueryBuilder 
 specifically for fetching instances of this Model.
@@ -266,7 +289,27 @@ BlogPost.query().macro('filterByAgeAndName', 35, ['Rein', 'Gilke']).macro('sortB
 ```
 
 #### Default macros
-// @TODO explain default macros
+The library allows for macros to be executed by default, without explicitly calling the macro on a QueryBuilder instance. This can 
+be done by setting the `defaultMacro` property on a model. Whenever the model gets queried, it will now also make sure the macro gets called. 
+This can be a good approach when you only want to query published items for example.
+
+```ts
+MacroRegistry.registerMacro('published', (qb: QueryBuilder) => {
+  qb.where('published', '=', 1);
+});
+```
+
+```ts
+export default class BlogPost extends Model {
+  protected static endpoint: string = 'api/blog_post';
+
+  // Set the default macro for this model
+	protected static defaultMacro: string = 'published';
+}
+```
+
+Please note that this macro will only work whenever you query that specific model. That means, whenever the model gets mapped from a query 
+of another model (it's encountered as a relationship of another model), it will not be set in effect.
 
 ### 4.5 Pagination
 ```ts
@@ -295,7 +338,14 @@ BlogPost.query().getRaw();
 
 ## 5. ResultSet
 ### 5.1 Methods
-push, pop, map, forEach, filter, find, reduce
+push, pop, map, forEach, filter, find, reduce, serialize
+
+The ResultSet tries to mimic an array, basic array methods are included. Whenever you want to transform
+your ResultSet to primitives (an array of plain objects), you can always call the `serialize` method:
+
+```ts
+const primitiveBlogPosts = BlogPost.query().get().serialize();
+```
 
 ### 5.2 Meta data
 How to access meta data of a ResultSet?
