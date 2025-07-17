@@ -360,8 +360,15 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 
 		const response = await this.performGetRequest(this.buildUrl(`${this.endpoint}/${uuid}`));
 
+		if (isResponseWithErrors(response)) {
+			const firstError = response.errors[0];
+			throw new InvalidResponseError(`${firstError.title} (status: ${firstError.status}): ${firstError.detail}`);
+		}
+
 		if (!isJsonApiResponse(response)) {
-			throw new InvalidResponseError();
+			throw new InvalidResponseError(
+				"Couldn't verify the response as a valid JSON:API response. Potentially this is not a JSON:API resource or the JSON:API has a version mismatch (expected 1.0)"
+			);
 		}
 
 		this.response = response;
