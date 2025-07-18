@@ -16,6 +16,7 @@ import type { TQueryParams } from "./types/query-params";
 import type { TResultSetMeta } from "./types/resultset-meta";
 import { makeSearchParams } from "./utils/http";
 import Model from "./Model";
+import {TDataGateFunction} from "./types/data-gate-function";
 
 /**
  * This class provides an easy-to-use interface to build queries
@@ -54,12 +55,17 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	/**
 	 * @private
 	 */
-	private pageLimit: number = 50;
+	private pageLimit: TNullable<number>;
 
 	/**
 	 * @private
 	 */
-	private pageOffset: number = 0;
+	private pageOffset: TNullable<number>;
+
+	/**
+	 * @private
+	 */
+	private dataGate: TNullable<TDataGateFunction>;
 
 	/**
 	 * The cache policy to pass to the Client once the query executes
@@ -104,6 +110,14 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 */
 	public macro(name: string, ...args: unknown[]): this {
 		MacroRegistry.execute(name, this, args);
+		return this;
+	}
+
+	/**
+	 * @param gateFunction
+	 */
+	public gate(gateFunction: TDataGateFunction): this {
+		this.dataGate = gateFunction;
 		return this;
 	}
 
@@ -182,6 +196,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 */
 	public limit(amount: number): this {
 		this.pageLimit = amount;
+		this.param("page[limit]", amount);
 		return this;
 	}
 
@@ -190,7 +205,9 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 * @param perPage
 	 */
 	paginate(page: number, perPage: number): this {
-		this.pageOffset = Math.max(page - 1, 0) * perPage;
+		const offset = Math.max(page - 1, 0) * perPage;
+		this.pageOffset = offset;
+		this.param("page[offset]", offset);
 		this.limit(perPage);
 		return this;
 	}
@@ -246,9 +263,6 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 * @private
 	 */
 	private buildUrl(path: string): string {
-		this.param("page[limit]", this.pageLimit);
-		this.param("page[offset]", this.pageOffset);
-
 		return `${this.locale ? `${this.locale}/` : ""}${path}/?${makeSearchParams(this.queryParams)}`;
 	}
 
@@ -310,7 +324,12 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 
 		const resultSet = new ResultSet<T>();
 
+		let itemCountExcludedByGate = 0;
 		for await (const item of responseModels) {
+			if (this.dataGate && ! this.dataGate(item)) {
+				itemCountExcludedByGate++;
+				continue;
+			}
 			const mapped = await this.mapper(item);
 			resultSet.push(mapped);
 		}
@@ -326,13 +345,14 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 				query: queryDuration,
 				mapping: mappingDuration,
 			},
+			excludedByGate: itemCountExcludedByGate
 		};
 
 		if (this.response.meta) {
 			meta = {
 				count: this.response.meta.count || 0,
-				pages: Math.ceil(this.response.meta.count / this.pageLimit),
-				perPage: this.pageLimit,
+				pages: this.pageLimit ? Math.ceil(this.response.meta.count / this.pageLimit) : 1,
+				perPage: this.pageLimit ? this.pageLimit : this.response.meta.count,
 				...meta,
 			};
 		}

@@ -12,4 +12,5 @@ export type TResultSetMeta = {
     count?: number;
     pages?: number;
     perPage?: number;
+    excludedByGate?: number;
 }

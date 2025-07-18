@@ -58,13 +58,15 @@ export default class ResponseModel implements ResponseModelInterface {
 			return null;
 		}
 
+		const responseModel = new ResponseModel(contentData);
+
 		// A class was explicitly given
 		if (modelClass) {
-			return await modelClass.createFromResponse(new ResponseModel(contentData));
+			return await modelClass.createFromResponse(responseModel);
 		}
 
 		// Resort to automapping
-		return await AutoMapper.map(new ResponseModel(contentData));
+		return await AutoMapper.map(responseModel);
 	}
 
 	/**
@@ -87,11 +89,12 @@ export default class ResponseModel implements ResponseModelInterface {
 			const result: T[] = [];
 
 			for (const item of contentData) {
-				if (modelClass) {
-					result.push(await modelClass.createFromResponse(new ResponseModel(item)));
-				} else {
-					// Resort to automapping
-					result.push(await AutoMapper.map(new ResponseModel(item)));
+				const modelInstance = modelClass ?
+					await modelClass.createFromResponse(new ResponseModel(item)) :
+					await AutoMapper.map(new ResponseModel(item));
+
+				if (modelInstance) {
+					result.push(modelInstance);
 				}
 			}
 

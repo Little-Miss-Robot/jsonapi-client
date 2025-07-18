@@ -25,10 +25,14 @@ export default abstract class Model {
 	protected static include: string[] = [];
 
 	/**
-	 *
 	 * @param response
 	 */
 	public static async createFromResponse(response: ResponseModelInterface) {
+
+		if (! this.gate(response)) {
+			return null;
+		}
+
 		const instance = new (this as any)();
 		Object.assign(instance, await instance.map(response));
 		return instance;
@@ -46,11 +50,10 @@ export default abstract class Model {
 			return await this.createFromResponse(response);
 		};
 
-		// Create a new QueryBuilder instance (and pass the type of the called class as a type)
-		const query = new QueryBuilder<InstanceType<T>>(Container.make("ClientInterface"), this.endpoint, mapper);
-
-		// Pass the includes to the query builder
-		query.include(this.include);
+		// Create a new QueryBuilder instance with the gate and includes
+		const query = Container.make('QueryBuilderInterface', this.endpoint, mapper)
+			.gate(this.gate)
+			.include(this.include);
 
 		// Check if the model has a default macro
 		if (this.defaultMacro) {
@@ -63,14 +66,22 @@ export default abstract class Model {
 	/**
 	 * @param responseModel
 	 */
-	map(responseModel: ResponseModelInterface): unknown {
+	protected map(responseModel: ResponseModelInterface): unknown {
 		return responseModel;
+	}
+
+	/**
+	 * @param responseModel
+	 * @protected
+	 */
+	public static gate(responseModel: ResponseModelInterface): boolean {
+		return true;
 	}
 
 	/**
 	 *
 	 */
-	serialize(): Record<string, any> {
+	public serialize(): Record<string, any> {
 		const data: Record<string, any> = {};
 
 		for (const key of Object.keys(this)) {
