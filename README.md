@@ -196,6 +196,13 @@ const queryBuilder = new QueryBuilder(new Client(), 'api/my_endpoint', (response
   };
 });
 ```
+The default QueryBuilder implementation will also be available by using the built-in Container. It is adviced to use this as construction method 
+for your QueryBuilder, this way you always have easy control over your dependencies in your application.
+```ts
+const queryBuilder = Container.make('QueryBuilderInterface', 'api/my_endpoint', (responseModel) => {
+  return responseModel;
+));
+```
 
 ### 4.1 Filtering
 Filtering resources is as easy as calling the `where()` method on 
@@ -363,10 +370,18 @@ pages | number | The amount of pages
 perPage | number | The amount of resources per page
 
 ## Todo
+* Easy-to-use "util" functions for various tasks:
+  * qb()
+  * find()
+  * ...?
 * Improved error reporting
+* events
+  * on specific models (model fetched, relationship loaded, model mapped, ...)
+  * query execution (query executed, query failed, ...)
 * Debug-mode (Logging requests, auth logging, LoggerInterface (?))
 * Nice to have: real lazy relationship fetching (vs includes)
 * Nice to have: separate Auth and Client
+* meta when receiving model instance vs ResultSet?
 
 ## Credits & attribution
 <a href="https://www.flaticon.com/free-icons/bee-farming" title="bee farming icons">Bee farming icons created by SBTS2018 - Flaticon</a>
