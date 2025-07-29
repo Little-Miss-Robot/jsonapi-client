@@ -15,13 +15,16 @@
   * [Model mapping](#31-model-mapping)
   * [Retrieving model instances](#32-retrieving-model-instances)
   * [Automapping](#33-automapping)
+  * [Default macros](#34-default-macros)
+  * [Data gating](#35-data-gating)
 * [QueryBuilder](#4-querybuilder)
   * [Filtering](#41-filtering)
   * [Sorting](#42-sorting)
   * [Grouping](#43-grouping)
   * [Macros](#44-macros)
   * [Pagination](#45-pagination)
-  * [Fetching resources](#46-fetching-resources)
+  * [Data gating](#46-data-gating)
+  * [Fetching resources](#47-fetching-resources)
 * [ResultSet](#5-resultset)
   * [Methods](#51-methods)
   * [Meta data](#52-meta-data)
@@ -182,6 +185,50 @@ AutoMapper.register({
 In this example, when the query builder encounters a resource with any of these types, it will 
 automatically resolve it to the corresponding model.
 
+### 3.4 Default macros
+
+The QueryBuilder allows for macros. [More on macros here](#44-macros). 
+
+#### Default macros
+The library allows for macros to be executed by default, without explicitly calling the macro on a QueryBuilder instance. This can 
+be done by setting the `defaultMacro` property on a model. Whenever the model gets queried, it will now also make sure the macro gets called. 
+This can be a good approach when you only want to query published items for example.
+
+```ts
+MacroRegistry.registerMacro('published', (qb: QueryBuilder) => {
+  qb.where('published', '=', 1);
+});
+```
+
+```ts
+export default class BlogPost extends Model {
+  protected static endpoint: string = 'api/blog_post';
+
+  // Set the default macro for this model
+  protected static defaultMacro: string = 'published';
+}
+```
+
+Please note that this macro will only work whenever you query that specific model. That means, whenever the model gets mapped from a query 
+of another model (it's encountered as a relationship of another model), it will not be set in effect.
+
+### 3.5 Data gating
+
+You can set a gate directly on a model, everytime the Model gets queried, it will first validate if the result can pass the gate. (More on data gating here)[#46-data-gating].
+
+```ts
+import Model from "../src/Model";
+import { ResponseModelInterface } from "../src/contracts/ResponseModelInterface";
+import { DataProperties } from "../src/types/generic/data-properties";
+
+export class Author extends Model
+{
+  public static gate(responseModel: ResponseModelInterface): boolean {
+    return responseModel.get('name', '') === 'Gilke';
+  }
+}
+```
+
 ## 4. QueryBuilder
 The QueryBuilder provides an easy way to dynamically and programmatically
 build queries and provides a safe API to communicate with the JSON:API.
@@ -295,35 +342,31 @@ MacroRegistry.registerMacro('sortByAuthorAge', (qb: QueryBuilder) => {
 BlogPost.query().macro('filterByAgeAndName', 35, ['Rein', 'Gilke']).macro('sortByAge');
 ```
 
-#### Default macros
-The library allows for macros to be executed by default, without explicitly calling the macro on a QueryBuilder instance. This can 
-be done by setting the `defaultMacro` property on a model. Whenever the model gets queried, it will now also make sure the macro gets called. 
-This can be a good approach when you only want to query published items for example.
-
-```ts
-MacroRegistry.registerMacro('published', (qb: QueryBuilder) => {
-  qb.where('published', '=', 1);
-});
-```
-
-```ts
-export default class BlogPost extends Model {
-  protected static endpoint: string = 'api/blog_post';
-
-  // Set the default macro for this model
-  protected static defaultMacro: string = 'published';
-}
-```
-
-Please note that this macro will only work whenever you query that specific model. That means, whenever the model gets mapped from a query 
-of another model (it's encountered as a relationship of another model), it will not be set in effect.
-
 ### 4.5 Pagination
 ```ts
 BlogPost.query().paginate(1, 10);
 ```
 
-### 4.6 Fetching resources
+### 4.6 Data gating
+
+Data gating is the concept of setting prerequisites for data to be considered valid. For the result to end up in the final ResultSet, it must first pass this gate. The gate 
+function must return a truthy value for it to be considered passed. In other terms, this is a fancy way of filtering your results.
+
+```ts
+Author.query().gate((responseModel) => {
+  return responseModel.get('name', '') === 'Gilke';
+});
+```
+
+In this example the query will only result in authors who have the name "Gilke".
+
+> ⚠️ **Warning**  
+> Gate functions do not stack. That means you can only use one gate for a query.
+
+The gate function will be called after fetching and before mapping. The added benefit of using data gating is you can define these on the model itself, so you don't have to call the `gate()` method on
+the QueryBuilder each time you want to fetch that resource. [More on defining gates on models here](#35-data-gating).
+
+### 4.7 Fetching resources
 
 On any QueryBuilder instance, you'll have these methods available for fetching 
 your resources:
