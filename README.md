@@ -214,7 +214,7 @@ of another model (it's encountered as a relationship of another model), it will 
 
 ### 3.5 Data gating
 
-You can set a gate directly on a model, everytime the Model gets queried, it will first validate if the result can pass the gate. (More on data gating here)[#46-data-gating].
+You can set a gate directly on a model, everytime the Model gets queried, it will first validate if the result can pass the gate. [More on data gating here](#46-data-gating).
 
 ```ts
 import Model from "../src/Model";
