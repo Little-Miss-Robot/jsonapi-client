@@ -55,17 +55,17 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	/**
 	 * @private
 	 */
-	private pageLimit: TNullable<number>;
+	private pageLimit: TNullable<number> = null;
 
 	/**
 	 * @private
 	 */
-	private pageOffset: TNullable<number>;
+	private pageOffset: TNullable<number> = null;
 
 	/**
 	 * @private
 	 */
-	private dataGate: TNullable<TDataGateFunction>;
+	private dataGate: TNullable<TDataGateFunction> = null;
 
 	/**
 	 * The cache policy to pass to the Client once the query executes
