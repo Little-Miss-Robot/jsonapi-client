@@ -1,6 +1,7 @@
 import type { TResultSetMeta } from './types/resultset-meta';
 import {TNullable} from "./types/generic/nullable";
 import Model from "./Model";
+import {DataProperties} from "./types/generic/data-properties";
 
 export default class ResultSet<T> implements Iterable<T> {
 
@@ -82,12 +83,12 @@ export default class ResultSet<T> implements Iterable<T> {
         return this.items.reduce(callback, initialValue);
     }
 
-    serialize() {
+    serialize(): Array<DataProperties<T>> {
         return this.items.map(item => {
             if (item instanceof Model) {
                 return item.serialize();
             }
             return item;
-        });
+        }) as Array<DataProperties<T>>;
     }
 }

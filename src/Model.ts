@@ -2,6 +2,7 @@ import Container from "./Container";
 import QueryBuilder from "./QueryBuilder";
 import type { ResponseModelInterface } from "./contracts/ResponseModelInterface";
 import type { TMapper } from "./types/mapper";
+import {DataProperties} from "./types/generic/data-properties";
 
 export default abstract class Model {
 	/**
@@ -81,8 +82,9 @@ export default abstract class Model {
 	/**
 	 *
 	 */
-	public serialize(): Record<string, any> {
-		const data: Record<string, any> = {};
+	public serialize<T extends Model>(this: T): DataProperties<T> {
+
+		const data: Partial<DataProperties<T>> = {};
 
 		for (const key of Object.keys(this)) {
 			const value = (this as any)[key];
@@ -99,7 +101,6 @@ export default abstract class Model {
 			}
 		}
 
-		data.__type = this.constructor.name;
-		return data;
+		return data as DataProperties<T>;
 	}
 }
