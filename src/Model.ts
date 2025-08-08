@@ -84,7 +84,7 @@ export default abstract class Model {
 	 */
 	public serialize<T extends Model>(this: T): DataProperties<T> {
 
-		const data: Partial<DataProperties<T>> = {};
+		const data: Record<string, any> = {};
 
 		for (const key of Object.keys(this)) {
 			const value = (this as any)[key];
