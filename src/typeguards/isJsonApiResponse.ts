@@ -10,6 +10,7 @@ export function isJsonApiResponse(value: unknown): value is TJsonApiResponse {
 		value.jsonapi !== null &&
 		typeof value.jsonapi === "object" &&
 		"version" in value.jsonapi &&
-		value.jsonapi.version === "1.0"
+		typeof value.jsonapi.version === "string" &&
+		value.jsonapi.version.startsWith("1")
 	);
 }
