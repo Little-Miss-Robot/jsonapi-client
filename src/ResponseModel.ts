@@ -20,6 +20,13 @@ export default class ResponseModel implements ResponseModelInterface {
 	}
 
 	/**
+	 * Get the raw response from the ResponseModel
+	 */
+	public getRawResponse(): unknown {
+		return this.rawResponse;
+	}
+
+	/**
 	 * Gets a field from the node
 	 * @param path
 	 * @param defaultValue
