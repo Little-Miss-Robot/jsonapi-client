@@ -1,9 +1,10 @@
 import type ResultSet from '../ResultSet';
 import ResponseModel from "../ResponseModel";
 import {TRawResponse} from "../types/raw-response";
-import type {TQueryParams} from "../types/query-params";
+import {TQueryParams, TQueryParamValue} from "../types/query-params";
 import type {TFilterOperator} from "../types/filter-operator";
 import {TQueryBuilderGroupingFunction} from "../types/query-builder-grouping-function";
+import type {TNullable} from "../types/generic/nullable";
 
 export interface QueryBuilderInterface<T> {
 
@@ -12,10 +13,10 @@ export interface QueryBuilderInterface<T> {
     setLocale: (locale: string) => this;
     macro: (name: string, ...args: unknown[]) => this;
 
-    param: (name: string, value: string | number) => this;
+    param: (name: string, value: TQueryParamValue) => this;
     params: (params: TQueryParams) => this;
 
-    where: (path: string, operator: TFilterOperator, value: string) => this;
+    where: (path: string, operator: TFilterOperator, value: TNullable<TQueryParamValue>) => this;
     include: (includes: string[]) => this;
     limit: (amount: number) => this;
     paginate: (page: number, perPage: number) => this;

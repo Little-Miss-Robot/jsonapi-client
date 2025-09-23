@@ -266,6 +266,60 @@ if (filterByAge) {
   qb.where('age', '>', 34)
 }
 ```
+Available operators are:
+
+Operator    | Description
+------------|------------
+=           | Equal to the given value
+<>          | Not equal to the given value
+\>           | Is greater than the given value
+>=          | Is greater than or equal to the given value
+<           | Is less than the given value
+<=          | Is less than or equal to the given value
+STARTS_WITH | Where starts with the given value (string)
+CONTAINS    | Where contains the given value (string)
+ENDS_WITH   | Where ends with the given value (string)
+IN          | Where is in the given values (array)
+NOT IN      | Where is not in the given values (array)
+BETWEEN     | Where between the given values (array with 2 items)
+NOT BETWEEN | Where not between the given values (array with 2 items)
+IS NULL     | Where is null (no value given)
+IS NOT NULL | Where is not null (no value given)
+
+Some examples:
+```ts
+qb.where('title', 'IS NULL');
+```
+
+```ts
+qb.where('title', 'IS NOT NULL');
+```
+
+```ts
+qb.where('category', 'IN', ['Rondleiding', 'Tentoonstelling', 'Lezing']);
+```
+
+```ts
+qb.where('name', 'ENDS WITH', 'Van Oyen');
+```
+
+For convenience reasons, some of these have an alias method:
+
+```ts
+qb.whereIn('category', ['Rondleiding', 'Tentoonstelling', 'Lezing']);
+```
+
+```ts
+qb.whereNotIn('category', ['Rondleiding', 'Tentoonstelling', 'Lezing']);
+```
+
+```ts
+qb.whereIsNull('title');
+```
+
+```ts
+qb.whereIsNotNull('title');
+```
 
 ### 4.2 Sorting
 

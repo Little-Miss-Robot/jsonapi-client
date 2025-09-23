@@ -12,7 +12,7 @@ import type { TNullable } from "./types/generic/nullable";
 import { TJsonApiResponse } from "./types/json-api-response";
 import type { TMapper } from "./types/mapper";
 import { TQueryBuilderGroupingFunction } from "./types/query-builder-grouping-function";
-import type { TQueryParams } from "./types/query-params";
+import {TQueryParams, TQueryParamValue} from "./types/query-params";
 import type { TResultSetMeta } from "./types/resultset-meta";
 import { makeSearchParams } from "./utils/http";
 import Model from "./Model";
@@ -151,7 +151,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 * @param name
 	 * @param value
 	 */
-	public param(name: string, value: string | number): this {
+	public param(name: string, value: TQueryParamValue): this {
 		this.queryParams[name] = value;
 		return this;
 	}
@@ -172,12 +172,85 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 * @param operator
 	 * @param value
 	 */
-	public where(path: string, operator: TFilterOperator, value: string): this {
+	public where(path: string, operator: TFilterOperator, value: TNullable<TQueryParamValue> = null): this {
 		const groupName = this.createFilterGroupName();
+		this.assignFilterGroupToCurrentFilterGroup(groupName);
+
 		this.param(`filter[${groupName}][condition][path]`, path);
 		this.param(`filter[${groupName}][condition][operator]`, operator);
+
+		if (value === null) {
+			if (operator === 'IS NULL' || operator === 'IS NOT NULL') {
+				return this;
+			}
+
+			throw new TypeError(`Value given was null, while the given operator ${operator} expects string or array of strings`);
+		}
+
+		if (
+			(operator === 'BETWEEN' || operator === 'NOT BETWEEN') &&
+			(!Array.isArray(value) || value.length !== 2)
+		) {
+			throw new TypeError(`Operator ${operator} expects an array with exactly 2 items`);
+		}
+
+		// Check for IN and NOT IN operators (which use an array to pass values)
+		if (operator === 'IN' || operator === 'NOT IN') {
+			// Is value already an array?
+			if (Array.isArray(value)) {
+				// Pass it directly!
+				this.param(`filter[${groupName}][condition][value]`, value);
+				return this;
+			}
+
+			// If not an array, make it an array
+			this.param(`filter[${groupName}][condition][value]`, [value as string]);
+			return this;
+		}
+
+		// If the value is passed is an array, but neither IN or NOT IN was used as operator
+		if (Array.isArray(value)) {
+			// I guess we'll just join the values so it's a string
+			this.param(`filter[${groupName}][condition][value]`, value.join(''));
+			return this;
+		}
+
+		// Value is a string, just pass it as a singular param
 		this.param(`filter[${groupName}][condition][value]`, value);
-		this.assignFilterGroupToCurrentFilterGroup(groupName);
+		return this;
+	}
+
+	/**
+	 * @param path
+	 * @param values
+	 */
+	public whereIn(path: string, values: string[] | number[]): this {
+		this.where(path, 'IN', values);
+		return this;
+	}
+
+	/**
+	 * @param path
+	 * @param values
+	 */
+	public whereNotIn(path: string, values: string[] | number[]): this {
+		this.where(path, 'NOT IN', values);
+		return this;
+	}
+
+	/**
+	 * @param path
+	 */
+	public whereIsNull(path: string): this {
+		this.where(path, 'IS NULL');
+		return this;
+	}
+
+	/**
+	 * @param path
+	 */
+	public whereIsNotNull(path: string): this {
+		this.where(path, 'IS NOT NULL');
 		return this;
 	}
 
