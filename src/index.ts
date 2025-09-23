@@ -1,10 +1,12 @@
-import AutoMapper from './AutoMapper';
-import Client from './Client';
-import Config from './Config';
-import MacroRegistry from './MacroRegistry';
-import Model from './Model';
-import QueryBuilder from './QueryBuilder';
-import ResponseModel from './ResponseModel';
-import ResultSet from './ResultSet';
+export type * from "./types/index";
 
-export { AutoMapper, Client, Config, MacroRegistry, Model, QueryBuilder, ResponseModel, ResultSet };
+export { default as JsonApi } from "./JsonApi";
+export { default as Container } from "./Container";
+export { default as AutoMapper } from "./AutoMapper";
+export { default as Client } from "./Client";
+export { default as Config } from "./Config";
+export { default as MacroRegistry } from "./MacroRegistry";
+export { default as Model } from "./Model";
+export { default as QueryBuilder } from "./QueryBuilder";
+export { default as ResponseModel } from "./ResponseModel";
+export { default as ResultSet } from "./ResultSet";
