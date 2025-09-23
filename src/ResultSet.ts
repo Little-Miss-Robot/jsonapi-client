@@ -83,6 +83,30 @@ export default class ResultSet<T> implements Iterable<T> {
         return this.items.reduce(callback, initialValue);
     }
 
+    toArray(): T[] {
+        return this.items;
+    }
+
+    concat(resultSet: ResultSet<T>): ResultSet<T> {
+
+        const originalMeta = this.meta;
+        const newMeta = resultSet.meta;
+
+        const newResultSet = new ResultSet(this.toArray().concat(resultSet.toArray()));
+
+        // Also concat the relevant meta
+        newResultSet.setMeta({
+            ...originalMeta,
+            performance: {
+                query: originalMeta.performance.query + newMeta.performance.query,
+                mapping: originalMeta.performance.mapping + newMeta.performance.mapping,
+            },
+            excludedByGate: originalMeta.excludedByGate + newMeta.excludedByGate,
+        });
+
+        return newResultSet;
+    }
+
     serialize(): Array<DataProperties<T>> {
         return this.items.map(item => {
             if (item instanceof Model) {

@@ -351,7 +351,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	/**
 	 * Fetches the endpoint and uses the raw response to pass to the mapper
 	 */
-	async getRaw(): Promise<T> {
+	public async getRaw(): Promise<T> {
 		const response = await this.performGetRequest(this.buildUrl(this.endpoint));
 
 		if (!isRawResponse(response)) {
@@ -366,9 +366,9 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	}
 
 	/**
-	 * Maps and returns all entries in the response
+	 * Maps and returns all entries (paginated) in the response
 	 */
-	async get(): Promise<ResultSet<T>> {
+	public async get(): Promise<ResultSet<T>> {
 		let start = Date.now();
 		const url = this.buildUrl(this.endpoint);
 		const response = await this.performGetRequest(url);
@@ -436,9 +436,42 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	}
 
 	/**
-	 *
+	 * Maps and returns all entries across all pages
 	 */
-	async first(): Promise<T | ResponseModel> {
+	public async all(): Promise<ResultSet<T>> {
+		const firstResult = await this.get();
+		const { pages, perPage } = firstResult.meta;
+
+		// If there's only 1 page, just return the already fetched ResultSet
+		if (pages === 1) {
+			return firstResult;
+		}
+
+		// Continue to fetch the other pages
+		let currentPage = 2;
+		let resultSet = firstResult;
+		while (currentPage <= pages) {
+			const pagedResult = await this.paginate(currentPage, perPage).get();
+
+			// Concat the result sets
+			resultSet = resultSet.concat(pagedResult);
+			currentPage++;
+		}
+
+		// Modify the meta of the resulting ResultSet
+		resultSet.setMeta({
+			...resultSet.meta,
+			pages: 1,
+			perPage: resultSet.meta.count
+		});
+
+		return resultSet;
+	}
+
+	/**
+	 * Gets and maps the first item from the query
+	 */
+	public async first(): Promise<T | ResponseModel> {
 		return (await this.get()).get(0);
 	}
 
@@ -446,7 +479,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 * Gets a single entry by UUID
 	 * @param uuid
 	 */
-	async find(uuid: string | number): Promise<T> {
+	public async find(uuid: string | number): Promise<T> {
 		if (!this.mapper) {
 			throw new Error("No mapper");
 		}
