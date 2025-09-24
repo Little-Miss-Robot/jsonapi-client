@@ -30,13 +30,16 @@
   * [Meta data](#52-meta-data)
 
 ## 1. Installation
-* Not yet, this software is in development
+
+```shell
+npm install @littlemissrobot/jsonapi-client
+```
 
 ## 2. Config
 First, set your JSON:API credentials.
 
 ```ts
-import Config from "../src/Config";
+import { Config } from "@littlemissrobot/jsonapi-client";
 
 Config.setAll({
   // The location of JSON:API
@@ -69,9 +72,8 @@ E.g. `responseModel.get('category.title', 'This is a default value')`
 
 #### Example Author model:
 ```ts
-import Model from "../src/Model";
-import {ResponseModelInterface} from "../src/contracts/ResponseModelInterface";
-import {DataProperties} from "../src/types/generic/data-properties";
+import { Model } from "@littlemissrobot/jsonapi-client";
+import type { ResponseModelInterface, DataProperties } from "@littlemissrobot/jsonapi-client";
 
 export class Author extends Model
 {
@@ -217,12 +219,11 @@ of another model (it's encountered as a relationship of another model), it will 
 You can set a gate directly on a model, everytime the Model gets queried, it will first validate if the result can pass the gate. [More on data gating here](#46-data-gating).
 
 ```ts
-import Model from "../src/Model";
-import { ResponseModelInterface } from "../src/contracts/ResponseModelInterface";
-import { DataProperties } from "../src/types/generic/data-properties";
+import { Model } from "@littlemissrobot/jsonapi-client";
+import type { ResponseModelInterface, DataProperties } from "@littlemissrobot/jsonapi-client";
 
-export class Author extends Model
-{
+export class Author extends Model {
+    
   public static gate(responseModel: ResponseModelInterface): boolean {
     return responseModel.get('name', '') === 'Gilke';
   }
@@ -247,8 +248,8 @@ The default QueryBuilder implementation will also be available by using the buil
 for your QueryBuilder, this way you always have easy control over your dependencies in your application.
 ```ts
 const queryBuilder = Container.make('QueryBuilderInterface', 'api/my_endpoint', (responseModel) => {
-  return responseModel;
-));
+    return responseModel;
+});
 ```
 
 ### 4.1 Filtering
@@ -272,10 +273,10 @@ Operator    | Description
 ------------|------------
 =           | Equal to the given value
 <>          | Not equal to the given value
-\>           | Is greater than the given value
->=          | Is greater than or equal to the given value
-<           | Is less than the given value
-<=          | Is less than or equal to the given value
+&gt;        | Is greater than the given value
+&gt;=       | Is greater than or equal to the given value
+&lt;        | Is less than the given value
+&lt;=       | Is less than or equal to the given value
 STARTS_WITH | Where starts with the given value (string)
 CONTAINS    | Where contains the given value (string)
 ENDS_WITH   | Where ends with the given value (string)
@@ -371,8 +372,7 @@ them as macros, these can then be called on any QueryBuilder instance.
 
 #### Registering macros:
 ```ts
-import QueryBuilder from "./QueryBuilder";
-import MacroRegistry from "./MacroRegistry";
+import { QueryBuilder, MacroRegistry } from "@littlemissrobot/jsonapi-client";
 
 MacroRegistry.registerMacro('filterByAgeAndName', (qb: QueryBuilder, age, names) => {
   qb.group('and', (qb: QueryBuilder) => {
@@ -425,19 +425,24 @@ the QueryBuilder each time you want to fetch that resource. [More on defining ga
 On any QueryBuilder instance, you'll have these methods available for fetching 
 your resources:
 
-#### get() - Gets all results from the query builder
+#### get() - Gets all results (paginated) from the query builder
 ```ts
-BlogPost.query().get();
+await BlogPost.query().get();
 ```
 
 #### find() - Gets one result by its primary key (string or number)
 ```ts
-BlogPost.query().find('yourid');
+await BlogPost.query().find('yourid');
+```
+
+#### all() - Gets all results, across all pages
+```ts
+await BlogPost.query().all();
 ```
 
 #### getRaw() - Gets all results from the query builder but doesn't map the results
 ```ts
-BlogPost.query().getRaw();
+await BlogPost.query().getRaw();
 ```
 
 ## 5. ResultSet
