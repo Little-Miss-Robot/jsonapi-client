@@ -4,6 +4,11 @@
   "author": "Rein Van Oyen",
   "description": "A lightweight library for seamless JSON API communication, featuring a powerful query builder and intuitive models for effortless data handling.",
   "version": "1.0.4",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Little-Miss-Robot/jsonapi-client.git"
+  },
+  "homepage": "https://github.com/Little-Miss-Robot/jsonapi-client#readme",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
