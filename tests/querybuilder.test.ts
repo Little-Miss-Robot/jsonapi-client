@@ -1,8 +1,9 @@
 import Client from '../src/Client';
 import QueryBuilder from '../src/QueryBuilder';
+import OAuth from "../src/auth/OAuth";
 
 function makeMockClient() {
-    return new Client('https://baseurl.ext', '', '');
+    return new Client(new OAuth('https://baseurl.ext', 'test', 'test'), 'https://baseurl.ext');
 }
 
 function makeQueryBuilder() {

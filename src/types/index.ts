@@ -2,6 +2,7 @@
 export type { ClientInterface } from '../contracts/ClientInterface';
 export type { QueryBuilderInterface } from '../contracts/QueryBuilderInterface';
 export type { ResponseModelInterface } from '../contracts/ResponseModelInterface';
+export type { AuthInterface } from '../contracts/AuthInterface';
 
 // Types
 export type { DataProperties } from './generic/data-properties';

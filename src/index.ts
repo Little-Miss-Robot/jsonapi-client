@@ -10,3 +10,4 @@ export { default as Model } from "./Model";
 export { default as QueryBuilder } from "./QueryBuilder";
 export { default as ResponseModel } from "./ResponseModel";
 export { default as ResultSet } from "./ResultSet";
+export { default as OAuth } from "./auth/OAuth";

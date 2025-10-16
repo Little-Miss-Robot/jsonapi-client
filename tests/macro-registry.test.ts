@@ -1,16 +1,15 @@
-import { MacroRegistry, QueryBuilder, Client } from '../src/index';
+import {MacroRegistry, QueryBuilder, Client, Container, JsonApi} from '../src/index';
 import UnknownMacroError from "../src/errors/UnknownMacroError";
 
-function makeMockClient() {
-	return new Client('https://baseurl.ext', '', '');
-}
-
 function makeQueryBuilder() {
-	return new QueryBuilder<any>(
-		makeMockClient(),
-		'api/endpoint',
-		async () => {},
-	);
+
+	JsonApi.init({
+		baseUrl: "http://localhost:3000",
+		clientId: "test",
+		clientSecret: "test"
+	});
+
+	return Container.make('QueryBuilderInterface', 'api/endpoint');
 }
 
 it('correctly executes registered macros', () => {
