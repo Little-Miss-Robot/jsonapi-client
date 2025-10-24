@@ -67,6 +67,11 @@ export default class ResultSet<T> implements Iterable<T> {
         return this.items.map(callback);
     }
 
+    sort(compareFn?: (a: T, b: T) => number): T[] {
+        this.items.sort(compareFn);
+        return this.items;
+    }
+
     forEach<U>(callback: (value: T, index: number, array: T[]) => U) {
         return this.items.forEach(callback);
     }
