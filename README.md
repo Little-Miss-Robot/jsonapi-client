@@ -482,8 +482,8 @@ perPage | number | The amount of resources per page
   * query execution (query executed, query failed, ...)
 * Debug-mode (Logging requests, auth logging, LoggerInterface (?))
 * Nice to have: real lazy relationship fetching (vs includes)
-* Nice to have: separate Auth and Client
 * meta when receiving model instance vs ResultSet?
+* Serialize by default option? Also include meta when serializing the ResultSet
 
 ## Credits & attribution
 <a href="https://www.flaticon.com/free-icons/bee-farming" title="bee farming icons">Bee farming icons created by SBTS2018 - Flaticon</a>
