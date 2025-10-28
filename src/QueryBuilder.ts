@@ -438,7 +438,11 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	/**
 	 * Maps and returns all entries across all pages
 	 */
-	public async all(): Promise<ResultSet<T>> {
+	public async all(batchSize: number = 50): Promise<ResultSet<T>> {
+
+		// Check if pagination is already active, if not, activate it
+		this.paginate(1, batchSize);
+
 		const firstResult = await this.get();
 		const { pages, perPage } = firstResult.meta;
 
