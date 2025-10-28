@@ -440,7 +440,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 */
 	public async all(batchSize: number = 50): Promise<ResultSet<T>> {
 
-		// Check if pagination is already active, if not, activate it
+		// Set pagination for the first fetch
 		this.paginate(1, batchSize);
 
 		const firstResult = await this.get();
