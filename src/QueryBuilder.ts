@@ -369,7 +369,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 * Maps and returns all entries (paginated) in the response
 	 */
 	public async get(): Promise<ResultSet<T>> {
-		let start = Date.now();
+		let start = performance.now();
 		const url = this.buildUrl(this.endpoint);
 		const response = await this.performGetRequest(url);
 
@@ -386,8 +386,8 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 
 		this.response = response;
 
-		const queryDuration = Date.now() - start;
-		start = Date.now();
+		const queryDuration = performance.now() - start;
+		start = performance.now();
 
 		const responseModels = this.response.data.map((entry: unknown) => new ResponseModel(entry));
 
@@ -407,7 +407,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 			resultSet.push(mapped);
 		}
 
-		const mappingDuration = Date.now() - start;
+		const mappingDuration = performance.now() - start;
 
 		let meta: TResultSetMeta = {
 			query: {
