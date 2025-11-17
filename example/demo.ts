@@ -12,6 +12,6 @@ on('paramAdded', e => console.log(e));
 on('preFetch', e => console.log(e));
 on('postFetch', e => console.log(e));
 
-const data = await query('api/locations').where('name', '=', 'ok').get();
+const data = await query('api/locations').get();
 
 console.log(data);

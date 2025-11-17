@@ -2,7 +2,7 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-    entry: ['example/test.ts'],
+    entry: ['example/demo.ts'],
     format: ['esm'],     // top-level await requires ESM
     target: 'esnext',    // or "es2022"
     outDir: 'dist/example',
