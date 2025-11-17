@@ -29,7 +29,6 @@ export default abstract class Model {
 	 * @param response
 	 */
 	public static async createFromResponse(response: ResponseModelInterface) {
-
 		if (! this.gate(response)) {
 			return null;
 		}
@@ -83,7 +82,6 @@ export default abstract class Model {
 	 *
 	 */
 	public serialize<T extends Model>(this: T): DataProperties<T> {
-
 		const data: Record<string, any> = {};
 
 		for (const key of Object.keys(this)) {

@@ -18,6 +18,7 @@ import Model from "./Model";
 import {TDataGateFunction} from "./types/data-gate-function";
 import {ClientInterface} from "./contracts/ClientInterface";
 import {EventBusInterface} from "./contracts/EventBusInterface";
+import {MacroRegistryInterface} from "./contracts/MacroRegistryInterface";
 
 /**
  * This class provides an easy-to-use interface to build queries
@@ -41,6 +42,12 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 * @private
 	 */
 	private readonly events: EventBusInterface;
+
+	/**
+	 * The macro registry to use
+	 * @private
+	 */
+	private readonly macros: MacroRegistryInterface;
 
 	/**
 	 * The mapping function to use when we received the response
@@ -101,12 +108,20 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	/**
 	 * @param client
 	 * @param events
+	 * @param macros
 	 * @param endpoint
 	 * @param mapper
 	 */
-	constructor(client: ClientInterface, events: EventBusInterface, endpoint: string, mapper: TMapper<Promise<T>>) {
+	constructor(
+		client: ClientInterface,
+		events: EventBusInterface,
+		macros: MacroRegistryInterface,
+		endpoint: string,
+		mapper: TMapper<Promise<T>>
+	) {
 		this.client = client;
 		this.events = events;
+		this.macros = macros;
 		this.endpoint = endpoint;
 		this.mapper = mapper;
 		this.queryParams = {};
@@ -118,7 +133,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 * @param args
 	 */
 	public macro(name: string, ...args: unknown[]): this {
-		//MacroRegistry.execute(name, this, args);
+		this.macros.execute(name, this, args);
 		return this;
 	}
 

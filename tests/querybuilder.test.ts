@@ -2,6 +2,7 @@ import Client from '../src/Client';
 import QueryBuilder from '../src/QueryBuilder';
 import OAuth from "../src/auth/OAuth";
 import EventBus from "../src/EventBus";
+import MacroRegistry from "../src/MacroRegistry";
 
 function makeMockClient() {
     return new Client(new OAuth('https://baseurl.ext', 'test', 'test'), 'https://baseurl.ext');
@@ -11,6 +12,7 @@ function makeQueryBuilder() {
     return new QueryBuilder<any>(
         makeMockClient(),
         new EventBus(),
+        new MacroRegistry(),
         'api/endpoint',
         async () => {},
     );
