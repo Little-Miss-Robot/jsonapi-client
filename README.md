@@ -472,10 +472,6 @@ pages | number | The amount of pages
 perPage | number | The amount of resources per page
 
 ## Todo
-* Easy-to-use "util" functions for various tasks:
-  * qb()
-  * find()
-  * ...?
 * Improved error reporting
 * events
   * on specific models (model fetched, relationship loaded, model mapped, ...)

@@ -11,3 +11,8 @@ export { default as QueryBuilder } from "./QueryBuilder";
 export { default as ResponseModel } from "./ResponseModel";
 export { default as ResultSet } from "./ResultSet";
 export { default as OAuth } from "./auth/OAuth";
+
+// Facades
+export { events, on, off } from "./facades/events";
+export { default as query } from "./facades/query";
+export { default as client } from "./facades/client";
