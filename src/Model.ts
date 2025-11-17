@@ -2,7 +2,7 @@ import Container from "./Container";
 import QueryBuilder from "./QueryBuilder";
 import type { ResponseModelInterface } from "./contracts/ResponseModelInterface";
 import type { TMapper } from "./types/mapper";
-import {DataProperties} from "./types/generic/data-properties";
+import { DataProperties } from "./types/generic/data-properties";
 
 export default abstract class Model {
 	/**
