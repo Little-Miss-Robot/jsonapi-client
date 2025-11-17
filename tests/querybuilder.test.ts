@@ -1,6 +1,7 @@
 import Client from '../src/Client';
 import QueryBuilder from '../src/QueryBuilder';
 import OAuth from "../src/auth/OAuth";
+import EventBus from "../src/EventBus";
 
 function makeMockClient() {
     return new Client(new OAuth('https://baseurl.ext', 'test', 'test'), 'https://baseurl.ext');
@@ -9,6 +10,7 @@ function makeMockClient() {
 function makeQueryBuilder() {
     return new QueryBuilder<any>(
         makeMockClient(),
+        new EventBus(),
         'api/endpoint',
         async () => {},
     );
@@ -18,12 +20,12 @@ it('result of query builder starts with the endpoint', () => {
     const queryBuilder = makeQueryBuilder();
     expect(queryBuilder.toString()).toMatch(/^(api\/endpoint)/);
 
-    expect(queryBuilder.toString()).toBe('api/endpoint/?');
+    expect(queryBuilder.toString()).toBe('api/endpoint/');
 });
 
 it('a new query has pagination params by default', () => {
     const queryBuilder = makeQueryBuilder();
-    expect(queryBuilder.toString()).toBe('api/endpoint/?');
+    expect(queryBuilder.toString()).toBe('api/endpoint/');
 });
 
 it('adds param', () => {
@@ -54,7 +56,7 @@ it('params with the same name get overwritten', () => {
 it('setting locale prepends the locale', () => {
     const queryBuilder = makeQueryBuilder();
     queryBuilder.setLocale('nl');
-    expect(queryBuilder.toString()).toBe('nl/api/endpoint/?');
+    expect(queryBuilder.toString()).toBe('nl/api/endpoint/');
 });
 
 it('where adds the appropriate params', () => {

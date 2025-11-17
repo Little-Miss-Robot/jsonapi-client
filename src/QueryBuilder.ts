@@ -1,4 +1,3 @@
-import type Client from "./Client";
 import MacroRegistry from "./MacroRegistry";
 import ResponseModel from "./ResponseModel";
 import ResultSet from "./ResultSet";
@@ -17,6 +16,8 @@ import type { TResultSetMeta } from "./types/resultset-meta";
 import { makeSearchParams } from "./utils/http";
 import Model from "./Model";
 import {TDataGateFunction} from "./types/data-gate-function";
+import {ClientInterface} from "./contracts/ClientInterface";
+import {EventBusInterface} from "./contracts/EventBusInterface";
 
 /**
  * This class provides an easy-to-use interface to build queries
@@ -30,10 +31,16 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	private locale?: string;
 
 	/**
-	 * The mapping function to use when we received the response
+	 * The actual HTTP client
 	 * @private
 	 */
-	private readonly client: Client;
+	private readonly client: ClientInterface;
+
+	/**
+	 * The event bus to use when emitting events
+	 * @private
+	 */
+	private readonly events: EventBusInterface;
 
 	/**
 	 * The mapping function to use when we received the response
@@ -93,11 +100,13 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 
 	/**
 	 * @param client
+	 * @param events
 	 * @param endpoint
 	 * @param mapper
 	 */
-	constructor(client: Client, endpoint: string, mapper: TMapper<Promise<T>>) {
+	constructor(client: ClientInterface, events: EventBusInterface, endpoint: string, mapper: TMapper<Promise<T>>) {
 		this.client = client;
+		this.events = events;
 		this.endpoint = endpoint;
 		this.mapper = mapper;
 		this.queryParams = {};
@@ -153,6 +162,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 */
 	public param(name: string, value: TQueryParamValue): this {
 		this.queryParams[name] = value;
+		this.events.emit('paramAdded', { name, value });
 		return this;
 	}
 
@@ -293,7 +303,6 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 		const groupName = this.createFilterGroupName();
 		this.param(`sort[${groupName}][path]`, path);
 		this.param(`sort[${groupName}][direction]`, direction);
-
 		return this;
 	}
 
@@ -336,16 +345,23 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 * @private
 	 */
 	private buildUrl(path: string): string {
-		return `${this.locale ? `${this.locale}/` : ""}${path}/?${makeSearchParams(this.queryParams)}`;
+		const queryString = (makeSearchParams(this.queryParams)).toString();
+		return `${this.locale ? `${this.locale}/` : ""}${path}/${queryString ? `?${queryString}` : ""}`;
 	}
 
 	/**
 	 * Executes the query (GET)
 	 */
 	private async performGetRequest(path: string) {
-		return await this.client.get(path, {
+		this.events.emit('preFetch', { url: path });
+
+		const response = await this.client.get(path, {
 			cache: this.cachePolicy,
 		});
+
+		this.events.emit('postFetch', { url: path });
+
+		return response;
 	}
 
 	/**
@@ -369,7 +385,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 * Maps and returns all entries (paginated) in the response
 	 */
 	public async get(): Promise<ResultSet<T>> {
-		let start = Date.now();
+		let start = performance.now();
 		const url = this.buildUrl(this.endpoint);
 		const response = await this.performGetRequest(url);
 
@@ -386,8 +402,8 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 
 		this.response = response;
 
-		const queryDuration = Date.now() - start;
-		start = Date.now();
+		const queryDuration = performance.now() - start;
+		start = performance.now();
 
 		const responseModels = this.response.data.map((entry: unknown) => new ResponseModel(entry));
 
@@ -407,7 +423,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 			resultSet.push(mapped);
 		}
 
-		const mappingDuration = Date.now() - start;
+		const mappingDuration = performance.now() - start;
 
 		let meta: TResultSetMeta = {
 			query: {
@@ -438,7 +454,11 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	/**
 	 * Maps and returns all entries across all pages
 	 */
-	public async all(): Promise<ResultSet<T>> {
+	public async all(batchSize: number = 50): Promise<ResultSet<T>> {
+
+		// Set pagination for the first fetch
+		this.paginate(1, batchSize);
+
 		const firstResult = await this.get();
 		const { pages, perPage } = firstResult.meta;
 
