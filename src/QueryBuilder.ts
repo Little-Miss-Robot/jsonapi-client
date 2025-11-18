@@ -269,8 +269,10 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 * @param includes
 	 */
 	public include(includes: string[]): this {
-		this.param("jsonapi_include", 1);
-		this.param("include", includes.join(","));
+		if (includes.length) {
+			this.param("jsonapi_include", 1);
+			this.param("include", includes.join(","));
+		}
 		return this;
 	}
 
