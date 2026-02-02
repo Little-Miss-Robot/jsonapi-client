@@ -39,17 +39,6 @@ export default class OAuth implements AuthInterface {
     private accessTokenExpiryDate?: number;
 
     /**
-     * Gets the HTTP Headers
-     */
-    public async getHttpHeaders(): Promise<Record<string, string>> {
-        const token = await this.getAuthToken();
-
-        return {
-            Authorization: `Bearer ${token}`,
-        };
-    }
-
-    /**
      * Gets the authentication token
      */
     public async getAuthToken(): Promise<string> {
@@ -62,6 +51,17 @@ export default class OAuth implements AuthInterface {
         }
 
         return this.accessToken;
+    }
+
+    /**
+     * Gets the HTTP Headers
+     */
+    public async getHttpHeaders(): Promise<Record<string, string>> {
+        const token = await this.getAuthToken();
+
+        return {
+            Authorization: `Bearer ${token}`,
+        };
     }
 
     /**
