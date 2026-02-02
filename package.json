@@ -29,7 +29,7 @@
     "prebuild": "barrelsby --directory src/types --delete --include .ts,.d.ts --location all",
     "prepare": "tsup && jest",
     "build": "tsup",
-    "example": "tsup --config tsup.example.config.ts && node ./dist/example/test.js",
+    "example": "tsup --config tsup.example.config.ts && node ./dist/example/demo.js",
     "test": "jest"
   },
   "license": "ISC",
