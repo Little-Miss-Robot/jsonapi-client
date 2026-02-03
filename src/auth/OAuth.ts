@@ -42,6 +42,7 @@ export default class OAuth implements AuthInterface {
      * Gets the authentication token
      */
     public async getAuthToken(): Promise<string> {
+
         if (
             !this.accessToken
             || !this.accessTokenExpiryDate
@@ -49,6 +50,8 @@ export default class OAuth implements AuthInterface {
         ) {
             return await this.generateAuthToken();
         }
+
+        console.log('Reusing existing token');
 
         return this.accessToken;
     }
@@ -69,6 +72,8 @@ export default class OAuth implements AuthInterface {
      */
     private async generateAuthToken(): Promise<string> {
 
+        console.log('Generating new token');
+
         const url = `${this.baseUrl}/oauth/token`;
 
         const requestBody = new FormData();
@@ -88,6 +93,8 @@ export default class OAuth implements AuthInterface {
             });
 
             json = await response.json();
+
+            console.log(json);
         }
         catch (e: unknown) {
             if (e instanceof Error) {

@@ -1,6 +1,11 @@
-import {TEvent, TEventListener} from "../types/event-bus";
+import {TEventListener, TEventMap} from "../types/event-bus";
 
-export interface EventBusInterface {
-    on: (eventKey: string, listener: TEventListener) => void;
-    emit: (eventKey: string, event: TEvent) => void;
+export interface EventBusInterface<E extends TEventMap> {
+    on<K extends keyof E>(eventKey: K, listener: TEventListener<E, K>): () => void;
+    off: (eventId: number) => void;
+
+    emit<K extends keyof E>(
+        eventKey: K,
+        ...args: E[K] extends void ? [] : [E[K]]
+    ): void;
 }
