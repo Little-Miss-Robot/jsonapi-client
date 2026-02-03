@@ -1,70 +1,71 @@
-import {TContainerBindingFunction} from "./types/container-binding-function";
+// A map of factories keyed by string names
+type FactoryMap = Record<string, (...args: any[]) => any>;
 
-export default class Container {
-	/**
-	 * @private
-	 */
-	private static bindings: Record<string, TContainerBindingFunction> = {};
+export class Container<B extends FactoryMap> {
 
-	/**
-	 * @private
-	 */
-	private static singletonBindings: Record<string, TContainerBindingFunction> = {};
+    /**
+     *
+     * @private
+     */
+    private bindings: Partial<B> = {};
 
-	/**
-	 *
-	 * @private
-	 */
-	private static instances: Record<string, any> = {};
+    /**
+     *
+     * @private
+     */
+    private singletonBindings: Partial<B> = {};
 
-	/**
-	 *
-	 * @param name
-	 * @param bindingCall
-	 */
-	public static bind(name: string, bindingCall: TContainerBindingFunction): void {
-		this.bindings[name] = bindingCall;
-	}
+    /**
+     *
+     * @private
+     */
+    private instances: Partial<{ [K in keyof B]: ReturnType<B[K]> }> = {};
 
-	/**
-	 *
-	 * @param name
-	 * @param bindingCall
-	 */
-	public static singleton(name: string, bindingCall: TContainerBindingFunction): void {
-		this.singletonBindings[name] = bindingCall;
-	}
+    /**
+     *
+     * @param name
+     * @param factory
+     */
+    bind<K extends keyof B>(name: K, factory: B[K]): void {
+        this.bindings[name] = factory;
+    }
 
-	/**
-	 *
-	 * @param name
-	 * @private
-	 */
-	private static getBinding(name: string): TContainerBindingFunction {
-		if (!this.bindings[name]) {
-			throw new Error(`No dependency was found for name "${name}"`);
-		}
+    /**
+     *
+     * @param name
+     * @param factory
+     */
+    singleton<K extends keyof B>(name: K, factory: B[K]): void {
+        this.singletonBindings[name] = factory;
+    }
 
-		return this.bindings[name];
-	}
+    /**
+     *
+     * @param name
+     * @param args
+     */
+    make<K extends keyof B>(name: K, ...args: Parameters<B[K]>): ReturnType<B[K]> {
+        const singletonFactory = this.singletonBindings[name];
+        if (singletonFactory) {
+            if (!this.instances[name]) {
+                this.instances[name] = singletonFactory(...args) as ReturnType<B[K]>;
+            }
+            return this.instances[name] as ReturnType<B[K]>;
+        }
 
-	/**
-	 * Makes and retrieves a new instance
-	 * @param name
-	 * @param args
-	 */
-	public static make(name: string, ...args: any[]): any {
-		// First check if it's a singleton instance we have to make
-		if (this.singletonBindings[name]) {
-			// Does it already exist?
-			if (!this.instances[name]) {
-				// If not, make it and store it in instances
-				this.instances[name] = this.singletonBindings[name](...args);
-			}
+        const factory = this.bindings[name];
+        if (!factory) {
+            throw new Error(`No dependency was found for name "${String(name)}"`);
+        }
+        return (factory as B[K])(...args);
+    }
 
-			return this.instances[name];
-		}
-
-		return this.getBinding(name)(...args);
-	}
+    /**
+     *
+     * @param name
+     * @param args
+     */
+    makeAs<R, K extends keyof B = keyof B>(name: K, ...args: Parameters<B[K]>): R {
+        return this.make(name, ...args) as unknown as R;
+    }
 }

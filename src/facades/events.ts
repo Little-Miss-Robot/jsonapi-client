@@ -1,11 +1,11 @@
-import Container from "../Container";
-import { TEventListener } from "../types/event-bus";
+import {TEventListener, TEventMap} from "../types/event-bus";
+import {container} from "./container";
 
 export function events() {
-    return Container.make('EventBusInterface');
+    return container().make('EventBusInterface');
 }
 
-export function on(eventKey: string, listener: TEventListener) {
+export function on<E, K extends keyof TEventMap>(eventKey: keyof TEventMap, listener: TEventListener<E, K>) {
     return events().on(eventKey, listener);
 }
 

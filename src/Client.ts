@@ -1,5 +1,6 @@
 import type { ClientInterface } from './contracts/ClientInterface';
 import { AuthInterface } from "./contracts/AuthInterface";
+import InvalidJsonResponseError from "./errors/InvalidJsonResponseError";
 
 export default class Client implements ClientInterface {
     /**
@@ -26,8 +27,8 @@ export default class Client implements ClientInterface {
      */
     public async get(path: string, options = {}): Promise<unknown> {
         const authHeaders = await this.auth.getHttpHeaders();
-
-        const response = await fetch(`${this.baseUrl}/${path}`, {
+        const url = `${this.baseUrl}/${path}`;
+        const response = await fetch(url, {
             ...options,
             method: 'GET',
             headers: new Headers({
@@ -36,10 +37,12 @@ export default class Client implements ClientInterface {
             }),
         });
 
+        const text = await response.text();
+
         try {
-            return await response.json();
+            return JSON.parse(text);
         } catch (e: unknown) {
-            throw new Error('Response was not valid JSON.');
+            throw new InvalidJsonResponseError(url, response, text);
         }
     }
 
@@ -48,8 +51,8 @@ export default class Client implements ClientInterface {
      */
     public async post(path: string, body: any, options = {}): Promise<unknown> {
         const authHeaders = await this.auth.getHttpHeaders();
-
-        const response = await fetch(`${this.baseUrl}/${path}`, {
+        const url = `${this.baseUrl}/${path}`;
+        const response = await fetch(url, {
             ...options,
             method: 'POST',
             headers: new Headers({
@@ -60,10 +63,12 @@ export default class Client implements ClientInterface {
             body: JSON.stringify(body)
         });
 
+        const text = await response.text();
+
         try {
-            return await response.json();
+            return JSON.parse(text);
         } catch (e: unknown) {
-            throw new Error('Response was not valid JSON.');
+            throw new InvalidJsonResponseError(url, response, text);
         }
     }
 }

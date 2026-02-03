@@ -1,14 +1,16 @@
 import { EventBusInterface } from "./contracts/EventBusInterface";
-import { TEvent, TEventListener } from "./types/event-bus";
+import {TEventKey, TEventListener, TEventMap} from "./types/event-bus";
 
-type TListenerEntry = {
+type TListenerEntry<E, K extends TEventKey<E>> = {
     id: number;
-    listener: TEventListener;
+    listener: TEventListener<E, K>;
 };
 
-type TListenerMap = Record<string, TListenerEntry[]>;
+type TListenerMap<E> = {
+    [K in TEventKey<E>]?: TListenerEntry<E, K>[];
+};
 
-export default class EventBus implements EventBusInterface {
+export default class EventBus<E extends TEventMap> implements EventBusInterface<E> {
     /**
      * The current id
      * @private
@@ -19,19 +21,19 @@ export default class EventBus implements EventBusInterface {
      *
      * @private
      */
-    private eventIdMap: Record<number, string> = {};
+    private eventIdMap: Record<number, TEventKey<E>> = {};
 
     /**
      * The registered event listeners
      */
-    private listeners: TListenerMap = {};
+    private listeners: TListenerMap<E> = {};
 
     /**
      * Adds an event listener
      * @param eventKey
      * @param listener
      */
-    public on(eventKey: string, listener: TEventListener) {
+    public on<K extends TEventKey<E>>(eventKey: K, listener: TEventListener<E, K>) {
         // Increment the id
         const id = ++this.currentId;
 
@@ -42,7 +44,7 @@ export default class EventBus implements EventBusInterface {
 
         // Register the event listener
         this.eventIdMap[id] = eventKey;
-        this.listeners[eventKey].push({ id, listener });
+        this.listeners[eventKey]!.push({ id, listener });
 
         return () => this.off(id);
     }
@@ -76,16 +78,15 @@ export default class EventBus implements EventBusInterface {
     /**
      * Emits an event with the given event data
      * @param eventKey
-     * @param event
+     * @param args
      */
-    public emit(eventKey: string, event: TEvent = {}) {
-        if (! this.listeners[eventKey]) {
-            return;
-        }
+    public emit<K extends TEventKey<E>>(eventKey: K, ...args: E[K] extends void ? [] : [E[K]]) {
+        const listeners = this.listeners[eventKey];
+        if (!listeners) return;
 
-        // Fire the registered listeners
-        this.listeners[eventKey].forEach(listenerEntry => {
-            listenerEntry.listener(event);
+        listeners.forEach(({ listener }) => {
+            // @ts-expect-error TS can't narrow variadic tuple here perfectly
+            listener(...args);
         });
     }
 }

@@ -39,6 +39,24 @@ export default class OAuth implements AuthInterface {
     private accessTokenExpiryDate?: number;
 
     /**
+     * Gets the authentication token
+     */
+    public async getAuthToken(): Promise<string> {
+
+        if (
+            !this.accessToken
+            || !this.accessTokenExpiryDate
+            || new Date().getTime() >= this.accessTokenExpiryDate
+        ) {
+            return await this.generateAuthToken();
+        }
+
+        console.log('Reusing existing token');
+
+        return this.accessToken;
+    }
+
+    /**
      * Gets the HTTP Headers
      */
     public async getHttpHeaders(): Promise<Record<string, string>> {
@@ -50,24 +68,11 @@ export default class OAuth implements AuthInterface {
     }
 
     /**
-     * Gets the authentication token
-     */
-    public async getAuthToken(): Promise<string> {
-        if (
-            !this.accessToken
-            || !this.accessTokenExpiryDate
-            || new Date().getTime() >= this.accessTokenExpiryDate
-        ) {
-            return await this.generateAuthToken();
-        }
-
-        return this.accessToken;
-    }
-
-    /**
      * Generates a new auth token, stores it as properties and returns it
      */
     private async generateAuthToken(): Promise<string> {
+
+        console.log('Generating new token');
 
         const url = `${this.baseUrl}/oauth/token`;
 
@@ -88,6 +93,8 @@ export default class OAuth implements AuthInterface {
             });
 
             json = await response.json();
+
+            console.log(json);
         }
         catch (e: unknown) {
             if (e instanceof Error) {
@@ -102,7 +109,7 @@ export default class OAuth implements AuthInterface {
 
         // Store the access token and expiry date in memory
         this.accessToken = json.access_token as string;
-        this.accessTokenExpiryDate = new Date().getTime() + json.expires_in;
+        this.accessTokenExpiryDate = new Date().getTime() + json.expires_in * 1000;
 
         return this.accessToken;
     }

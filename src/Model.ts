@@ -1,8 +1,8 @@
-import Container from "./Container";
 import QueryBuilder from "./QueryBuilder";
 import type { ResponseModelInterface } from "./contracts/ResponseModelInterface";
 import type { TMapper } from "./types/mapper";
 import { DataProperties } from "./types/generic/data-properties";
+import {container} from "./facades/container";
 
 export default abstract class Model {
 	/**
@@ -29,6 +29,7 @@ export default abstract class Model {
 	 * @param response
 	 */
 	public static async createFromResponse(response: ResponseModelInterface) {
+
 		if (! this.gate(response)) {
 			return null;
 		}
@@ -51,7 +52,7 @@ export default abstract class Model {
 		};
 
 		// Create a new QueryBuilder instance with the gate and includes
-		const query = Container.make('QueryBuilderInterface', this.endpoint, mapper)
+		const query = container().makeAs<QueryBuilder<InstanceType<T>>>('QueryBuilderInterface', this.endpoint, mapper)
 			.gate(this.gate)
 			.include(this.include);
 
@@ -82,6 +83,7 @@ export default abstract class Model {
 	 *
 	 */
 	public serialize<T extends Model>(this: T): DataProperties<T> {
+
 		const data: Record<string, any> = {};
 
 		for (const key of Object.keys(this)) {

@@ -1,49 +1,47 @@
 import type { TConfigAttributes } from './types/config-attributes';
-import { TMapper } from "./types/mapper";
-import Container from "./Container";
 import Client from "./Client";
-import Config from "./Config";
 import QueryBuilder from "./QueryBuilder";
+import { TMapper } from "./types/mapper";
 import OAuth from "./auth/OAuth";
 import EventBus from "./EventBus";
-import MacroRegistry from "./MacroRegistry";
+import Config from "./Config";
+import {container} from "./facades/container";
+import config from "./facades/config";
+import client from "./facades/client";
 
 export default class JsonApi {
 
-	public static init(config: TConfigAttributes) {
+	public static init(configAttributes: TConfigAttributes) {
 
-		Config.setAll(config);
-
-		Container.singleton('MacroRegistryInterface', () => {
-			return new MacroRegistry();
+		container().singleton('Config', () => {
+			return new Config(configAttributes);
 		});
 
-		Container.singleton('EventBusInterface', () => {
+		container().singleton('EventBusInterface', () => {
 			return new EventBus();
 		});
 
-		Container.bind('QueryBuilderInterface', (endpoint: string, mapper: TMapper<any>) => {
+		container().bind('QueryBuilderInterface', (endpoint: string, mapper: TMapper<any>) => {
 			return new QueryBuilder(
-				Container.make('ClientInterface'),
-				Container.make('EventBusInterface'),
-				Container.make('MacroRegistryInterface'),
+				client(),
+				container().make('EventBusInterface'),
 				endpoint,
 				mapper,
 			);
 		});
 
-		Container.singleton('AuthInterface', () => {
+		container().singleton('AuthInterface', () => {
 			return new OAuth(
-				Config.get('baseUrl'),
-				Config.get('clientId'),
-				Config.get('clientSecret')
+				config().get('baseUrl'),
+				config().get('clientId'),
+				config().get('clientSecret')
 			);
 		});
 
-		Container.singleton('ClientInterface', () => {
+		container().singleton('ClientInterface', () => {
 			return new Client(
-				Container.make('AuthInterface'),
-				Config.get('baseUrl')
+				container().make('AuthInterface'),
+				config().get('baseUrl')
 			);
 		});
 	}
