@@ -8,10 +8,17 @@ import Config from "./Config";
 import {container} from "./facades/container";
 import config from "./facades/config";
 import client from "./facades/client";
+import {events} from "./facades/events";
+import macros from "./facades/macros";
+import MacroRegistry from "./MacroRegistry";
 
 export default class JsonApi {
 
 	public static init(configAttributes: TConfigAttributes) {
+
+		container().singleton('MacroRegistryInterface', () => {
+			return new MacroRegistry();
+		});
 
 		container().singleton('Config', () => {
 			return new Config(configAttributes);
@@ -24,7 +31,8 @@ export default class JsonApi {
 		container().bind('QueryBuilderInterface', (endpoint: string, mapper: TMapper<any>) => {
 			return new QueryBuilder(
 				client(),
-				container().make('EventBusInterface'),
+				events(),
+				macros(),
 				endpoint,
 				mapper,
 			);

@@ -51,8 +51,6 @@ export default class OAuth implements AuthInterface {
             return await this.generateAuthToken();
         }
 
-        console.log('Reusing existing token');
-
         return this.accessToken;
     }
 
@@ -71,8 +69,6 @@ export default class OAuth implements AuthInterface {
      * Generates a new auth token, stores it as properties and returns it
      */
     private async generateAuthToken(): Promise<string> {
-
-        console.log('Generating new token');
 
         const url = `${this.baseUrl}/oauth/token`;
 

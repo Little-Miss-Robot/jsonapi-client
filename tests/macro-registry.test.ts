@@ -1,6 +1,6 @@
-import { Container, JsonApi } from '../src/index';
+import {JsonApi, query} from '../src/index';
 import UnknownMacroError from "../src/errors/UnknownMacroError";
-import { register } from "../src/facades/macros";
+import macros from "../src/facades/macros";
 
 function init() {
 	JsonApi.init({
@@ -13,13 +13,13 @@ function init() {
 function makeQueryBuilder() {
 	init();
 
-	return Container.make('QueryBuilderInterface', 'api/endpoint');
+	return query('api/endpoint');
 }
 
 it('correctly executes registered macros', () => {
 	init();
 
-	register('macroName', (queryBuilder) => {
+	macros().register('macroName', (queryBuilder) => {
 		queryBuilder.limit(333);
 	});
 
@@ -33,7 +33,7 @@ it('throws an UnknownMacroError when executing non-existent macros', () => {
 	init();
 
 	// First register a macro
-	register('macroName', (queryBuilder) => {
+	macros().register('macroName', (queryBuilder) => {
 		queryBuilder.limit(5);
 	});
 

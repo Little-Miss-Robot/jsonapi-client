@@ -6,6 +6,7 @@ import {TEventMap} from "../types/event-bus";
 import {QueryBuilderInterface} from "../contracts/QueryBuilderInterface";
 import {TMapper} from "../types/mapper";
 import Config from "../Config";
+import {MacroRegistryInterface} from "../contracts/MacroRegistryInterface";
 
 type AppBindings = {
     Config: () => Config;
@@ -13,6 +14,7 @@ type AppBindings = {
     AuthInterface: () => AuthInterface;
     EventBusInterface: () => EventBusInterface<TEventMap>;
     QueryBuilderInterface: (endpoint: string, mapper: TMapper<any>) => QueryBuilderInterface<any>;
+    MacroRegistryInterface: () => MacroRegistryInterface,
 };
 
 let singletonContainer = null;

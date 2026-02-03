@@ -1,6 +1,5 @@
-import Container from "../Container";
-import type { TQueryBuilderMacroFunction } from "../types/query-builder-macro-function";
+import {container} from "./container";
 
-export function register(name: string, call: TQueryBuilderMacroFunction) {
-    return Container.make('MacroRegistryInterface').register(name, call);
+export default function macros() {
+    return container().make('MacroRegistryInterface');
 }
