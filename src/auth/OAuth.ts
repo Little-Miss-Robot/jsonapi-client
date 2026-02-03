@@ -102,7 +102,7 @@ export default class OAuth implements AuthInterface {
 
         // Store the access token and expiry date in memory
         this.accessToken = json.access_token as string;
-        this.accessTokenExpiryDate = new Date().getTime() + json.expires_in;
+        this.accessTokenExpiryDate = new Date().getTime() + json.expires_in * 1000;
 
         return this.accessToken;
     }
