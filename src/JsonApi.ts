@@ -1,7 +1,7 @@
 import type { TConfigAttributes } from './types/config-attributes';
+import { TMapper } from "./types/mapper";
 import Client from "./Client";
 import QueryBuilder from "./QueryBuilder";
-import { TMapper } from "./types/mapper";
 import OAuth from "./auth/OAuth";
 import EventBus from "./EventBus";
 import Config from "./Config";
@@ -42,7 +42,8 @@ export default class JsonApi {
 			return new OAuth(
 				config().get('baseUrl'),
 				config().get('clientId'),
-				config().get('clientSecret')
+				config().get('clientSecret'),
+				events()
 			);
 		});
 

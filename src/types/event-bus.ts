@@ -7,6 +7,7 @@ export type TEventMap = {
     postFetch: { queryBuilder: QueryBuilder<any>, url: string },
     preFind: { queryBuilder: QueryBuilder<any>, uuid: string | number },
     postFind: { queryBuilder: QueryBuilder<any>, uuid: string | number, result: unknown },
+    authTokenGenerated: { token: string, expiryTime: number },
 };
 
 export type TEventKey<E> = keyof E;

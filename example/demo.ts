@@ -21,13 +21,15 @@ eventBus.on('paramAdded', (e) => {
     //console.log(e.);
 });
 
+on('authTokenGenerated', e => {
+    console.log(e);
+});
+
 const data = await query('api/project')
     .setLocale('en')
     .include(['hero'])
     .where('status', '=', '1')
     .get();
-
-console.log(data);
 
 const data2 = await query('api/project')
     .setLocale('en')
@@ -35,15 +37,11 @@ const data2 = await query('api/project')
     .where('status', '=', '1')
     .get();
 
-console.log(data2);
-
 const data3 = await query('api/project')
     .setLocale('en')
     .include(['hero'])
     .where('status', '=', '1')
     .get();
-
-console.log(data3);
 
 const data4 = await query('api/project')
     .setLocale('en')
@@ -51,20 +49,14 @@ const data4 = await query('api/project')
     .where('status', '=', '1')
     .get();
 
-console.log(data4);
-
 const data5 = await query('api/project')
     .setLocale('en')
     .include(['hero'])
     .where('status', '=', '1')
     .get();
 
-console.log(data5);
-
 const data6 = await query('api/project')
     .setLocale('en')
     .include(['hero'])
     .where('status', '=', '1')
     .get();
-
-console.log(data6);

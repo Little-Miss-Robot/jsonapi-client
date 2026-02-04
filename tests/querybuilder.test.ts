@@ -3,9 +3,18 @@ import QueryBuilder from '../src/QueryBuilder';
 import OAuth from "../src/auth/OAuth";
 import EventBus from "../src/EventBus";
 import MacroRegistry from "../src/MacroRegistry";
+import {TEventMap} from "../src/types/event-bus";
 
 function makeMockClient() {
-    return new Client(new OAuth('https://baseurl.ext', 'test', 'test'), 'https://baseurl.ext');
+    return new Client(
+        new OAuth(
+            'https://baseurl.ext',
+            'test',
+            'test',
+            new EventBus<TEventMap>()
+        ),
+        'https://baseurl.ext'
+    );
 }
 
 function makeQueryBuilder() {
