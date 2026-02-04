@@ -18,6 +18,8 @@ import Model from "./Model";
 import {TDataGateFunction} from "./types/data-gate-function";
 import {ClientInterface} from "./contracts/ClientInterface";
 import {EventBusInterface} from "./contracts/EventBusInterface";
+import {MacroRegistryInterface} from "./contracts/MacroRegistryInterface";
+import {TEventMap} from "./types/event-bus";
 
 /**
  * This class provides an easy-to-use interface to build queries
@@ -40,7 +42,13 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 * The event bus to use when emitting events
 	 * @private
 	 */
-	private readonly events: EventBusInterface;
+	private readonly events: EventBusInterface<TEventMap>;
+
+	/**
+	 * The macro registry to use
+	 * @private
+	 */
+	private readonly macros: MacroRegistryInterface;
 
 	/**
 	 * The mapping function to use when we received the response
@@ -101,12 +109,20 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	/**
 	 * @param client
 	 * @param events
+	 * @param macros
 	 * @param endpoint
 	 * @param mapper
 	 */
-	constructor(client: ClientInterface, events: EventBusInterface, endpoint: string, mapper: TMapper<Promise<T>>) {
+	constructor(
+        client: ClientInterface,
+        events: EventBusInterface<TEventMap>,
+        macros: MacroRegistryInterface,
+        endpoint: string,
+        mapper: TMapper<Promise<T>>
+    ) {
 		this.client = client;
 		this.events = events;
+		this.macros = macros;
 		this.endpoint = endpoint;
 		this.mapper = mapper;
 		this.queryParams = {};
@@ -118,7 +134,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 * @param args
 	 */
 	public macro(name: string, ...args: unknown[]): this {
-		MacroRegistry.execute(name, this, args);
+		this.macros.execute(name, this, args);
 		return this;
 	}
 
@@ -162,7 +178,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 */
 	public param(name: string, value: TQueryParamValue): this {
 		this.queryParams[name] = value;
-		this.events.emit('paramAdded', { name, value });
+		this.events.emit('paramAdded', { queryBuilder: this, name, value });
 		return this;
 	}
 
@@ -355,13 +371,13 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 * Executes the query (GET)
 	 */
 	private async performGetRequest(path: string) {
-		this.events.emit('preFetch', { url: path });
+		this.events.emit('preFetch', { queryBuilder: this, url: path });
 
 		const response = await this.client.get(path, {
 			cache: this.cachePolicy,
 		});
 
-		this.events.emit('postFetch', { url: path });
+		this.events.emit('postFetch', { queryBuilder: this, url: path });
 
 		return response;
 	}
@@ -502,6 +518,9 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 	 * @param uuid
 	 */
 	public async find(uuid: string | number): Promise<T> {
+
+		this.events.emit('preFind', { queryBuilder: this, uuid });
+
 		if (!this.mapper) {
 			throw new Error("No mapper");
 		}
@@ -521,7 +540,11 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 
 		this.response = response;
 
-		return this.mapper(new ResponseModel(this.response.data));
+		const mapped = this.mapper(new ResponseModel(this.response.data));
+
+		this.events.emit('postFind', { queryBuilder: this, uuid, result: mapped });
+
+		return mapped;
 	}
 
 	/**

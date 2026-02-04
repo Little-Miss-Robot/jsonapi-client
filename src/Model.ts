@@ -1,8 +1,8 @@
-import Container from "./Container";
 import QueryBuilder from "./QueryBuilder";
 import type { ResponseModelInterface } from "./contracts/ResponseModelInterface";
 import type { TMapper } from "./types/mapper";
 import { DataProperties } from "./types/generic/data-properties";
+import {container} from "./facades/container";
 
 export default abstract class Model {
 	/**
@@ -52,7 +52,7 @@ export default abstract class Model {
 		};
 
 		// Create a new QueryBuilder instance with the gate and includes
-		const query = Container.make('QueryBuilderInterface', this.endpoint, mapper)
+		const query = container().makeAs<QueryBuilder<InstanceType<T>>>('QueryBuilderInterface', this.endpoint, mapper)
 			.gate(this.gate)
 			.include(this.include);
 

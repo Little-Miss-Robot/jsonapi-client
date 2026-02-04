@@ -5,6 +5,7 @@ import {TQueryParams, TQueryParamValue} from "../types/query-params";
 import type {TFilterOperator} from "../types/filter-operator";
 import {TQueryBuilderGroupingFunction} from "../types/query-builder-grouping-function";
 import type {TNullable} from "../types/generic/nullable";
+import {TDataGateFunction} from "../types/data-gate-function";
 
 export interface QueryBuilderInterface<T> {
 
@@ -27,6 +28,8 @@ export interface QueryBuilderInterface<T> {
     getRaw: () => Promise<T | TRawResponse>;
     find: (id: string) => Promise<T | ResponseModel>;
     first(): Promise<T | ResponseModel>;
+
+    gate(gateFunction: TDataGateFunction): this;
 
     toString: () => string;
 }

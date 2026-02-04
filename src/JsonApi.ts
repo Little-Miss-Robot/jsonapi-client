@@ -1,41 +1,57 @@
 import type { TConfigAttributes } from './types/config-attributes';
-import Container from "./Container";
-import Client from "./Client";
-import Config from "./Config";
-import QueryBuilder from "./QueryBuilder";
 import { TMapper } from "./types/mapper";
+import Client from "./Client";
+import QueryBuilder from "./QueryBuilder";
 import OAuth from "./auth/OAuth";
 import EventBus from "./EventBus";
+import Config from "./Config";
+import {container} from "./facades/container";
+import config from "./facades/config";
+import client from "./facades/client";
+import {events} from "./facades/events";
+import macros from "./facades/macros";
+import MacroRegistry from "./MacroRegistry";
 
 export default class JsonApi {
 
-	public static init(config: TConfigAttributes) {
+	public static init(configAttributes: TConfigAttributes) {
 
-		Config.setAll(config);
+		container().singleton('MacroRegistryInterface', () => {
+			return new MacroRegistry();
+		});
 
-		Container.singleton('EventBusInterface', () => {
+		container().singleton('Config', () => {
+			return new Config(configAttributes);
+		});
+
+		container().singleton('EventBusInterface', () => {
 			return new EventBus();
 		});
 
-		Container.bind('QueryBuilderInterface', (endpoint: string, mapper: TMapper<any>) => {
+		container().bind('QueryBuilderInterface', (endpoint: string, mapper: TMapper<any>) => {
 			return new QueryBuilder(
-				Container.make('ClientInterface'),
-				Container.make('EventBusInterface'),
+				client(),
+				events(),
+				macros(),
 				endpoint,
 				mapper,
 			);
 		});
 
-		Container.singleton('AuthInterface', () => {
+		container().singleton('AuthInterface', () => {
 			return new OAuth(
-				Config.get('baseUrl'),
-				Config.get('clientId'),
-				Config.get('clientSecret')
+				config().get('baseUrl'),
+				config().get('clientId'),
+				config().get('clientSecret'),
+				events()
 			);
 		});
 
-		Container.singleton('ClientInterface', () => {
-			return new Client(Container.make('AuthInterface'), Config.get('baseUrl'));
+		container().singleton('ClientInterface', () => {
+			return new Client(
+				container().make('AuthInterface'),
+				config().get('baseUrl')
+			);
 		});
 	}
 }

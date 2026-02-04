@@ -8,12 +8,19 @@ export default class Config {
 	/**
 	 * @private
 	 */
-	private static attributes: TNullable<TConfigAttributes> = null;
+	private attributes: TNullable<TConfigAttributes> = null;
+
+	/**
+	 *
+	 */
+	constructor(attributes: TConfigAttributes) {
+		this.setAll(attributes);
+	}
 
 	/**
 	 * @param attributes
 	 */
-	public static setAll(attributes: TConfigAttributes) {
+	public setAll(attributes: TConfigAttributes) {
 		const keys = Object.keys(attributes) as (keyof TConfigAttributes)[];
 
 		keys.forEach((key) => {
@@ -28,7 +35,7 @@ export default class Config {
 	/**
 	 * @param attribute
 	 */
-	public static get(attribute: keyof TConfigAttributes): string {
+	public get(attribute: keyof TConfigAttributes): string {
 		if (this.attributes === null) {
 			throw new ConfigValuesNotSetError();
 		}
