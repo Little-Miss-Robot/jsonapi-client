@@ -29,7 +29,7 @@ export interface QueryBuilderInterface<T> {
     sort: (path: string, direction: 'asc' | 'desc') => this
     group: (operator: 'or' | 'and', groupingCall: TQueryBuilderGroupingFunction<T>) => this
 
-    get: () => Promise<ResultSet<T | ResponseModel>>
+    get: () => Promise<ResultSet<T>>
     all: (batchSize?: number) => Promise<ResultSet<T>>
 
     getRaw: () => Promise<T | TRawResponse>
