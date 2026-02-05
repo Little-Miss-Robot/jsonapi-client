@@ -18,6 +18,11 @@ export interface QueryBuilderInterface<T> {
     params: (params: TQueryParams) => this
 
     where: (path: string, operator: TFilterOperator, value: TNullable<TQueryParamValue>) => this
+    whereIn: (path: string, values: string[] | number[]) => this
+    whereNotIn: (path: string, values: string[] | number[]) => this
+    whereIsNull: (path: string) => this
+    whereIsNotNull: (path: string) => this
+
     include: (includes: string[]) => this
     limit: (amount: number) => this
     paginate: (page: number, perPage: number) => this
