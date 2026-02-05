@@ -1,57 +1,60 @@
-import type { TConfigAttributes } from './types/config-attributes';
-import { TMapper } from "./types/mapper";
-import Client from "./Client";
-import QueryBuilder from "./QueryBuilder";
-import OAuth from "./auth/OAuth";
-import EventBus from "./EventBus";
-import Config from "./Config";
-import {container} from "./facades/container";
-import config from "./facades/config";
-import client from "./facades/client";
-import {events} from "./facades/events";
-import macros from "./facades/macros";
-import MacroRegistry from "./MacroRegistry";
+import type { ConfigAttributes } from './types/config-attributes';
+import type { TMapper } from './types/mapper';
+import OAuth from './auth/OAuth';
+import Client from './Client';
+import Config from './Config';
+import EventBus from './EventBus';
+import client from './facades/client';
+import config from './facades/config';
+import { container } from './facades/container';
+import { events } from './facades/events';
+import macros from './facades/macros';
+import MacroRegistry from './MacroRegistry';
+import QueryBuilder from './QueryBuilder';
 
 export default class JsonApi {
+    public static init(configAttributes: ConfigAttributes) {
+        const c = container();
 
-	public static init(configAttributes: TConfigAttributes) {
+        c.singleton('macros', () => {
+            return new MacroRegistry();
+        });
 
-		container().singleton('MacroRegistryInterface', () => {
-			return new MacroRegistry();
-		});
+        c.singleton('config', () => {
+            return new Config({
+                ...{ tokenExpirySafetyWindow: 60000 },
+                ...configAttributes,
+            });
+        });
 
-		container().singleton('Config', () => {
-			return new Config(configAttributes);
-		});
+        c.singleton('events', () => {
+            return new EventBus();
+        });
 
-		container().singleton('EventBusInterface', () => {
-			return new EventBus();
-		});
+        c.bind('query', (endpoint: string, mapper: TMapper<any>) => {
+            return new QueryBuilder(
+                client(),
+                events(),
+                macros(),
+                endpoint,
+                mapper,
+            );
+        });
 
-		container().bind('QueryBuilderInterface', (endpoint: string, mapper: TMapper<any>) => {
-			return new QueryBuilder(
-				client(),
-				events(),
-				macros(),
-				endpoint,
-				mapper,
-			);
-		});
+        c.singleton('auth', () => {
+            return new OAuth(
+                config().get('baseUrl'),
+                config().get('clientId'),
+                config().get('clientSecret'),
+                events(),
+            );
+        });
 
-		container().singleton('AuthInterface', () => {
-			return new OAuth(
-				config().get('baseUrl'),
-				config().get('clientId'),
-				config().get('clientSecret'),
-				events()
-			);
-		});
-
-		container().singleton('ClientInterface', () => {
-			return new Client(
-				container().make('AuthInterface'),
-				config().get('baseUrl')
-			);
-		});
-	}
+        c.singleton('client', () => {
+            return new Client(
+                c.make('auth'),
+                config().get('baseUrl'),
+            );
+        });
+    }
 }

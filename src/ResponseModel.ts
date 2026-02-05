@@ -1,113 +1,111 @@
-import AutoMapper from "./AutoMapper";
-import type { ResponseModelInterface } from "./contracts/ResponseModelInterface";
-import { isResponseWithData } from "./typeguards/isResponseWithData";
-import { TNullable } from "./types/generic/nullable";
-import Model from "./Model";
-import {TModelClass} from "./types/model-class";
+import type { ResponseModelInterface } from './contracts/ResponseModelInterface';
+import type Model from './Model';
+import type { TNullable } from './types/generic/nullable';
+import type { TModelClass } from './types/model-class';
+import AutoMapper from './AutoMapper';
+import { isResponseWithData } from './typeguards/isResponseWithData';
 
 export default class ResponseModel implements ResponseModelInterface {
-	/**
-	 * The raw, unprocessed response from the JSON:API
-	 * @private
-	 */
-	private readonly rawResponse: unknown;
+    /**
+     * The raw, unprocessed response from the JSON:API
+     * @private
+     */
+    private readonly rawResponse: unknown;
 
-	/**
-	 * @param rawResponse
-	 */
-	constructor(rawResponse: unknown) {
-		this.rawResponse = rawResponse;
-	}
+    /**
+     * @param rawResponse
+     */
+    constructor(rawResponse: unknown) {
+        this.rawResponse = rawResponse;
+    }
 
-	/**
-	 * Get the raw response from the ResponseModel
-	 */
-	public getRawResponse(): unknown {
-		return this.rawResponse;
-	}
+    /**
+     * Get the raw response from the ResponseModel
+     */
+    public getRawResponse(): unknown {
+        return this.rawResponse;
+    }
 
-	/**
-	 * Gets a field from the node
-	 * @param path
-	 * @param defaultValue
-	 */
-	get<T>(path: string | string[], defaultValue: T): T {
-		if (!Array.isArray(path)) {
-			path = path.replace(/\[(\d+)\]/g, ".$1").split(".");
-		}
+    /**
+     * Gets a field from the node
+     * @param path
+     * @param defaultValue
+     */
+    get<T>(path: string | string[], defaultValue: T): T {
+        if (!Array.isArray(path)) {
+            path = path.replace(/\[(\d+)\]/g, '.$1').split('.');
+        }
 
-		let result = this.rawResponse as Record<string, any>;
+        let result = this.rawResponse as Record<string, any>;
 
-		for (const key of path) {
-			result = Object.prototype.hasOwnProperty.call(result, key) ? result[key] : undefined;
-			if (result === undefined || result === null) {
-				return defaultValue;
-			}
-		}
+        for (const key of path) {
+            result = Object.prototype.hasOwnProperty.call(result, key) ? result[key] : undefined;
+            if (result === undefined || result === null) {
+                return defaultValue;
+            }
+        }
 
-		return result as T;
-	}
+        return result as T;
+    }
 
-	/**
-	 * Gets a relationship from the node and optionally map it
-	 * @param path
-	 * @param modelClass
-	 */
-	async hasOne<T extends Model>(path: string | string[], modelClass?: TModelClass<T>): Promise<TNullable<T>> {
+    /**
+     * Gets a relationship from the node and optionally map it
+     * @param path
+     * @param modelClass
+     */
+    async hasOne<T extends Model>(path: string | string[], modelClass?: TModelClass<T>): Promise<TNullable<T>> {
+        let contentData: unknown = this.get(path, null);
 
-		let contentData: unknown = this.get(path, null);
+        if (isResponseWithData(contentData)) {
+            contentData = contentData.data;
+        }
 
-		if (isResponseWithData(contentData)) {
-			contentData = contentData.data;
-		}
+        if (!contentData) {
+            return null;
+        }
 
-		if (!contentData) {
-			return null;
-		}
+        const responseModel = new ResponseModel(contentData);
 
-		const responseModel = new ResponseModel(contentData);
+        // A class was explicitly given
+        if (modelClass) {
+            return await modelClass.createFromResponse(responseModel);
+        }
 
-		// A class was explicitly given
-		if (modelClass) {
-			return await modelClass.createFromResponse(responseModel);
-		}
+        // Resort to automapping
+        return await AutoMapper.map(responseModel);
+    }
 
-		// Resort to automapping
-		return await AutoMapper.map(responseModel);
-	}
+    /**
+     * @param path
+     * @param modelClass
+     */
+    async hasMany<T extends Model>(path: string | string[], modelClass?: TModelClass<T>): Promise<TNullable<T[]>> {
+        let contentData: unknown = this.get(path, null);
 
-	/**
-	 * @param path
-	 * @param modelClass
-	 */
-	async hasMany<T extends Model>(path: string | string[], modelClass?: TModelClass<T>): Promise<TNullable<T[]>> {
+        if (!contentData) {
+            return null;
+        }
 
-		let contentData: unknown = this.get(path, null);
+        if (isResponseWithData(contentData)) {
+            contentData = contentData.data;
+        }
 
-		if (!contentData) {
-			return null;
-		}
+        if (Array.isArray(contentData)) {
+            const result: T[] = [];
 
-		if (isResponseWithData(contentData)) {
-			contentData = contentData.data;
-		}
+            for (const item of contentData) {
+                const modelInstance = modelClass
+                    ? await modelClass.createFromResponse(new ResponseModel(item))
+                    : await AutoMapper.map(new ResponseModel(item));
 
-		if (Array.isArray(contentData)) {
-			const result: T[] = [];
+                if (modelInstance) {
+                    result.push(modelInstance);
+                }
+            }
 
-			for (const item of contentData) {
-				const modelInstance = modelClass ?
-					await modelClass.createFromResponse(new ResponseModel(item)) :
-					await AutoMapper.map(new ResponseModel(item));
+            return result as T[];
+        }
 
-				if (modelInstance) {
-					result.push(modelInstance);
-				}
-			}
-
-			return result as T[];
-		}
-
-		return null;
-	}
+        return null;
+    }
 }

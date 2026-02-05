@@ -7,8 +7,9 @@ export default antfu({
         'import/order': ['warn'],
         'style/semi': ['warn', 'always'],
         'symbol-description': ['off'],
-        'vue/custom-event-name-casing': ['off'],
-        '@typescript-eslint/consistent-type-definitions': ['type']
+        '@typescript-eslint/consistent-type-definitions': ['warn'],
+        'antfu/no-top-level-await': ['off'],
+        'no-console': ['off'],
     },
     stylistic: {
         indent: 4,

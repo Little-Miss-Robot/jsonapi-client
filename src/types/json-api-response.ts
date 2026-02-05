@@ -1,5 +1,5 @@
-export type TJsonApiResponse = {
-	json_api: Object;
-	data: Array<Object>;
-	meta?: Record<string, any>;
-};
+export interface TJsonApiResponse {
+    json_api: object
+    data: Array<object>
+    meta?: Record<string, any>
+}

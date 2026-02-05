@@ -1,5 +1,5 @@
-import {container} from "./container";
+import { container } from './container';
 
 export default function client() {
-    return container().make('ClientInterface');
+    return container().make('client');
 }

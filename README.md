@@ -51,11 +51,8 @@ Config.setAll({
   // The client secret
   clientSecret: "Rtqe9lNoXsp9w9blIaVVlEA5",
   
-  // Password
-  password: "",
-  
-  // Username
-  username: ""
+  // Defines how long (in ms) before a token expires it should be proactively refreshed. (default: 60000 or 1 minute)
+  tokenExpirySafetyWindow: 60000,
 });
 ```
 

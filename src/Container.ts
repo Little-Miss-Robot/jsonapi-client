@@ -1,8 +1,7 @@
 // A map of factories keyed by string names
-type FactoryMap = Record<string, (...args: any[]) => any>;
+import type { ContainerFactoryMap } from './types/container-factory-map';
 
-export class Container<B extends FactoryMap> {
-
+export class Container<B extends ContainerFactoryMap> {
     /**
      *
      * @private

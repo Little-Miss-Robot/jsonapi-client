@@ -1,5 +1,5 @@
-import {container} from "./container";
+import { container } from './container';
 
 export default function config() {
-    return container().make('Config');
+    return container().make('config');
 }

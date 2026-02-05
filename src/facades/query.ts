@@ -1,11 +1,12 @@
-import { TMapper } from "../types/mapper";
-import ResponseModel from "../ResponseModel";
-import {container} from "./container";
+import type { QueryBuilderInterface } from '../contracts/QueryBuilderInterface';
+import type ResponseModel from '../ResponseModel';
+import type { TMapper } from '../types/mapper';
+import { container } from './container';
 
-const defaultMapper = (response: ResponseModel) => {
+function defaultMapper(response: ResponseModel) {
     return response;
-};
+}
 
-export default function query(endpoint: string, mapper: TMapper<any> = defaultMapper) {
-    return container().make('QueryBuilderInterface', endpoint, mapper);
+export default function query<T>(endpoint: string, mapper: TMapper<any> = defaultMapper) {
+    return container().makeAs<QueryBuilderInterface<T>>('query', endpoint, mapper);
 }

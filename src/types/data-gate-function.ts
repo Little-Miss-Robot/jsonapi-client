@@ -1,3 +1,3 @@
-import type { ResponseModelInterface } from "../contracts/ResponseModelInterface";
+import type { ResponseModelInterface } from '../contracts/ResponseModelInterface';
 
 export type TDataGateFunction = (model: ResponseModelInterface) => boolean;

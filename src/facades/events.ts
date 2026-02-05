@@ -1,12 +1,12 @@
-import {TEventListener, TEventMap} from "../types/event-bus";
-import {container} from "./container";
-import {EventBusInterface} from "../contracts/EventBusInterface";
+import type { EventBusInterface } from '../contracts/EventBusInterface';
+import type { TEventListener } from '../types/event-bus';
+import { container } from './container';
 
 type Bus = ReturnType<typeof events>;
 type E = Bus extends EventBusInterface<infer M> ? M : never;
 
 export function events() {
-    return container().make('EventBusInterface');
+    return container().make('events');
 }
 
 export function on<K extends keyof E>(eventKey: K, listener: TEventListener<E, K>): () => void {

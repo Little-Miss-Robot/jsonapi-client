@@ -1,11 +1,10 @@
-import AuthTokenError from "../errors/AuthTokenError";
-import { AuthInterface } from "../contracts/AuthInterface";
-import EventBus from "../EventBus";
-import {TEventMap} from "../types/event-bus";
-import {EventBusInterface} from "../contracts/EventBusInterface";
+import type { AuthInterface } from '../contracts/AuthInterface';
+import type { EventBusInterface } from '../contracts/EventBusInterface';
+import type { TEventMap } from '../types/event-bus';
+import AuthTokenError from '../errors/AuthTokenError';
+import config from '../facades/config';
 
 export default class OAuth implements AuthInterface {
-
     /**
      * @private
      */
@@ -24,7 +23,7 @@ export default class OAuth implements AuthInterface {
     /**
      * @private
      */
-    private readonly events: EventBusInterface<TEventMap>
+    private readonly events: EventBusInterface<TEventMap>;
 
     /**
      * @param baseUrl
@@ -53,10 +52,9 @@ export default class OAuth implements AuthInterface {
      * Gets the authentication token
      */
     public async getAuthToken(): Promise<string> {
-
         // The amount of milliseconds before expiration that we ask for a new token
-        const expiryOffsetTime = 60000;
-        const expiryTime = Math.max(0, this.accessTokenExpiryDate - expiryOffsetTime);
+        const tokenExpirySafetyWindow = config().get('tokenExpirySafetyWindow');
+        const expiryTime = Math.max(0, this.accessTokenExpiryDate - tokenExpirySafetyWindow);
 
         if (
             !this.accessToken
@@ -84,7 +82,6 @@ export default class OAuth implements AuthInterface {
      * Generates a new auth token, stores it as properties and returns it
      */
     private async generateAuthToken(): Promise<string> {
-
         const url = `${this.baseUrl}/oauth/token`;
 
         const requestBody = new FormData();
@@ -112,7 +109,7 @@ export default class OAuth implements AuthInterface {
             throw new AuthTokenError(`Couldn\'t generate auth token: Unknown error.`, url);
         }
 
-        if (! json.access_token) {
+        if (!json.access_token) {
             throw new AuthTokenError(`${json.error}: ${json.error_description}`, url);
         }
 
@@ -122,8 +119,8 @@ export default class OAuth implements AuthInterface {
 
         this.events.emit('authTokenGenerated', {
             token: json.access_token as string,
-            expiryTime: json.expires_in
-        })
+            expiryTime: json.expires_in,
+        });
 
         return this.accessToken;
     }
