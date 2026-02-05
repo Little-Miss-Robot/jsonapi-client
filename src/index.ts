@@ -6,6 +6,7 @@ export { default as client } from './facades/client';
 export { default as config } from './facades/config';
 export { container } from './facades/container';
 export { events, off, on } from './facades/events';
+export { default as macros } from './facades/macros';
 export { default as query } from './facades/query';
 export { default as JsonApi } from './JsonApi';
 export { default as MacroRegistry } from './MacroRegistry';
