@@ -1,5 +1,5 @@
-import {container} from "./container";
+import { container } from './container';
 
 export default function macros() {
-    return container().make('MacroRegistryInterface');
+    return container().make('macros');
 }

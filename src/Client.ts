@@ -1,6 +1,6 @@
+import type { AuthInterface } from './contracts/AuthInterface';
 import type { ClientInterface } from './contracts/ClientInterface';
-import { AuthInterface } from "./contracts/AuthInterface";
-import InvalidJsonResponseError from "./errors/InvalidJsonResponseError";
+import InvalidJsonResponseError from './errors/InvalidJsonResponseError';
 
 export default class Client implements ClientInterface {
     /**
@@ -25,7 +25,7 @@ export default class Client implements ClientInterface {
     /**
      * Fetches the API with a GET request
      */
-    public async get(path: string, options = {}): Promise<unknown> {
+    public async get(path: string, options: RequestInit = {}): Promise<unknown> {
         const authHeaders = await this.auth.getHttpHeaders();
         const url = `${this.baseUrl}/${path}`;
         const response = await fetch(url, {
@@ -41,7 +41,8 @@ export default class Client implements ClientInterface {
 
         try {
             return JSON.parse(text);
-        } catch (e: unknown) {
+        }
+        catch {
             throw new InvalidJsonResponseError(url, response, text);
         }
     }
@@ -49,7 +50,7 @@ export default class Client implements ClientInterface {
     /**
      * Fetches the API with a POST request
      */
-    public async post(path: string, body: any, options = {}): Promise<unknown> {
+    public async post(path: string, body: object, options: RequestInit = {}): Promise<unknown> {
         const authHeaders = await this.auth.getHttpHeaders();
         const url = `${this.baseUrl}/${path}`;
         const response = await fetch(url, {
@@ -57,17 +58,18 @@ export default class Client implements ClientInterface {
             method: 'POST',
             headers: new Headers({
                 ...authHeaders,
-                Accept: 'application/json',
+                'Accept': 'application/json',
                 'Content-Type': 'application/json',
             }),
-            body: JSON.stringify(body)
+            body: JSON.stringify(body),
         });
 
         const text = await response.text();
 
         try {
             return JSON.parse(text);
-        } catch (e: unknown) {
+        }
+        catch {
             throw new InvalidJsonResponseError(url, response, text);
         }
     }

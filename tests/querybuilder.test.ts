@@ -1,9 +1,9 @@
+import type { TEventMap } from '../src/types/event-bus';
+import OAuth from '../src/auth/OAuth';
 import Client from '../src/Client';
+import EventBus from '../src/EventBus';
+import MacroRegistry from '../src/MacroRegistry';
 import QueryBuilder from '../src/QueryBuilder';
-import OAuth from "../src/auth/OAuth";
-import EventBus from "../src/EventBus";
-import MacroRegistry from "../src/MacroRegistry";
-import {TEventMap} from "../src/types/event-bus";
 
 function makeMockClient() {
     return new Client(
@@ -11,9 +11,9 @@ function makeMockClient() {
             'https://baseurl.ext',
             'test',
             'test',
-            new EventBus<TEventMap>()
+            new EventBus<TEventMap>(),
         ),
-        'https://baseurl.ext'
+        'https://baseurl.ext',
     );
 }
 

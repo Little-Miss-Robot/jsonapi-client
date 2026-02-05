@@ -1,7 +1,7 @@
+import type { MacroRegistryInterface } from './contracts/MacroRegistryInterface';
+import type { QueryBuilderInterface } from './contracts/QueryBuilderInterface';
 import type { TQueryBuilderMacroFunction } from './types/query-builder-macro-function';
-import UnknownMacroError from "./errors/UnknownMacroError";
-import { QueryBuilderInterface } from "./contracts/QueryBuilderInterface";
-import { MacroRegistryInterface } from "./contracts/MacroRegistryInterface";
+import UnknownMacroError from './errors/UnknownMacroError';
 
 export default class MacroRegistry implements MacroRegistryInterface {
     /**
@@ -23,7 +23,7 @@ export default class MacroRegistry implements MacroRegistryInterface {
      * @param args
      */
     public execute(name: string, query: QueryBuilderInterface<unknown>, args: unknown[] = []) {
-        if (! this.macros[name]) {
+        if (!this.macros[name]) {
             throw new UnknownMacroError(name);
         }
 

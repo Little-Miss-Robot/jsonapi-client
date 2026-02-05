@@ -1,5 +1,5 @@
-import Model from "../Model";
+import type Model from '../Model';
 
 export type TModelClass<T extends Model = Model> = {
-    new (...args: any[]): T;
+    new (...args: any[]): T
 } & typeof Model;

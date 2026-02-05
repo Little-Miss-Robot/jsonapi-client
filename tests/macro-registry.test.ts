@@ -1,50 +1,50 @@
-import {JsonApi, query} from '../src/index';
-import UnknownMacroError from "../src/errors/UnknownMacroError";
-import macros from "../src/facades/macros";
+import UnknownMacroError from '../src/errors/UnknownMacroError';
+import macros from '../src/facades/macros';
+import { JsonApi, query } from '../src/index';
 
 function init() {
-	JsonApi.init({
-		baseUrl: "http://localhost:3000",
-		clientId: "test",
-		clientSecret: "test"
-	});
+    JsonApi.init({
+        baseUrl: 'http://localhost:3000',
+        clientId: 'test',
+        clientSecret: 'test',
+    });
 }
 
 function makeQueryBuilder() {
-	init();
+    init();
 
-	return query('api/endpoint');
+    return query('api/endpoint');
 }
 
 it('correctly executes registered macros', () => {
-	init();
+    init();
 
-	macros().register('macroName', (queryBuilder) => {
-		queryBuilder.limit(333);
-	});
+    macros().register('macroName', (queryBuilder) => {
+        queryBuilder.limit(333);
+    });
 
-	const queryBuilder = makeQueryBuilder();
-	queryBuilder.macro('macroName');
+    const queryBuilder = makeQueryBuilder();
+    queryBuilder.macro('macroName');
 
-	expect(queryBuilder.toString()).toBe('api/endpoint/?page%5Blimit%5D=333');
+    expect(queryBuilder.toString()).toBe('api/endpoint/?page%5Blimit%5D=333');
 });
 
 it('throws an UnknownMacroError when executing non-existent macros', () => {
-	init();
+    init();
 
-	// First register a macro
-	macros().register('macroName', (queryBuilder) => {
-		queryBuilder.limit(5);
-	});
+    // First register a macro
+    macros().register('macroName', (queryBuilder) => {
+        queryBuilder.limit(5);
+    });
 
-	// Make the QueryBuilder and execute the registered macro (to ensure registering macros as a whole is still working)
-	const queryBuilder = makeQueryBuilder();
-	queryBuilder.macro('macroName');
+    // Make the QueryBuilder and execute the registered macro (to ensure registering macros as a whole is still working)
+    const queryBuilder = makeQueryBuilder();
+    queryBuilder.macro('macroName');
 
-	// Test executing non-existent macros
-	const t = () => {
-		queryBuilder.macro('nonExistentMacroName');
-	};
+    // Test executing non-existent macros
+    const t = () => {
+        queryBuilder.macro('nonExistentMacroName');
+    };
 
-	expect(t).toThrow(UnknownMacroError);
+    expect(t).toThrow(UnknownMacroError);
 });

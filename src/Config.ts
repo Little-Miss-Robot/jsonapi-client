@@ -1,47 +1,37 @@
-import ConfigValuesNotSetError from "./errors/ConfigValuesNotSetError";
-import FalsyConfigValueError from "./errors/FalsyConfigValueError";
-import UnknownConfigValueError from "./errors/UnknownConfigValueError";
-import type { TConfigAttributes } from "./types/config-attributes";
-import { TNullable } from "./types/generic/nullable";
+import type { ConfigValue } from './types/config-attributes';
+import type { TNullable } from './types/generic/nullable';
+import ConfigValuesNotSetError from './errors/ConfigValuesNotSetError';
+import FalsyConfigValueError from './errors/FalsyConfigValueError';
+import UnknownConfigValueError from './errors/UnknownConfigValueError';
 
-export default class Config {
-	/**
-	 * @private
-	 */
-	private attributes: TNullable<TConfigAttributes> = null;
+export default class Config<T extends Record<string, ConfigValue>> {
+    private attributes: TNullable<T> = null;
 
-	/**
-	 *
-	 */
-	constructor(attributes: TConfigAttributes) {
-		this.setAll(attributes);
-	}
+    constructor(attributes: T) {
+        this.setAll(attributes);
+    }
 
-	/**
-	 * @param attributes
-	 */
-	public setAll(attributes: TConfigAttributes) {
-		const keys = Object.keys(attributes) as (keyof TConfigAttributes)[];
+    public setAll(attributes: T) {
+        const keys = Object.keys(attributes) as Array<keyof T & string>;
 
-		keys.forEach((key) => {
-			if (!attributes[key]) {
-				throw new FalsyConfigValueError(key);
-			}
-		});
+        keys.forEach((key) => {
+            if (attributes[key] === undefined) {
+                throw new FalsyConfigValueError(key); // key is string now
+            }
+        });
 
-		this.attributes = attributes;
-	}
+        this.attributes = attributes;
+    }
 
-	/**
-	 * @param attribute
-	 */
-	public get(attribute: keyof TConfigAttributes): string {
-		if (this.attributes === null) {
-			throw new ConfigValuesNotSetError();
-		}
-		if (!this.attributes[attribute]) {
-			throw new UnknownConfigValueError(attribute);
-		}
-		return this.attributes[attribute];
-	}
+    public get<K extends keyof T & string>(attribute: K): T[K] {
+        if (this.attributes === null) {
+            throw new ConfigValuesNotSetError();
+        }
+
+        if (this.attributes[attribute] === undefined) {
+            throw new UnknownConfigValueError(attribute);
+        }
+
+        return this.attributes[attribute];
+    }
 }

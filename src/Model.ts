@@ -1,8 +1,8 @@
-import QueryBuilder from "./QueryBuilder";
 import type { ResponseModelInterface } from "./contracts/ResponseModelInterface";
 import type { TMapper } from "./types/mapper";
 import { DataProperties } from "./types/generic/data-properties";
-import {container} from "./facades/container";
+import query from "./facades/query";
+import {QueryBuilderInterface} from "./contracts/QueryBuilderInterface";
 
 export default abstract class Model {
 	/**
@@ -42,7 +42,7 @@ export default abstract class Model {
 	/**
 	 * Create a QueryBuilder instance specifically for this model
 	 */
-	public static query<T extends typeof Model>(this: T): QueryBuilder<InstanceType<T>> {
+	public static query<T extends typeof Model>(this: T): QueryBuilderInterface<InstanceType<T>> {
 		if (!this.endpoint) {
 			throw new Error(`The model "${this.name}" doesn't have an endpoint, so can't be queried.`);
 		}
@@ -52,16 +52,16 @@ export default abstract class Model {
 		};
 
 		// Create a new QueryBuilder instance with the gate and includes
-		const query = container().makeAs<QueryBuilder<InstanceType<T>>>('QueryBuilderInterface', this.endpoint, mapper)
+		const qb = query<InstanceType<T>>(this.endpoint, mapper)
 			.gate(this.gate)
 			.include(this.include);
 
 		// Check if the model has a default macro
 		if (this.defaultMacro) {
-			query.macro(this.defaultMacro);
+			qb.macro(this.defaultMacro);
 		}
 
-		return query;
+		return qb;
 	}
 
 	/**

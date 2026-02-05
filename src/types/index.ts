@@ -1,16 +1,13 @@
-// Interfaces / Contracts
+export type { AuthInterface } from '../contracts/AuthInterface';
 export type { ClientInterface } from '../contracts/ClientInterface';
 export type { QueryBuilderInterface } from '../contracts/QueryBuilderInterface';
 export type { ResponseModelInterface } from '../contracts/ResponseModelInterface';
-export type { AuthInterface } from '../contracts/AuthInterface';
-
-// Types
-export type { DataProperties } from './generic/data-properties';
-export type { TNullable } from './generic/nullable';
 export type { TAutoMapperSelector } from './automapper-selector';
-export type { TConfigAttributes } from './config-attributes';
+export type { ConfigAttributes } from './config-attributes';
 export type { TContainerBindingFunction } from './container-binding-function';
 export type { TDataGateFunction } from './data-gate-function';
+export type { DataProperties } from './generic/data-properties';
+export type { TNullable } from './generic/nullable';
 export type { TJsonApiResponse } from './json-api-response';
 export type { TMapper } from './mapper';
 export type { TModelClass } from './model-class';

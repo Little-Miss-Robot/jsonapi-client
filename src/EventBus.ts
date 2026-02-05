@@ -1,10 +1,10 @@
-import { EventBusInterface } from "./contracts/EventBusInterface";
-import {TEventKey, TEventListener, TEventMap} from "./types/event-bus";
+import type { EventBusInterface } from './contracts/EventBusInterface';
+import type { TEventKey, TEventListener, TEventMap } from './types/event-bus';
 
-type TListenerEntry<E, K extends TEventKey<E>> = {
-    id: number;
-    listener: TEventListener<E, K>;
-};
+interface TListenerEntry<E, K extends TEventKey<E>> {
+    id: number
+    listener: TEventListener<E, K>
+}
 
 type TListenerMap<E> = {
     [K in TEventKey<E>]?: TListenerEntry<E, K>[];
@@ -38,7 +38,7 @@ export default class EventBus<E extends TEventMap> implements EventBusInterface<
         const id = ++this.currentId;
 
         // If no listeners were added for this event key, make sure the property exists
-        if (! this.listeners[eventKey]) {
+        if (!this.listeners[eventKey]) {
             this.listeners[eventKey] = [];
         }
 
@@ -56,18 +56,18 @@ export default class EventBus<E extends TEventMap> implements EventBusInterface<
     public off(eventId: number) {
         const eventKey = this.eventIdMap[eventId];
 
-        if (! eventKey) {
+        if (!eventKey) {
             return;
         }
 
         const listeners = this.listeners[eventKey];
 
-        if (! listeners || ! listeners.length) {
+        if (!listeners || !listeners.length) {
             return;
         }
 
         // Filter out the current listener entry (remove it)
-        this.listeners[eventKey] = listeners.filter(listenerEntry => {
+        this.listeners[eventKey] = listeners.filter((listenerEntry) => {
             return listenerEntry.id !== eventId;
         });
 
@@ -82,7 +82,8 @@ export default class EventBus<E extends TEventMap> implements EventBusInterface<
      */
     public emit<K extends TEventKey<E>>(eventKey: K, ...args: E[K] extends void ? [] : [E[K]]) {
         const listeners = this.listeners[eventKey];
-        if (!listeners) return;
+        if (!listeners)
+            return;
 
         listeners.forEach(({ listener }) => {
             // @ts-expect-error TS can't narrow variadic tuple here perfectly

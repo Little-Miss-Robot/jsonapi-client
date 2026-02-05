@@ -1,19 +1,16 @@
-export type * from "./types/index";
-
-export { default as JsonApi } from "./JsonApi";
-export { Container } from "./Container";
-export { default as AutoMapper } from "./AutoMapper";
-export { default as Client } from "./Client";
-export { default as MacroRegistry } from "./MacroRegistry";
-export { default as Model } from "./Model";
-export { default as QueryBuilder } from "./QueryBuilder";
-export { default as ResponseModel } from "./ResponseModel";
-export { default as ResultSet } from "./ResultSet";
-export { default as OAuth } from "./auth/OAuth";
-
-// Facades
-export { events, on, off } from "./facades/events";
-export { default as query } from "./facades/query";
-export { default as client } from "./facades/client";
-export { container } from "./facades/container";
-export { default as config } from "./facades/config";
+export { default as OAuth } from './auth/OAuth';
+export { default as AutoMapper } from './AutoMapper';
+export { default as Client } from './Client';
+export { Container } from './Container';
+export { default as client } from './facades/client';
+export { default as config } from './facades/config';
+export { container } from './facades/container';
+export { events, off, on } from './facades/events';
+export { default as query } from './facades/query';
+export { default as JsonApi } from './JsonApi';
+export { default as MacroRegistry } from './MacroRegistry';
+export { default as Model } from './Model';
+export { default as QueryBuilder } from './QueryBuilder';
+export { default as ResponseModel } from './ResponseModel';
+export { default as ResultSet } from './ResultSet';
+export type * from './types/index';
