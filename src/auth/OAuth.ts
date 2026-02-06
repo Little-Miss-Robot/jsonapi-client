@@ -54,12 +54,11 @@ export default class OAuth implements AuthInterface {
     public async getAuthToken(): Promise<string> {
         // The amount of milliseconds before expiration that we ask for a new token
         const tokenExpirySafetyWindow = config().get('tokenExpirySafetyWindow');
-        const expiryTime = Math.max(0, this.accessTokenExpiryDate - tokenExpirySafetyWindow);
 
         if (
             !this.accessToken
             || !this.accessTokenExpiryDate
-            || new Date().getTime() >= expiryTime
+            || new Date().getTime() >= Math.max(0, this.accessTokenExpiryDate - tokenExpirySafetyWindow)
         ) {
             return await this.generateAuthToken();
         }
