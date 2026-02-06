@@ -1,4 +1,3 @@
-import type ResponseModel from '../ResponseModel';
 import type ResultSet from '../ResultSet';
 import type { TDataGateFunction } from '../types/data-gate-function';
 import type { TFilterOperator } from '../types/filter-operator';
@@ -32,8 +31,8 @@ export interface QueryBuilderInterface<T> {
     all: (batchSize?: number) => Promise<ResultSet<T>>
 
     getRaw: () => Promise<T>
-    find: (id: string) => Promise<T | ResponseModel>
-    first: () => Promise<T | ResponseModel>
+    find: (id: string) => Promise<T>
+    first: () => Promise<T>
 
     gate: (gateFunction: TDataGateFunction) => this
 

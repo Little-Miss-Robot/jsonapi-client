@@ -507,7 +507,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     /**
      * Gets and maps the first item from the query
      */
-    public async first(): Promise<T | ResponseModel> {
+    public async first(): Promise<T> {
         return (await this.get()).get(0);
     }
 
