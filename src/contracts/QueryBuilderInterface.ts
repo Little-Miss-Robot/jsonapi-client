@@ -5,7 +5,6 @@ import type { TFilterOperator } from '../types/filter-operator';
 import type { TNullable } from '../types/generic/nullable';
 import type { TQueryBuilderGroupingFunction } from '../types/query-builder-grouping-function';
 import type { TQueryParams, TQueryParamValue } from '../types/query-params';
-import type { TRawResponse } from '../types/raw-response';
 
 export interface QueryBuilderInterface<T> {
 
@@ -32,7 +31,7 @@ export interface QueryBuilderInterface<T> {
     get: () => Promise<ResultSet<T>>
     all: (batchSize?: number) => Promise<ResultSet<T>>
 
-    getRaw: () => Promise<T | TRawResponse>
+    getRaw: () => Promise<T>
     find: (id: string) => Promise<T | ResponseModel>
     first: () => Promise<T | ResponseModel>
 
