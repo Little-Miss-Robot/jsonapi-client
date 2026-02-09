@@ -5,12 +5,13 @@ import Model from './Model';
 
 export default class ResultSet<T> implements Iterable<T> {
     /**
+     * The items in the result set
      * @private
      */
     private readonly items: T[] = [];
 
     /**
-     *
+     * The meta information associated with the result set
      */
     public meta: TNullable<TResultSetMeta> = null;
 
@@ -22,6 +23,7 @@ export default class ResultSet<T> implements Iterable<T> {
     }
 
     /**
+     * Sets the meta information
      * @param meta
      */
     public setMeta(meta: TResultSetMeta) {
@@ -110,6 +112,9 @@ export default class ResultSet<T> implements Iterable<T> {
         return newResultSet;
     }
 
+    /**
+     * Serializes the items of the result set
+     */
     serialize(): Array<DataProperties<T>> {
         return this.items.map((item) => {
             if (item instanceof Model) {

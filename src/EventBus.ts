@@ -10,6 +10,9 @@ type TListenerMap<E> = {
     [K in TEventKey<E>]?: TListenerEntry<E, K>[];
 };
 
+/**
+ * Manages events: registry, event listeners, event removals
+ */
 export default class EventBus<E extends TEventMap> implements EventBusInterface<E> {
     /**
      * The current id

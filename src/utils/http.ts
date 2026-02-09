@@ -1,5 +1,9 @@
 import type { TQueryParams } from '../types/query-params';
 
+/**
+ * Makes URLSearchParams from an object
+ * @param params
+ */
 export function makeSearchParams(params: TQueryParams) {
     const searchParams = new URLSearchParams();
     const paramKeys = Object.keys(params);

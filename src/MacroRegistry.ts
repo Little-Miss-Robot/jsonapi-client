@@ -10,6 +10,7 @@ export default class MacroRegistry implements MacroRegistryInterface {
     private macros: Record<string, TQueryBuilderMacroFunction> = {};
 
     /**
+     * Registers a new macro
      * @param name
      * @param call
      */
@@ -18,6 +19,7 @@ export default class MacroRegistry implements MacroRegistryInterface {
     }
 
     /**
+     * Executes a macro
      * @param name
      * @param query
      * @param args

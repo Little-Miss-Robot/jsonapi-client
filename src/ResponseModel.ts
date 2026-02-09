@@ -49,7 +49,7 @@ export default class ResponseModel implements ResponseModelInterface {
     }
 
     /**
-     * Gets a relationship from the node and optionally map it
+     * Gets a hasOne relationship
      * @param path
      * @param modelClass
      */
@@ -76,6 +76,7 @@ export default class ResponseModel implements ResponseModelInterface {
     }
 
     /**
+     * Gets a hasMany relationship
      * @param path
      * @param modelClass
      */
