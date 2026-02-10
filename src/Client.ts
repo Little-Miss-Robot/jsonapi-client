@@ -4,11 +4,13 @@ import InvalidJsonResponseError from './errors/InvalidJsonResponseError';
 
 export default class Client implements ClientInterface {
     /**
+     * The AuthInterface for this client
      * @private
      */
     private readonly auth: AuthInterface;
 
     /**
+     * The base URL of the API
      * @private
      */
     private readonly baseUrl: string;

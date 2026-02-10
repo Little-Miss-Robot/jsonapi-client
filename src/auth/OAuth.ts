@@ -6,24 +6,38 @@ import config from '../facades/config';
 
 export default class OAuth implements AuthInterface {
     /**
+     * The base URL to the API
      * @private
      */
     private readonly baseUrl: string;
 
     /**
+     * The OAuth client id
      * @private
      */
     private readonly clientId: string;
 
     /**
+     * The OAuth client secret
      * @private
      */
     private readonly clientSecret: string;
 
     /**
+     * The event bus to use to emit events
      * @private
      */
     private readonly events: EventBusInterface<TEventMap>;
+
+    /**
+     * @private
+     */
+    private accessToken?: string;
+
+    /**
+     * @private
+     */
+    private accessTokenExpiryDate?: number;
 
     /**
      * @param baseUrl
@@ -37,16 +51,6 @@ export default class OAuth implements AuthInterface {
         this.clientSecret = clientSecret;
         this.events = events;
     }
-
-    /**
-     * @private
-     */
-    private accessToken?: string;
-
-    /**
-     * @private
-     */
-    private accessTokenExpiryDate?: number;
 
     /**
      * Gets the authentication token

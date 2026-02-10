@@ -3,6 +3,7 @@ import type Model from './Model';
 import type { TAutoMapperSelector } from './types/automapper-selector';
 import type { TNullable } from './types/generic/nullable';
 
+// @TODO remove static from class
 export default class AutoMapper {
     /**
      *

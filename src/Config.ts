@@ -11,6 +11,10 @@ export default class Config<T extends Record<string, ConfigValue>> {
         this.setAll(attributes);
     }
 
+    /**
+     * Sets multiple config attributes at once
+     * @param attributes
+     */
     public setAll(attributes: T) {
         const keys = Object.keys(attributes) as Array<keyof T & string>;
 
@@ -23,6 +27,10 @@ export default class Config<T extends Record<string, ConfigValue>> {
         this.attributes = attributes;
     }
 
+    /**
+     * Gets a config value
+     * @param attribute
+     */
     public get<K extends keyof T & string>(attribute: K): T[K] {
         if (this.attributes === null) {
             throw new ConfigValuesNotSetError();

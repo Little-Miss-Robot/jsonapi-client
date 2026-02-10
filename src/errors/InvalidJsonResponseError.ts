@@ -1,26 +1,25 @@
 export default class InvalidJsonResponseError extends Error {
     /**
-     *
+     * The fetched URL
      */
     public url: string;
 
     /**
-     *
+     * The HTTP status of the response
      */
     public status: number;
 
     /**
-     *
+     * The status text of the response
      */
     public statusText: string;
 
     /**
-     *
+     * The received body
      */
     public body: string;
 
     /**
-     *
      * @param url
      * @param response
      * @param body

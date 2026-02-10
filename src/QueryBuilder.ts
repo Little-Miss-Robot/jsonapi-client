@@ -22,7 +22,6 @@ import { makeSearchParams } from './utils/http';
 
 /**
  * This class provides an easy-to-use interface to build queries
- * specifically for JSON:API
  */
 export default class QueryBuilder<T extends Model> implements QueryBuilderInterface<T> {
     /**
@@ -32,7 +31,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     private locale?: string;
 
     /**
-     * The actual HTTP client
+     * The HTTP client
      * @private
      */
     private readonly client: ClientInterface;
@@ -56,6 +55,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     private readonly mapper: TMapper<Promise<T>>;
 
     /**
+     * The endpoint to query
      * @private
      */
     private readonly endpoint: string;
@@ -82,16 +82,10 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     private dataGate: TNullable<TDataGateFunction> = null;
 
     /**
-     * The cache policy to pass to the Client once the query executes
+     * The cache policy to pass to the client once the query executes
      * @private
      */
     private cachePolicy: 'force-cache' | 'no-store' = 'force-cache';
-
-    /**
-     *
-     * @private
-     */
-    private response!: TJsonApiResponse;
 
     /**
      * The last used filter group id, increments with each use of a filter-method to generate a unique filter group name
@@ -100,10 +94,16 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     private lastFilterGroupId: number = 0;
 
     /**
-     *
+     * The current filter group name
      * @private
      */
     private currentFilterGroupName: TNullable<string> = null;
+
+    /**
+     * The received response
+     * @private
+     */
+    private response!: TJsonApiResponse;
 
     /**
      * @param client
@@ -128,7 +128,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     }
 
     /**
-     * Executes a macro registered on MacroRegistry
+     * Executes a macro
      * @param name
      * @param args
      */
@@ -146,7 +146,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     }
 
     /**
-     * Disabled caching on the request
+     * Disables caching on the request
      */
     public noCache(): this {
         this.cachePolicy = 'no-store';
@@ -193,6 +193,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     }
 
     /**
+     * Adds a where filter to the query
      * @param path
      * @param operator
      * @param value
@@ -246,6 +247,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     }
 
     /**
+     * Adds a whereIn filter for multiple values to the query
      * @param path
      * @param values
      */
@@ -255,6 +257,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     }
 
     /**
+     * Adds a whereNotIn filter for multiple values to the query
      * @param path
      * @param values
      */
@@ -264,6 +267,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     }
 
     /**
+     * Adds a whereIsNull filter to the query
      * @param path
      */
     public whereIsNull(path: string): this {
@@ -292,6 +296,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     }
 
     /**
+     * Limits the results to a certain amount
      * @param amount
      */
     public limit(amount: number): this {
@@ -301,6 +306,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     }
 
     /**
+     * Paginates the results
      * @param page
      * @param perPage
      */
@@ -313,6 +319,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     }
 
     /**
+     * Sorts the results
      * @param path
      * @param direction
      */
@@ -324,7 +331,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     }
 
     /**
-     *
+     * Groups query filters by a certain operator (or | and)
      * @param operator
      * @param groupingFunction
      */
@@ -340,6 +347,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     }
 
     /**
+     * Creates a unique filter group name
      * @private
      */
     private createFilterGroupName(): string {
@@ -348,6 +356,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     }
 
     /**
+     * Assigns a filter group to the current filter group by name
      * @param groupName
      * @private
      */
@@ -358,6 +367,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     }
 
     /**
+     * Builds the URL
      * @param path
      * @private
      */
@@ -545,7 +555,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
     }
 
     /**
-     * Turns the QueryBuilder into a string
+     * Generates as string from the QueryBuilder
      */
     public toString(): string {
         return this.buildUrl(this.endpoint);

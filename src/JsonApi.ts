@@ -13,6 +13,10 @@ import MacroRegistry from './MacroRegistry';
 import QueryBuilder from './QueryBuilder';
 
 export default class JsonApi {
+    /**
+     * Initializes the JSONAPI-client with default dependencies
+     * @param configAttributes
+     */
     public static init(configAttributes: ConfigAttributes) {
         const c = container();
 

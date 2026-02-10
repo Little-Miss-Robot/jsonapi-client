@@ -21,7 +21,7 @@ export class Container<B extends ContainerFactoryMap> {
     private instances: Partial<{ [K in keyof B]: ReturnType<B[K]> }> = {};
 
     /**
-     *
+     * Binds a dependency to the container
      * @param name
      * @param factory
      */
@@ -30,7 +30,7 @@ export class Container<B extends ContainerFactoryMap> {
     }
 
     /**
-     *
+     * Binds a singleton dependency to the container
      * @param name
      * @param factory
      */
@@ -39,7 +39,7 @@ export class Container<B extends ContainerFactoryMap> {
     }
 
     /**
-     *
+     * Makes a dependency
      * @param name
      * @param args
      */
