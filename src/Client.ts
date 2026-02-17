@@ -1,5 +1,6 @@
 import type { AuthInterface } from './contracts/AuthInterface';
 import type { ClientInterface } from './contracts/ClientInterface';
+import HttpError from './errors/HttpError';
 import InvalidJsonResponseError from './errors/InvalidJsonResponseError';
 
 export default class Client implements ClientInterface {
@@ -39,6 +40,10 @@ export default class Client implements ClientInterface {
 
         const text = await response.text();
 
+        if (!response.ok) {
+            throw new HttpError(url, response, text);
+        }
+
         try {
             return JSON.parse(text);
         }
@@ -65,6 +70,10 @@ export default class Client implements ClientInterface {
         });
 
         const text = await response.text();
+
+        if (!response.ok) {
+            throw new HttpError(url, response, text);
+        }
 
         try {
             return JSON.parse(text);
