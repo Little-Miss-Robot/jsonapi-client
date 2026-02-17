@@ -21,6 +21,9 @@ interface AppBindings extends ContainerFactoryMap {
 
 let singletonContainer = null;
 
+/**
+ * Access the container
+ */
 export function container(): Container<AppBindings> {
     if (!singletonContainer) {
         singletonContainer = new Container<AppBindings>();

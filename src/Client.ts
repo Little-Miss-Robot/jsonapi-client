@@ -5,11 +5,13 @@ import InvalidJsonResponseError from './errors/InvalidJsonResponseError';
 
 export default class Client implements ClientInterface {
     /**
+     * The AuthInterface for this client
      * @private
      */
     private readonly auth: AuthInterface;
 
     /**
+     * The base URL of the API
      * @private
      */
     private readonly baseUrl: string;
@@ -26,7 +28,7 @@ export default class Client implements ClientInterface {
     /**
      * Fetches the API with a GET request
      */
-    public async get(path: string, options: RequestInit = {}): Promise<unknown> {
+    public async get<T>(path: string, options: RequestInit = {}): Promise<T> {
         const authHeaders = await this.auth.getHttpHeaders();
         const url = `${this.baseUrl}/${path}`;
         const response = await fetch(url, {
@@ -45,7 +47,7 @@ export default class Client implements ClientInterface {
         }
 
         try {
-            return JSON.parse(text);
+            return JSON.parse(text) as T;
         }
         catch {
             throw new InvalidJsonResponseError(url, response, text);
@@ -55,7 +57,7 @@ export default class Client implements ClientInterface {
     /**
      * Fetches the API with a POST request
      */
-    public async post(path: string, body: object, options: RequestInit = {}): Promise<unknown> {
+    public async post<T>(path: string, body: object, options: RequestInit = {}): Promise<T> {
         const authHeaders = await this.auth.getHttpHeaders();
         const url = `${this.baseUrl}/${path}`;
         const response = await fetch(url, {
@@ -76,7 +78,7 @@ export default class Client implements ClientInterface {
         }
 
         try {
-            return JSON.parse(text);
+            return JSON.parse(text) as T;
         }
         catch {
             throw new InvalidJsonResponseError(url, response, text);

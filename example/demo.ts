@@ -35,43 +35,35 @@ on('authTokenGenerated', (e) => {
     console.log(e);
 });
 
-// const _postTest = await client().post('test', { test: 'test' }, {});
-
-const data = await query('api/project')
+const data = await query('api/detail-page')
     .setLocale('en')
-    .include(['hero'])
     .where('status', '=', '1')
     .all();
 
 console.log(data);
 
-const _data2 = await query('api/project')
+const _data2 = await query('api/detail-page')
     .setLocale('en')
-    .include(['hero'])
     .where('status', '=', '1')
     .get();
 
-const _data3 = await query('api/project')
+const _data3 = await query('api/detail-page')
     .setLocale('en')
-    .include(['hero'])
     .where('status', '=', '1')
     .get();
 
-const _data4 = await query('api/project')
+const _data4 = await query('api/detail-page')
     .setLocale('en')
-    .include(['hero'])
     .where('status', '=', '1')
     .get();
 
-const _data5 = await query('api/project')
+const _data5 = await query('api/detail-page')
     .setLocale('en')
-    .include(['hero'])
     .where('status', '=', '1')
     .get();
 
-const _data6 = await query('api/project')
+const _data6 = await query('api/detail-page')
     .setLocale('en')
-    .include(['hero'])
     .where('status', '=', '1')
     .get();
 

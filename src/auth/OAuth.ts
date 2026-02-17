@@ -6,24 +6,38 @@ import config from '../facades/config';
 
 export default class OAuth implements AuthInterface {
     /**
+     * The base URL to the API
      * @private
      */
     private readonly baseUrl: string;
 
     /**
+     * The OAuth client id
      * @private
      */
     private readonly clientId: string;
 
     /**
+     * The OAuth client secret
      * @private
      */
     private readonly clientSecret: string;
 
     /**
+     * The event bus to use to emit events
      * @private
      */
     private readonly events: EventBusInterface<TEventMap>;
+
+    /**
+     * @private
+     */
+    private accessToken?: string;
+
+    /**
+     * @private
+     */
+    private accessTokenExpiryDate?: number;
 
     /**
      * @param baseUrl
@@ -39,27 +53,16 @@ export default class OAuth implements AuthInterface {
     }
 
     /**
-     * @private
-     */
-    private accessToken?: string;
-
-    /**
-     * @private
-     */
-    private accessTokenExpiryDate?: number;
-
-    /**
      * Gets the authentication token
      */
     public async getAuthToken(): Promise<string> {
         // The amount of milliseconds before expiration that we ask for a new token
         const tokenExpirySafetyWindow = config().get('tokenExpirySafetyWindow');
-        const expiryTime = Math.max(0, this.accessTokenExpiryDate - tokenExpirySafetyWindow);
 
         if (
             !this.accessToken
             || !this.accessTokenExpiryDate
-            || new Date().getTime() >= expiryTime
+            || new Date().getTime() >= Math.max(0, this.accessTokenExpiryDate - tokenExpirySafetyWindow)
         ) {
             return await this.generateAuthToken();
         }
