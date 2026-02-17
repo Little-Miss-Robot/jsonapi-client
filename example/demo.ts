@@ -1,7 +1,4 @@
-import EventBus from '../src/EventBus';
-import { on } from '../src/facades/events';
-import query from '../src/facades/query';
-import { JsonApi } from '../src/index';
+import { client, JsonApi } from '../src/index';
 
 JsonApi.init({
     baseUrl: '',
@@ -9,6 +6,19 @@ JsonApi.init({
     clientSecret: '',
 });
 
+await client().post(`api/webform/blabla`, {}, {});
+
+/*
+const data = await query('api/project')
+    .setLocale('en')
+    .include(['hero'])
+    .where('status', '=', '1')
+    .all();
+
+console.log(data);
+ */
+
+/*
 // on('paramAdded', e => console.log('paramAdded', e));
 on('preFetch', _e => console.log('preFetch'));
 // on('postFetch', e => console.log('postFetch', e));
@@ -58,3 +68,4 @@ const _data6 = await query('api/detail-page')
     .get();
 
 console.log(_data6);
+*/
