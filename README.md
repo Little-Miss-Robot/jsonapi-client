@@ -43,13 +43,13 @@ import { Config } from "@littlemissrobot/jsonapi-client";
 
 Config.setAll({
   // The location of JSON:API
-  baseUrl: "https://jsonapi.v5tevkp4nowisbi4sic7gv.site",
+  baseUrl: "https://xxxxx",
   
   // The client ID
-  clientId: "Hcj7OqJC0KTObYMmMNmVbG3c",
+  clientId: "xxxxx",
   
   // The client secret
-  clientSecret: "Rtqe9lNoXsp9w9blIaVVlEA5",
+  clientSecret: "xxxxx",
   
   // Defines how long (in ms) before a token expires it should be proactively refreshed. (default: 60000 or 1 minute)
   tokenExpirySafetyWindow: 60000,
