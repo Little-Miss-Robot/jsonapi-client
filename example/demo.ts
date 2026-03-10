@@ -1,4 +1,5 @@
-import { client, JsonApi } from '../src/index';
+import { JsonApi } from '../src/index';
+import Event from './Event';
 
 JsonApi.init({
     baseUrl: '',
@@ -6,17 +7,9 @@ JsonApi.init({
     clientSecret: '',
 });
 
-await client().post(`api/webform/blabla`, {}, {});
+const query = await Event.query().include(['test', 'etest2']);
 
-/*
-const data = await query('api/project')
-    .setLocale('en')
-    .include(['hero'])
-    .where('status', '=', '1')
-    .all();
-
-console.log(data);
- */
+console.log(query.toString());
 
 /*
 // on('paramAdded', e => console.log('paramAdded', e));
