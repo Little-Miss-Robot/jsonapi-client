@@ -373,7 +373,7 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
      */
     private buildUrl(path: string): string {
         const queryString = (makeSearchParams(this.queryParams)).toString();
-        return `${this.locale ? `${this.locale}/` : ''}${path}/${queryString ? `?${queryString}` : ''}`;
+        return `${this.locale ? `${this.locale}/` : ''}${path}${queryString ? `?${queryString}` : ''}`;
     }
 
     /**
