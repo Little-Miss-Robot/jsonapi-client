@@ -71,6 +71,10 @@ export default abstract class Model {
         return responseModel;
     }
 
+    public static validate(responseModel: ResponseModelInterface) {
+        return true;
+    }
+
     /**
      * @param responseModel
      * @protected
