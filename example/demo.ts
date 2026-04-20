@@ -1,6 +1,6 @@
 import * as process from 'node:process';
-import { client, events, JsonApi } from '../src/index';
-import NewsArticle from './NewsArticle';
+import { events, JsonApi } from '../src/index';
+import ResearchRecord from './ResearchRecord';
 
 JsonApi.init({
     baseUrl: process.env.API_URL,
@@ -18,11 +18,13 @@ events().on('generatingAuthToken', () => {
     console.log('-> GENERATING TOKEN!');
 });
 
-const newsArticles = await NewsArticle.query().get();
-console.log(newsArticles);
+const researchRecords = await ResearchRecord.query().all();
+console.log(researchRecords.meta.original.facets);
+// const newsArticles = await NewsArticle.query().get();
+// console.log(newsArticles);
 
-const response = await client().get(`api/webform/blabla`, {});
-console.log(response);
+// const response = await client().get(`api/webform/blabla`, {});
+// console.log(response);
 
 /*
 const data = await query('api/project')
