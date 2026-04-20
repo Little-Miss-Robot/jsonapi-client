@@ -461,10 +461,11 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 
         if (this.response.meta) {
             meta = {
+                ...meta,
                 count: this.response.meta.count || 0,
                 pages: this.pageLimit ? Math.ceil(this.response.meta.count / this.pageLimit) : 1,
                 perPage: this.pageLimit ? this.pageLimit : this.response.meta.count,
-                ...meta,
+                original: this.response.meta,
             };
         }
 
