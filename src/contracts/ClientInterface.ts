@@ -1,10 +1,12 @@
+import type { HttpRequestOptions, HttpRequestPath } from '../types/request';
+
 export interface ClientInterface {
     /**
      * Fetches the given path with a GET request
      * @param path
      * @param options
      */
-    get: <T>(path: string, options?: Record<string, unknown>) => Promise<T>
+    get: <T>(path: HttpRequestPath, options?: HttpRequestOptions) => Promise<T>
 
     /**
      * Fetches the given path with a POST request
@@ -12,5 +14,5 @@ export interface ClientInterface {
      * @param body
      * @param options
      */
-    post: <T>(path: string, body: object, options?: RequestInit) => Promise<T>
+    post: <T>(path: HttpRequestPath, body: object, options?: HttpRequestOptions) => Promise<T>
 }

@@ -84,7 +84,9 @@ export default class OAuth implements AuthInterface {
     /**
      * Generates a new auth token, stores it as properties and returns it
      */
-    private async generateAuthToken(): Promise<string> {
+    public async generateAuthToken(): Promise<string> {
+        this.events.emit('generatingAuthToken');
+
         const url = `${this.baseUrl}/oauth/token`;
 
         const requestBody = new FormData();

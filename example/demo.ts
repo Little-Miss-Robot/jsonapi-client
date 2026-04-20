@@ -1,15 +1,40 @@
-import { JsonApi } from '../src/index';
-import Event from './Event';
+import * as process from 'node:process';
+import { events, JsonApi } from '../src/index';
+import ResearchRecord from './ResearchRecord';
 
 JsonApi.init({
-    baseUrl: '',
-    clientId: '',
-    clientSecret: '',
+    baseUrl: process.env.API_URL,
+    clientId: process.env.API_CLIENT_ID,
+    clientSecret: process.env.API_CLIENT_SECRET,
+    retryDelay: 1000,
+    maxRetries: 3,
 });
 
-const query = await Event.query().include(['test', 'etest2']);
+events().on('retry', (e) => {
+    console.log('-> RETRYING', e);
+});
 
-console.log(query.toString());
+events().on('generatingAuthToken', () => {
+    console.log('-> GENERATING TOKEN!');
+});
+
+const researchRecords = await ResearchRecord.query().all();
+console.log(researchRecords.meta.original.facets);
+// const newsArticles = await NewsArticle.query().get();
+// console.log(newsArticles);
+
+// const response = await client().get(`api/webform/blabla`, {});
+// console.log(response);
+
+/*
+const data = await query('api/project')
+    .setLocale('en')
+    .include(['hero'])
+    .where('status', '=', '1')
+    .all();
+
+console.log(data);
+ */
 
 /*
 // on('paramAdded', e => console.log('paramAdded', e));

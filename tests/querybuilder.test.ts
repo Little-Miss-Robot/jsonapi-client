@@ -3,16 +3,21 @@ import OAuth from '../src/auth/OAuth';
 import Client from '../src/Client';
 import EventBus from '../src/EventBus';
 import MacroRegistry from '../src/MacroRegistry';
+import DefaultFetchPolicy from '../src/policies/DefaultFetchPolicy';
 import QueryBuilder from '../src/QueryBuilder';
 
 function makeMockClient() {
+    const eventBus = new EventBus<TEventMap>();
+
     return new Client(
         new OAuth(
             'https://baseurl.ext',
             'test',
             'test',
-            new EventBus<TEventMap>(),
+            eventBus,
         ),
+        new DefaultFetchPolicy(),
+        eventBus,
         'https://baseurl.ext',
     );
 }
