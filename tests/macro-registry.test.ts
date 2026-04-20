@@ -26,7 +26,7 @@ it('correctly executes registered macros', () => {
     const queryBuilder = makeQueryBuilder();
     queryBuilder.macro('macroName');
 
-    expect(queryBuilder.toString()).toBe('api/endpoint/?page%5Blimit%5D=333');
+    expect(queryBuilder.toString()).toBe('api/endpoint?page%5Blimit%5D=333');
 });
 
 it('throws an UnknownMacroError when executing non-existent macros', () => {

@@ -373,32 +373,27 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
      */
     private buildUrl(path: string): string {
         const queryString = (makeSearchParams(this.queryParams)).toString();
-        return `${this.locale ? `${this.locale}/` : ''}${path}/${queryString ? `?${queryString}` : ''}`;
+        return `${this.locale ? `${this.locale}/` : ''}${path}${queryString ? `?${queryString}` : ''}`;
     }
 
     /**
      * Executes the query (GET)
      */
     private async performGetRequest(path: string) {
-        this.events.emit('preFetch', { queryBuilder: this, url: path });
-
-        const response = await this.client.get(path, {
+        return await this.client.get(path, {
             cache: this.cachePolicy,
         });
-
-        this.events.emit('postFetch', { queryBuilder: this, url: path });
-
-        return response;
     }
 
     /**
      * Fetches the endpoint and uses the raw response to pass to the mapper
      */
     public async getRaw(): Promise<T> {
-        const response = await this.performGetRequest(this.buildUrl(this.endpoint));
+        const url = this.buildUrl(this.endpoint);
+        const response = await this.performGetRequest(url);
 
         if (!isRawResponse(response)) {
-            throw new InvalidResponseError();
+            throw new InvalidResponseError(url);
         }
 
         if (!this.mapper) {
@@ -466,10 +461,11 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
 
         if (this.response.meta) {
             meta = {
+                ...meta,
                 count: this.response.meta.count || 0,
                 pages: this.pageLimit ? Math.ceil(this.response.meta.count / this.pageLimit) : 1,
                 perPage: this.pageLimit ? this.pageLimit : this.response.meta.count,
-                ...meta,
+                original: this.response.meta,
             };
         }
 

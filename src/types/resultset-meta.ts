@@ -13,4 +13,5 @@ export interface TResultSetMeta {
     pages?: number
     perPage?: number
     excludedByGate?: number
+    original?: Record<string, unknown>
 }

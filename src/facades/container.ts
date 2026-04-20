@@ -2,6 +2,7 @@ import type Config from '../Config';
 import type { AuthInterface } from '../contracts/AuthInterface';
 import type { ClientInterface } from '../contracts/ClientInterface';
 import type { EventBusInterface } from '../contracts/EventBusInterface';
+import type { FetchPolicyInterface } from '../contracts/FetchPolicyInterface';
 import type { MacroRegistryInterface } from '../contracts/MacroRegistryInterface';
 import type { QueryBuilderInterface } from '../contracts/QueryBuilderInterface';
 import type { ConfigAttributes } from '../types/config-attributes';
@@ -13,6 +14,7 @@ import { Container } from '../Container';
 interface AppBindings extends ContainerFactoryMap {
     config: () => Config<ConfigAttributes>
     client: () => ClientInterface
+    fetchPolicy: () => FetchPolicyInterface
     auth: () => AuthInterface
     events: () => EventBusInterface<TEventMap>
     query: (endpoint: string, mapper: TMapper<any>) => QueryBuilderInterface<any>
