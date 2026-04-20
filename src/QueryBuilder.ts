@@ -380,25 +380,20 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
      * Executes the query (GET)
      */
     private async performGetRequest(path: string) {
-        this.events.emit('preFetch', { queryBuilder: this, url: path });
-
-        const response = await this.client.get(path, {
+        return await this.client.get(path, {
             cache: this.cachePolicy,
         });
-
-        this.events.emit('postFetch', { queryBuilder: this, url: path });
-
-        return response;
     }
 
     /**
      * Fetches the endpoint and uses the raw response to pass to the mapper
      */
     public async getRaw(): Promise<T> {
-        const response = await this.performGetRequest(this.buildUrl(this.endpoint));
+        const url = this.buildUrl(this.endpoint);
+        const response = await this.performGetRequest(url);
 
         if (!isRawResponse(response)) {
-            throw new InvalidResponseError();
+            throw new InvalidResponseError(url);
         }
 
         if (!this.mapper) {

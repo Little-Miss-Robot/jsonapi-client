@@ -1,12 +1,25 @@
 import type QueryBuilder from '../QueryBuilder';
 import type { TQueryParamValue } from './query-params';
+import type { HttpRequest } from './request';
+
+interface RequestEvent extends HttpRequest {
+    url: string
+}
 
 export interface TEventMap {
     paramAdded: { queryBuilder: QueryBuilder<any>, name: string, value: TQueryParamValue }
-    preFetch: { queryBuilder: QueryBuilder<any>, url: string }
-    postFetch: { queryBuilder: QueryBuilder<any>, url: string }
+
+    preFetch: RequestEvent
+    postFetch: RequestEvent
+    retry: {
+        request: HttpRequest
+        attempt: number
+    }
+
     preFind: { queryBuilder: QueryBuilder<any>, uuid: string | number }
     postFind: { queryBuilder: QueryBuilder<any>, uuid: string | number, result: unknown }
+
+    generatingAuthToken: null
     authTokenGenerated: { token: string, expiryTime: number }
 }
 

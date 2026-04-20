@@ -1,12 +1,28 @@
-import { client, JsonApi } from '../src/index';
+import * as process from 'node:process';
+import { client, events, JsonApi } from '../src/index';
+import NewsArticle from './NewsArticle';
 
 JsonApi.init({
-    baseUrl: '',
-    clientId: '',
-    clientSecret: '',
+    baseUrl: process.env.API_URL,
+    clientId: process.env.API_CLIENT_ID,
+    clientSecret: process.env.API_CLIENT_SECRET,
+    retryDelay: 1000,
+    maxRetries: 3,
 });
 
-await client().post(`api/webform/blabla`, {}, {});
+events().on('retry', (e) => {
+    console.log('-> RETRYING', e);
+});
+
+events().on('generatingAuthToken', () => {
+    console.log('-> GENERATING TOKEN!');
+});
+
+const newsArticles = await NewsArticle.query().get();
+console.log(newsArticles);
+
+const response = await client().get(`api/webform/blabla`, {});
+console.log(response);
 
 /*
 const data = await query('api/project')

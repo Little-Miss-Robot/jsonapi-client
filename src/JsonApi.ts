@@ -10,6 +10,7 @@ import { container } from './facades/container';
 import { events } from './facades/events';
 import macros from './facades/macros';
 import MacroRegistry from './MacroRegistry';
+import DefaultFetchPolicy from './policies/DefaultFetchPolicy';
 import QueryBuilder from './QueryBuilder';
 
 export default class JsonApi {
@@ -25,8 +26,12 @@ export default class JsonApi {
         });
 
         c.singleton('config', () => {
-            return new Config({
-                ...{ tokenExpirySafetyWindow: 60000 },
+            return new Config<ConfigAttributes>({
+                ...{
+                    tokenExpirySafetyWindow: 60000,
+                    maxRetries: 2,
+                    retryDelay: 1000,
+                },
                 ...configAttributes,
             });
         });
@@ -54,9 +59,15 @@ export default class JsonApi {
             );
         });
 
+        c.singleton('fetchPolicy', () => {
+            return new DefaultFetchPolicy();
+        });
+
         c.singleton('client', () => {
             return new Client(
                 c.make('auth'),
+                c.make('fetchPolicy'),
+                events(),
                 config().get('baseUrl'),
             );
         });
