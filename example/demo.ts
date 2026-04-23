@@ -32,7 +32,7 @@ console.log(collectionItems);
 
 console.log('SHUFFLING COLLECTIONITEMS');
 
-console.log(collectionItems.randomize());
+console.log(collectionItems.shuffle());
 
 /*
 const data = await query('api/project')
