@@ -1,4 +1,3 @@
-// A map of factories keyed by string names
 import type { ContainerFactoryMap } from './types/container-factory-map';
 
 export class Container<B extends ContainerFactoryMap> {
@@ -22,20 +21,29 @@ export class Container<B extends ContainerFactoryMap> {
 
     /**
      * Binds a dependency to the container
+     * NOTE: Re-registering a binding invalidates any cached singleton for that name
      * @param name
      * @param factory
      */
     bind<K extends keyof B>(name: K, factory: B[K]): void {
         this.bindings[name] = factory;
+
+        // If a (singleton) instance was already being kept for this name, delete it
+        // We're effectively rebinding it be non-singleton now
+        delete this.instances[name];
     }
 
     /**
      * Binds a singleton dependency to the container
+     * NOTE: Re-registering a binding invalidates any cached singleton for that name
      * @param name
      * @param factory
      */
     singleton<K extends keyof B>(name: K, factory: B[K]): void {
         this.singletonBindings[name] = factory;
+
+        // If an instance was already being kept for this name, delete it
+        delete this.instances[name];
     }
 
     /**
