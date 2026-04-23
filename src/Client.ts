@@ -13,11 +13,32 @@ interface ExecuteOptions {
 }
 
 export default class Client implements ClientInterface {
+    /**
+     * @private
+     */
     private readonly auth: AuthInterface;
+
+    /**
+     * @private
+     */
     private readonly fetchPolicy: FetchPolicyInterface;
+
+    /**
+     * @private
+     */
     private readonly events: EventBusInterface<TEventMap>;
+
+    /**
+     * @private
+     */
     private readonly baseUrl: string;
 
+    /**
+     * @param auth
+     * @param fetchPolicy
+     * @param events
+     * @param baseUrl
+     */
     constructor(
         auth: AuthInterface,
         fetchPolicy: FetchPolicyInterface,
@@ -68,7 +89,7 @@ export default class Client implements ClientInterface {
     }
 
     /**
-     * Executes a request and handles the response (incl. errors, token refresh, retries)
+     * Executes a request and handles the response (including errors, token refresh, retries)
      * @param request
      * @param executeOptions
      * @private

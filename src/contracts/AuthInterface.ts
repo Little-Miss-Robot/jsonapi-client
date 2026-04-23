@@ -7,7 +7,7 @@ export interface AuthInterface {
     /**
      * Generates an auth token
      */
-    generateAuthToken: () => Promise<string>
+    generateAuthToken: () => Promise<void>
 
     /**
      * Gets the HTTP headers
