@@ -93,8 +93,8 @@ export default class ResultSet<T> implements Iterable<T> {
         return this.items;
     }
 
-    shuffle(factor: number = 0.5): ResultSet<T> {
-        return new ResultSet(this.items.sort(() => Math.random() - factor));
+    shuffle(): T[] {
+        return this.sort(() => Math.random() - 0.5);
     }
 
     concat(resultSet: ResultSet<T>): ResultSet<T> {
