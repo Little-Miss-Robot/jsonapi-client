@@ -30,7 +30,7 @@
     "prepare": "tsup && jest",
     "build": "tsup",
     "example": "tsup --config tsup.example.config.ts && node -r dotenv/config ./dist/example/demo.js",
-    "test": "jest"
+    "test": "jest --verbose"
   },
   "license": "ISC",
   "devDependencies": {

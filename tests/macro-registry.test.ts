@@ -2,23 +2,19 @@ import UnknownMacroError from '../src/errors/UnknownMacroError';
 import macros from '../src/facades/macros';
 import { JsonApi, query } from '../src/index';
 
-function init() {
+beforeAll(() => {
     JsonApi.init({
         baseUrl: 'http://localhost:3000',
         clientId: 'test',
         clientSecret: 'test',
     });
-}
+});
 
 function makeQueryBuilder() {
-    init();
-
     return query('api/endpoint');
 }
 
 it('correctly executes registered macros', () => {
-    init();
-
     macros().register('macroName', (queryBuilder) => {
         queryBuilder.limit(333);
     });
@@ -30,8 +26,6 @@ it('correctly executes registered macros', () => {
 });
 
 it('throws an UnknownMacroError when executing non-existent macros', () => {
-    init();
-
     // First register a macro
     macros().register('macroName', (queryBuilder) => {
         queryBuilder.limit(5);
