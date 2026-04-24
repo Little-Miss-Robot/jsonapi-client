@@ -7,4 +7,5 @@ export interface ConfigAttributes extends Record<string, ConfigValue> {
     tokenExpirySafetyWindow?: number
     maxRetries?: number
     retryDelay?: number
+    itemsCountPath?: string
 }

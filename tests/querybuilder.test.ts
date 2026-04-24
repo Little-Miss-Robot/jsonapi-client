@@ -112,3 +112,60 @@ it('group adds the appropriate params', () => {
     });
     expect(queryBuilder.toString()).toBe('api/endpoint?filter%5Bg1%5D%5Bgroup%5D%5Bconjunction%5D=OR&filter%5Bg2%5D%5Bcondition%5D%5BmemberOf%5D=g1&filter%5Bg2%5D%5Bcondition%5D%5Bpath%5D=name&filter%5Bg2%5D%5Bcondition%5D%5Boperator%5D=%3D&filter%5Bg2%5D%5Bcondition%5D%5Bvalue%5D=Rein&filter%5Bg3%5D%5Bcondition%5D%5BmemberOf%5D=g1&filter%5Bg3%5D%5Bcondition%5D%5Bpath%5D=name&filter%5Bg3%5D%5Bcondition%5D%5Boperator%5D=%3D&filter%5Bg3%5D%5Bcondition%5D%5Bvalue%5D=Gilke&filter%5Bg4%5D%5Bcondition%5D%5BmemberOf%5D=g1&filter%5Bg4%5D%5Bgroup%5D%5Bconjunction%5D=AND&filter%5Bg5%5D%5Bcondition%5D%5BmemberOf%5D=g4&filter%5Bg5%5D%5Bcondition%5D%5Bpath%5D=age&filter%5Bg5%5D%5Bcondition%5D%5Boperator%5D=%3E&filter%5Bg5%5D%5Bcondition%5D%5Bvalue%5D=34');
 });
+
+it('clone copies full query state (toString matches)', () => {
+    const a = makeQueryBuilder();
+    a.setLocale('en');
+    a.param('x', 1);
+    a.whereIn('id', [1, 2, 3]);
+    a.include(['rel']);
+    a.paginate(1, 25);
+    a.sort('name', 'desc');
+    a.noCache();
+    a.gate(() => true);
+
+    const b = a.clone();
+    expect(b.toString()).toBe(a.toString());
+});
+
+it('clone is independent: mutating clone does not change original', () => {
+    const a = makeQueryBuilder();
+    a.where('title', '=', 'A');
+    const original = a.toString();
+
+    const b = a.clone();
+    b.where('title', '=', 'B');
+    b.param('extra', 'q');
+
+    expect(a.toString()).toBe(original);
+    expect(b.toString()).not.toBe(original);
+});
+
+it('fromUrl with a string URL copies search params onto the builder endpoint', () => {
+    const queryBuilder = makeQueryBuilder();
+    queryBuilder.fromUrl('https://example.com/unrelated/path?page%5Boffset%5D=20&page%5Blimit%5D=10');
+
+    expect(queryBuilder.toString()).toBe('api/endpoint?page%5Boffset%5D=20&page%5Blimit%5D=10');
+});
+
+it('fromUrl accepts a URL object', () => {
+    const queryBuilder = makeQueryBuilder();
+    const href = 'https://example.com/items?sort%5Bg1%5D%5Bpath%5D=created&sort%5Bg1%5D%5Bdirection%5D=desc';
+    queryBuilder.fromUrl(new URL(href));
+
+    expect(queryBuilder.toString()).toBe('api/endpoint?sort%5Bg1%5D%5Bpath%5D=created&sort%5Bg1%5D%5Bdirection%5D=desc');
+});
+
+it('fromUrl with no search string does not add query params', () => {
+    const queryBuilder = makeQueryBuilder();
+    queryBuilder.fromUrl('https://example.com/api/endpoint');
+    expect(queryBuilder.toString()).toBe('api/endpoint');
+});
+
+it('fromUrl merged with existing params', () => {
+    const queryBuilder = makeQueryBuilder();
+    queryBuilder.param('existing', 'yes');
+    queryBuilder.fromUrl('https://x.test/?other=1');
+
+    expect(queryBuilder.toString()).toBe('api/endpoint?existing=yes&other=1');
+});

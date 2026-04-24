@@ -31,6 +31,7 @@ export default class JsonApi {
                     tokenExpirySafetyWindow: 60000,
                     maxRetries: 2,
                     retryDelay: 1000,
+                    itemsCountPath: 'count',
                 },
                 ...configAttributes,
             });
