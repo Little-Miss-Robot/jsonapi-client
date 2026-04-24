@@ -155,7 +155,7 @@ export default class OAuth implements AuthInterface {
 
         this.events.emit('authTokenGenerated', {
             token: json.access_token as string,
-            expiryTime: json.expires_in,
+            expiryTime: json.expires_in * 1000,
         });
 
         return this.accessToken;

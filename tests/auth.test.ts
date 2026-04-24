@@ -103,7 +103,7 @@ it('successfully emits an authTokenGenerated event', async () => {
         await auth.getAuthToken();
         expect(onGenerated).toHaveBeenCalledWith({
             token,
-            expiryTime: expiresIn,
+            expiryTime: expiresIn * 1000,
         });
     }
     finally {
