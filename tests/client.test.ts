@@ -5,6 +5,7 @@ import HttpError from '../src/errors/HttpError';
 import InvalidJsonResponseError from '../src/errors/InvalidJsonResponseError';
 import config from '../src/facades/config';
 import { client, container, events, JsonApi } from '../src/index';
+import { makeNullAuth } from './mocks/makeNullAuth';
 import { mockFetchJson } from './mocks/mockFetchJson';
 
 const defaultInit: Pick<ConfigAttributes, 'baseUrl' | 'clientId' | 'clientSecret'> = {
@@ -12,20 +13,6 @@ const defaultInit: Pick<ConfigAttributes, 'baseUrl' | 'clientId' | 'clientSecret
     clientId: 'test',
     clientSecret: 'test',
 };
-
-function makeMockAuth(): AuthInterface {
-    return {
-        generateAuthToken(): Promise<string> {
-            return Promise.resolve('');
-        },
-        getAuthToken(): Promise<string> {
-            return Promise.resolve('');
-        },
-        getHttpHeaders(): Promise<Record<string, string>> {
-            return Promise.resolve({});
-        },
-    };
-}
 
 type MakeMockClientOptions = {
     auth?: AuthInterface
@@ -37,7 +24,7 @@ type MakeMockClientOptions = {
 };
 
 function makeMockClient(options: MakeMockClientOptions = {}) {
-    const { auth = makeMockAuth(), init: initOverrides = {} } = options;
+    const { auth = makeNullAuth(), init: initOverrides = {} } = options;
 
     JsonApi.init({
         ...defaultInit,

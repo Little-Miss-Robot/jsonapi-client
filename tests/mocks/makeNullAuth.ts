@@ -2,8 +2,8 @@ import type { AuthInterface } from '../../src/index';
 
 export function makeNullAuth(): AuthInterface {
     return {
-        generateAuthToken(): Promise<string> {
-            return Promise.resolve('');
+        async generateAuthToken(): Promise<void> {
+
         },
         getAuthToken(): Promise<string> {
             return Promise.resolve('');
