@@ -93,6 +93,10 @@ export default class ResultSet<T> implements Iterable<T> {
         return this.items;
     }
 
+    shuffle(): T[] {
+        return this.sort(() => Math.random() - 0.5);
+    }
+
     concat(resultSet: ResultSet<T>): ResultSet<T> {
         const originalMeta = this.meta;
         const newMeta = resultSet.meta;

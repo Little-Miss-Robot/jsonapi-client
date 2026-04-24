@@ -256,3 +256,16 @@ it('is reducable', () => {
 
     expect(result).toBe(10);
 });
+
+it('contains the same items after shuffling', () => {
+    const original = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    const resultSet = new ResultSet([...original]);
+
+    const shuffled = resultSet.shuffle();
+
+    // Check that the shuffled array contains the same items as the original
+    expect([...shuffled].sort((a, b) => a - b)).toEqual(original);
+
+    // Check that the order is different (this is a probabilistic test, but should be fine for our purposes)
+    expect(shuffled).not.toEqual(original);
+});
