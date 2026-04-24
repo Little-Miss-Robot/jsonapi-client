@@ -1,6 +1,6 @@
 import * as process from 'node:process';
 import { events, JsonApi } from '../src/index';
-import CollectionItem from './CollectionItem';
+import NewsArticle from './NewsArticle';
 
 JsonApi.init({
     baseUrl: process.env.API_URL,
@@ -10,6 +10,7 @@ JsonApi.init({
     maxRetries: 3,
 });
 
+/*
 events().on('retry', (e) => {
     console.log('-> RETRYING', e);
 });
@@ -17,22 +18,30 @@ events().on('retry', (e) => {
 events().on('generatingAuthToken', () => {
     console.log('-> GENERATING TOKEN!');
 });
+*/
+
+events().on('generatingAuthToken', () => {
+    console.count('Generating token');
+});
+
+events().on('preFetch', () => {
+    console.count('Fetching');
+});
 
 // const researchRecords = await ResearchRecord.query().all();
 // console.log(researchRecords.meta.original.facets);
-// const newsArticles = await NewsArticle.query().get();
-// console.log(newsArticles);
+const newsArticles = await NewsArticle.query().paginate(1, 5).all();
+console.log(newsArticles);
 
 // const response = await client().get(`api/webform/blabla`, {});
 // console.log(response);
-
+/*
 const collectionItems = await CollectionItem.query().all();
 
 console.log(collectionItems);
 
-console.log('SHUFFLING COLLECTIONITEMS');
-
 console.log(collectionItems.shuffle());
+*/
 
 /*
 const data = await query('api/project')
