@@ -7,6 +7,18 @@
 # JSON:API Client
 ### A lightweight library for seamless JSON API communication, featuring a powerful query builder and intuitive models for effortless data handling.
 
+## ⚠️ Important note on JSON:API's spec compatibility
+As of now this library is primarily designed for **Drupal’s JSON:API implementation**.
+Drupal follows the JSON:API specification for the response format, but it 
+also defines its own conventions for query parameters such as filtering, 
+includes, sorting, and pagination.
+
+Where the JSON:API specification leaves behavior undefined, this library 
+follows Drupal JSON:API conventions.
+
+Support for other JSON:API implementations may work for simple requests, 
+but is not currently guaranteed.
+
 ## Overview
 
 * [Installation](#1-installation)
@@ -547,6 +559,7 @@ excludedByGate | number | Count of resources removed because they failed the act
 * Debug-mode (logging requests, auth logging, optional logger abstraction)
 * Meta shape when receiving a single model instance versus a ResultSet
 * Serialize-by-default options; optional inclusion of meta when serializing a ResultSet
+* Implement Drupal JSON:API specific behavior through the use of an adapter, allowing for different JSON:API dialects
 
 ## Credits & attribution
 <a href="https://www.flaticon.com/free-icons/bee-farming" title="bee farming icons">Bee farming icons created by SBTS2018 - Flaticon</a>
