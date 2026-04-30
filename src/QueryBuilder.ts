@@ -13,12 +13,15 @@ import type { TQueryBuilderGroupingFunction } from './types/query-builder-groupi
 import type { TQueryParams, TQueryParamValue } from './types/query-params';
 import type { TResultSetMeta } from './types/resultset-meta';
 import InvalidResponseError from './errors/InvalidResponseError';
+import config from './facades/config';
 import ResponseModel from './ResponseModel';
 import ResultSet from './ResultSet';
 import { isJsonApiResponse } from './typeguards/isJsonApiResponse';
 import { isRawResponse } from './typeguards/isRawResponse';
 import { isResponseWithErrors } from './typeguards/isResponseWithErrors';
-import { makeSearchParams } from './utils/http';
+import { cloneSearchParams, makeSearchParams } from './utils/http';
+import { getHref } from './utils/links';
+import { get } from './utils/object';
 
 /**
  * This class provides an easy-to-use interface to build queries
@@ -459,12 +462,20 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
             excludedByGate: itemCountExcludedByGate,
         };
 
-        if (this.response.meta) {
+        if (this.response.links) {
             meta = {
                 ...meta,
-                count: this.response.meta.count || 0,
-                pages: this.pageLimit ? Math.ceil(this.response.meta.count / this.pageLimit) : 1,
-                perPage: this.pageLimit ? this.pageLimit : this.response.meta.count,
+                links: this.response.links,
+            };
+        }
+
+        if (this.response.meta) {
+            const count = get<number | null>(this.response.meta, config().get('itemsCountPath'), null);
+            meta = {
+                ...meta,
+                count,
+                pages: count !== null && this.pageLimit ? Math.ceil(count / this.pageLimit) : null,
+                perPage: count !== null && this.pageLimit ? this.pageLimit : null,
                 original: this.response.meta,
             };
         }
@@ -478,33 +489,29 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
      * Maps and returns all entries across all pages
      */
     public async all(batchSize: number = 50): Promise<ResultSet<T>> {
-        // Set pagination for the first fetch
         this.paginate(1, batchSize);
 
-        const firstResult = await this.get();
-        const { pages, perPage } = firstResult.meta;
+        let resultSet = await this.get();
 
-        // If there's only 1 page, just return the already fetched ResultSet
-        if (pages === 1) {
-            return firstResult;
+        let next = resultSet.meta.links?.next;
+
+        while (next) {
+            const href = getHref(next);
+
+            const nextResult = await this.clone().fromUrl(href).get();
+
+            resultSet = resultSet.concat(nextResult);
+
+            next = nextResult.meta.links?.next;
         }
 
-        // Continue to fetch the other pages
-        let currentPage = 2;
-        let resultSet = firstResult;
-        while (currentPage <= pages) {
-            const pagedResult = await this.paginate(currentPage, perPage).get();
-
-            // Concat the result sets
-            resultSet = resultSet.concat(pagedResult);
-            currentPage++;
-        }
-
-        // Modify the meta of the resulting ResultSet
         resultSet.setMeta({
             ...resultSet.meta,
+            count: resultSet.length,
             pages: 1,
-            perPage: resultSet.meta.count,
+            perPage: resultSet.length,
+            links: {},
+            original: resultSet.meta.original,
         });
 
         return resultSet;
@@ -555,5 +562,47 @@ export default class QueryBuilder<T extends Model> implements QueryBuilderInterf
      */
     public toString(): string {
         return this.buildUrl(this.endpoint);
+    }
+
+    /**
+     * Returns a new query builder with the same endpoint, mapper, and all query
+     * configuration. Does not copy the last-fetched `response` from get/find
+     */
+    public clone(): QueryBuilder<T> {
+        const cloned = new QueryBuilder<T>(
+            this.client,
+            this.events,
+            this.macros,
+            this.endpoint,
+            this.mapper,
+        );
+
+        cloned.params(cloneSearchParams(this.queryParams));
+
+        cloned.locale = this.locale;
+        cloned.pageLimit = this.pageLimit;
+        cloned.pageOffset = this.pageOffset;
+        cloned.dataGate = this.dataGate;
+        cloned.cachePolicy = this.cachePolicy;
+        cloned.lastFilterGroupId = this.lastFilterGroupId;
+        cloned.currentFilterGroupName = this.currentFilterGroupName;
+
+        return cloned;
+    }
+
+    /**
+     * @param url
+     */
+    public fromUrl(url: URL | string) {
+        if (typeof url === 'string') {
+            url = new URL(url);
+        }
+
+        const params = url.searchParams;
+        const paramsObject = Object.fromEntries(params.entries());
+
+        this.params(paramsObject);
+
+        return this;
     }
 }

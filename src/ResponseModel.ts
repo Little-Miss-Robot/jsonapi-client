@@ -4,6 +4,7 @@ import type { TNullable } from './types/generic/nullable';
 import type { TModelClass } from './types/model-class';
 import AutoMapper from './AutoMapper';
 import { isResponseWithData } from './typeguards/isResponseWithData';
+import { get } from './utils/object';
 
 export default class ResponseModel implements ResponseModelInterface {
     /**
@@ -32,20 +33,7 @@ export default class ResponseModel implements ResponseModelInterface {
      * @param defaultValue
      */
     get<T>(path: string | string[], defaultValue: T): T {
-        if (!Array.isArray(path)) {
-            path = path.replace(/\[(\d+)\]/g, '.$1').split('.');
-        }
-
-        let result = this.rawResponse as Record<string, any>;
-
-        for (const key of path) {
-            result = Object.prototype.hasOwnProperty.call(result, key) ? result[key] : undefined;
-            if (result === undefined || result === null) {
-                return defaultValue;
-            }
-        }
-
-        return result as T;
+        return get(this.rawResponse as Record<string, unknown>, path, defaultValue);
     }
 
     /**

@@ -4,13 +4,10 @@ export function isJsonApiResponse(value: unknown): value is TJsonApiResponse {
     return (
         typeof value === 'object'
         && value !== null
-        && 'jsonapi' in value
-        && 'data' in value
-        && typeof value.data === 'object'
-        && value.jsonapi !== null
-        && typeof value.jsonapi === 'object'
-        && 'version' in value.jsonapi
-        && typeof value.jsonapi.version === 'string'
-        && value.jsonapi.version.startsWith('1')
+        && (
+            ('data' in value && typeof value.data === 'object')
+            || ('meta' in value && typeof value.meta === 'object')
+            || ('errors' in value && Array.isArray(value.errors))
+        )
     );
 }

@@ -1,3 +1,4 @@
+import type { JsonApiLinks, JsonApiMeta } from './json-api-response';
 import type { TQueryParams } from './query-params';
 
 export interface TResultSetMeta {
@@ -9,9 +10,10 @@ export interface TResultSetMeta {
         query: number
         mapping: number
     }
-    count?: number
-    pages?: number
-    perPage?: number
+    count?: number | null
+    pages?: number | null
+    perPage?: number | null
     excludedByGate?: number
-    original?: Record<string, unknown>
+    original?: JsonApiMeta
+    links?: JsonApiLinks
 }

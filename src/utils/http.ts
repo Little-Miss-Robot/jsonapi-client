@@ -1,4 +1,4 @@
-import type { TQueryParams } from '../types/query-params';
+import type { TQueryParams, TQueryParamValue } from '../types/query-params';
 
 /**
  * Makes URLSearchParams from an object
@@ -20,4 +20,18 @@ export function makeSearchParams(params: TQueryParams) {
     });
 
     return searchParams;
+}
+
+/**
+ * Deep-copies param values so source and target do not share references
+ * @param source
+ * @private
+ */
+export function cloneSearchParams(source: TQueryParams): TQueryParams {
+    const out: TQueryParams = {};
+    for (const key of Object.keys(source)) {
+        const value = source[key];
+        out[key] = Array.isArray(value) ? ([...value] as TQueryParamValue) : value;
+    }
+    return out;
 }

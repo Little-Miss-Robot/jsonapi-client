@@ -15,8 +15,6 @@ export default class NewsArticle extends Model {
      * @param response
      */
     async map(response: ResponseModelInterface): Promise<DataProperties<NewsArticle>> {
-        console.log(response);
-
         return {
             id: response.get('id', ''),
             title: response.get('attributes.title', ''),

@@ -146,4 +146,16 @@ export interface QueryBuilderInterface<T> {
      * Generates as string from the QueryBuilder
      */
     toString: () => string
+
+    /**
+     * Returns a new query builder with the same endpoint, mapper, and all query
+     * configuration. Does not copy the last-fetched response from get/find
+     */
+    clone: () => QueryBuilderInterface<T>
+
+    /**
+     * Creates a QueryBuilder from an existing URL
+     * @param url
+     */
+    fromUrl: (url: URL | string) => this
 }
