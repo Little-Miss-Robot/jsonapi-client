@@ -1,4 +1,5 @@
 import type { TEventMap } from '../src/types/event-bus';
+import InMemoryTokenStorage from '../src/auth/InMemoryTokenStorage';
 import OAuth from '../src/auth/OAuth';
 import Client from '../src/Client';
 import EventBus from '../src/EventBus';
@@ -14,6 +15,7 @@ function makeMockClient() {
             'https://baseurl.ext',
             'test',
             'test',
+            new InMemoryTokenStorage(),
             eventBus,
         ),
         new DefaultFetchPolicy(),
