@@ -68,13 +68,19 @@ export default class OAuth implements AuthInterface {
     public async getAuthToken(): Promise<string> {
         // The amount of milliseconds before expiration that we ask for a new token
         const tokenExpirySafetyWindow = config().get('tokenExpirySafetyWindow');
-        const tokenPayload = await this.tokenStorage.retrieve();
+
+        // Retrieve the token payload...
+        let tokenPayload = await this.tokenStorage.retrieve();
 
         if (
             !tokenPayload
             || new Date().getTime() >= Math.max(0, tokenPayload.expiresAt - tokenExpirySafetyWindow)
         ) {
+            // ...none was found or expiry date was passed so generate a new one
             await this.generateAuthToken();
+
+            // retrieve newly generated token
+            tokenPayload = await this.tokenStorage.retrieve();
         }
 
         if (!tokenPayload.token) {
