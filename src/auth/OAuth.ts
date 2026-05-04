@@ -1,5 +1,6 @@
 import type { AuthInterface } from '../contracts/AuthInterface';
 import type { EventBusInterface } from '../contracts/EventBusInterface';
+import type { TokenStorageInterface } from '../contracts/TokenStorageInterface';
 import type { TEventMap } from '../types/event-bus';
 import AuthTokenError from '../errors/AuthTokenError';
 import config from '../facades/config';
@@ -24,20 +25,16 @@ export default class OAuth implements AuthInterface {
     private readonly clientSecret: string;
 
     /**
+     * The token storage
+     * @private
+     */
+    private readonly tokenStorage: TokenStorageInterface;
+
+    /**
      * The event bus to use to emit events
      * @private
      */
     private readonly events: EventBusInterface<TEventMap>;
-
-    /**
-     * @private
-     */
-    private accessToken?: string;
-
-    /**
-     * @private
-     */
-    private accessTokenExpiryDate?: number;
 
     /**
      * @private
@@ -48,12 +45,20 @@ export default class OAuth implements AuthInterface {
      * @param baseUrl
      * @param clientId
      * @param clientSecret
+     * @param tokenStorage
      * @param events
      */
-    constructor(baseUrl: string, clientId: string, clientSecret: string, events: EventBusInterface<TEventMap>) {
+    constructor(
+        baseUrl: string,
+        clientId: string,
+        clientSecret: string,
+        tokenStorage: TokenStorageInterface,
+        events: EventBusInterface<TEventMap>,
+    ) {
         this.baseUrl = baseUrl;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
+        this.tokenStorage = tokenStorage;
         this.events = events;
     }
 
@@ -64,19 +69,25 @@ export default class OAuth implements AuthInterface {
         // The amount of milliseconds before expiration that we ask for a new token
         const tokenExpirySafetyWindow = config().get('tokenExpirySafetyWindow');
 
+        // Retrieve the token payload...
+        let tokenPayload = await this.tokenStorage.retrieve();
+
         if (
-            !this.accessToken
-            || !this.accessTokenExpiryDate
-            || new Date().getTime() >= Math.max(0, this.accessTokenExpiryDate - tokenExpirySafetyWindow)
+            !tokenPayload
+            || new Date().getTime() >= Math.max(0, tokenPayload.expiresAt - tokenExpirySafetyWindow)
         ) {
+            // ...none was found or expiry date was passed so generate a new one
             await this.generateAuthToken();
+
+            // retrieve newly generated token
+            tokenPayload = await this.tokenStorage.retrieve();
         }
 
-        if (!this.accessToken) {
+        if (!tokenPayload.token) {
             throw new AuthTokenError(`No auth token was generated`);
         }
 
-        return this.accessToken;
+        return tokenPayload.token;
     }
 
     /**
@@ -149,15 +160,19 @@ export default class OAuth implements AuthInterface {
             throw new AuthTokenError(`${json.error}: ${json.error_description}`, url);
         }
 
-        // Store the access token and expiry date in memory
-        this.accessToken = json.access_token as string;
-        this.accessTokenExpiryDate = new Date().getTime() + json.expires_in * 1000;
+        const token = json.access_token as string;
+
+        // Store the access token
+        await this.tokenStorage.store({
+            token,
+            expiresAt: new Date().getTime() + json.expires_in * 1000,
+        });
 
         this.events.emit('authTokenGenerated', {
             token: json.access_token as string,
             expiryTime: json.expires_in * 1000,
         });
 
-        return this.accessToken;
+        return token;
     }
 }

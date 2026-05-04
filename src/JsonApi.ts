@@ -1,5 +1,6 @@
 import type { ConfigAttributes } from './types/config-attributes';
 import type { TMapper } from './types/mapper';
+import InMemoryTokenStorage from './auth/InMemoryTokenStorage';
 import OAuth from './auth/OAuth';
 import Client from './Client';
 import Config from './Config';
@@ -51,11 +52,16 @@ export default class JsonApi {
             );
         });
 
+        c.singleton('tokenStorage', () => {
+            return new InMemoryTokenStorage();
+        });
+
         c.singleton('auth', () => {
             return new OAuth(
                 config().get('baseUrl'),
                 config().get('clientId'),
                 config().get('clientSecret'),
+                c.make('tokenStorage'),
                 events(),
             );
         });
