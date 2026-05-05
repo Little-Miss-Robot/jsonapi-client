@@ -1,5 +1,6 @@
 import * as process from 'node:process';
-import { events, JsonApi } from '../src/index';
+import FilesystemTokenStorage from '../src/auth/FilesystemTokenStorage';
+import { container, events, JsonApi } from '../src/index';
 import NewsArticle from './NewsArticle';
 
 JsonApi.init({
@@ -8,6 +9,10 @@ JsonApi.init({
     clientSecret: process.env.API_CLIENT_SECRET,
     retryDelay: 1000,
     maxRetries: 3,
+});
+
+container().singleton('tokenStorage', () => {
+    return new FilesystemTokenStorage('.tokens/auth.json');
 });
 
 /*
@@ -19,7 +24,6 @@ events().on('generatingAuthToken', () => {
     console.log('-> GENERATING TOKEN!');
 });
 */
-
 events().on('generatingAuthToken', () => {
     console.count('Generating token');
 });
