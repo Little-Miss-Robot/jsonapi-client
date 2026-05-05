@@ -7,13 +7,12 @@ export interface TokenPayload {
 
 export interface TokenStorageInterface {
     /**
-     * Stores a token
+     * Stores a token payload
      */
     store: (tokenPayload: TokenPayload) => void | Promise<void>
 
     /**
-     * @param token
-     * @param tokenExpiryDate
+     * Retrieves a token payload
      */
     retrieve: () => TNullable<TokenPayload> | Promise<TNullable<TokenPayload>>
 }
