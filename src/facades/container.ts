@@ -5,6 +5,7 @@ import type { EventBusInterface } from '../contracts/EventBusInterface';
 import type { FetchPolicyInterface } from '../contracts/FetchPolicyInterface';
 import type { MacroRegistryInterface } from '../contracts/MacroRegistryInterface';
 import type { QueryBuilderInterface } from '../contracts/QueryBuilderInterface';
+import type { TokenStorageInterface } from '../contracts/TokenStorageInterface';
 import type { ConfigAttributes } from '../types/config-attributes';
 import type { ContainerFactoryMap } from '../types/container-factory-map';
 import type { TEventMap } from '../types/event-bus';
@@ -19,6 +20,7 @@ interface AppBindings extends ContainerFactoryMap {
     events: () => EventBusInterface<TEventMap>
     query: (endpoint: string, mapper: TMapper<any>) => QueryBuilderInterface<any>
     macros: () => MacroRegistryInterface
+    tokenStorage: () => TokenStorageInterface
 }
 
 let singletonContainer = null;
