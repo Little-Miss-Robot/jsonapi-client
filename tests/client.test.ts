@@ -265,9 +265,9 @@ it('sends a POST with JSON body and application/json content type', async () => 
     expect((init as { body?: string }).body).toBe(JSON.stringify(body));
     const h = init?.headers;
     if (h instanceof Headers) {
-        expect(h.get('Content-Type')).toBe('application/json');
+        expect(h.get('Content-Type')).toBe('application/vnd.api+json');
     }
     else {
-        expect(h).toMatchObject({ 'Content-Type': 'application/json' });
+        expect(h).toMatchObject({ 'Content-Type': 'application/vnd.api+json' });
     }
 });
