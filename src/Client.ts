@@ -157,16 +157,10 @@ export default class Client implements ClientInterface {
             url,
         });
 
-        let headers: Record<string, string> = {
-            Accept: 'application/vnd.api+json',
+        const headers: Record<string, string> = {
+            'Accept': 'application/vnd.api+json',
+            'Content-Type': 'application/vnd.api+json',
         };
-
-        if (request.method === 'POST') {
-            headers = {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            };
-        }
 
         const response = await fetch(url, {
             ...request.options,
